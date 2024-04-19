@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="kopo.poly.persistance.mapper.IUserInfoMapper">
+
+    <!-- 회원 가입 전 아이디 중복체크하기 -->
+    <select id="getUserIdExists" parameterType="UserInfoDTO" resultType="UserInfoDTO">
+        SELECT CASE WHEN COUNT(1) = 0 THEN 'N' ELSE 'Y' END AS EXISTS_YN
+        FROM USER_INFO
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <!-- 회원 가입 전 이메일 중복체크하기 -->
+    <select id="getEmailExists" parameterType="UserInfoDTO" resultType="UserInfoDTO">
+        SELECT CASE WHEN COUNT(1) = 0 THEN 'N' ELSE 'Y' END AS EXISTS_YN
+        FROM USER_INFO
+        WHERE USER_EMAIL = #{userEmail}
+    </select>
+
+    <!-- 회원 가입하기 ( 회원정보 등록하기 ) -->
+    <insert id="insertUserInfo" parameterType="UserInfoDTO">
+        INSERT INTO USER_INFO
+        (USER_ID,
+         USER_PASSWORD,
+         USER_EMAIL,
+         USER_NAME,
+         USER_NICKNAME,
+         USER_AGE,
+         USER_GENDER,
+         USER_INTEREST,
+         MEMBER_SINCE)
+        VALUES (#{userId},
+                #{userPassword},
+                #{userEmail},
+                #{userName},
+                #{userNickname},
+                #{userAge},
+                #{userGender},
+                #{userInterest},
+                NOW()
+                )
+    </insert>
+
+    <!-- 회원 목록 쿼리 -->
+    <select id="getUserList" resultType="UserInfoDTO">
+        SELECT USER_ID, USER_PASSWORD, USER_EMAIL, USER_NAME, USER_NICKNAME,
+               USER_AGE, USER_GENDER, USER_INTEREST, MEMBER_SINCE
+        FROM USER_INFO
+        ORDER BY MEMBER_SINCE DESC
+    </select>
+
+    <!-- 게시판 상세보기 쿼리 -->
+    <select id="getUserInfo" resultType="UserInfoDTO">
+        SELECT USER_ID, USER_PASSWORD, USER_EMAIL, USER_NAME, USER_NICKNAME,
+               USER_AGE, USER_GENDER, USER_INTEREST, MEMBER_SINCE
+        FROM USER_INFO
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <!-- 로그인을 위해 아이디와 비밀번호가 일치하는지 확인하기 ( 2023.09.21 ) -->
+    <select id="getLogin" parameterType="UserInfoDTO" resultType="UserInfoDTO">
+        SELECT USER_ID, USER_NAME, USER_EMAIL
+        FROM USER_INFO
+        WHERE USER_ID = #{userId}
+          AND USER_PASSWORD = #{userPassword}
+    </select>
+
+    <!-- 아이디, 비밀번호 찾기에 활용
+    1. 이름과 이메일이 맞다면, 아이디 알려주기
+    2. 아이디, 이름과 이메일이 맞다면, 비밀번호 재설정하기
+    -->
+    <select id="getUserId" parameterType="UserInfoDTO" resultType="UserInfoDTO">
+        SELECT
+        USER_ID,
+        USER_NAME,
+        USER_EMAIL
+        FROM
+        USER_INFO
+        WHERE
+        1 = 1
+        AND USER_NAME = #{userName}
+        AND USER_EMAIL = #{userEmail}
+        <if test="userId != null and userId != ''"> <!-- 비밀번호 찾기라면, user_id 조회 추가 -->
+            AND USER_ID = #{userId}
+        </if>
+    </select>
+
+    <update id="updatePassword" parameterType="UserInfoDTO">
+        UPDATE USER_INFO
+        SET USER_PASSWORD = #{userPassword}
+        WHERE USER_ID = #{userId}
+    </update>
+
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="kopo.poly.persistance.mapper.IProfileMapper">
+
+    <!-- 마이페이지 회원정보 조회 -->
+    <select id="getProfile" parameterType="UserInfoDTO" resultType="UserInfoDTO">
+        SELECT USER_ID, USER_NAME, USER_EMAIL, USER_NICKNAME, USER_AGE, USER_GENDER, USER_INTEREST, MEMBER_SINCE
+        FROM USER_INFO
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <!-- 마이페이지 회원정보 수정 -->
+    <update id="updateProfile" parameterType="UserInfoDTO">
+        UPDATE USER_INFO
+        SET USER_NAME = #{userName},
+            PASSWORD = #{userPassword},
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <!-- 마이페이지 회원 탈퇴 -->
+    <delete id="deleteUserInfo" parameterType="UserInfoDTO">
+        DELETE FROM USER_INFO
+        WHERE USER_ID = #{userId}
+    </delete>
+
+</mapper>

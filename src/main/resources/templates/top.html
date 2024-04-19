@@ -1,0 +1,174 @@
+<meta name="description" content="Sona Template">
+<meta name="keywords" content="Sona, unica, creative, html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css?family=Lora:400,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Cabin:400,500,600,700&display=swap" rel="stylesheet">
+
+<!-- Css Styles -->
+<link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
+<link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css">
+<link rel="stylesheet" href="/css/elegant-icons.css" type="text/css">
+<link rel="stylesheet" href="/css/flaticon.css" type="text/css">
+<link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css">
+<link rel="stylesheet" href="/css/nice-select.css" type="text/css">
+<link rel="stylesheet" href="/css/jquery-ui.min.css" type="text/css">
+<link rel="stylesheet" href="/css/magnific-popup.css" type="text/css">
+<link rel="stylesheet" href="/css/slicknav.min.css" type="text/css">
+<link rel="stylesheet" href="/css/style.css" type="text/css">
+
+<style>
+
+    .a_ {
+        text-decoration: none;
+        color: #0f132a;
+        font-weight: bolder;
+        text-align: center;
+        cursor: pointer;
+    }
+
+</style>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    const isLoggedIn = [[${session['SS_USER_ID'] != null}]];
+
+    // 페이지 로드 시 실행되는 코드
+    document.addEventListener('DOMContentLoaded', function () {
+        // 마이페이지 버튼 요소 찾기
+        const myPageButton = document.getElementById('myPage');
+        const loginButton = document.getElementById('loginButton');
+
+        // 로그인 상태에 따라 버튼 숨기기/표시
+        if (isLoggedIn) {
+            myPageButton.style.display = 'block';
+            loginButton.style.display = 'none';
+        } else {
+            myPageButton.style.display = 'none';
+            loginButton.style.display = 'block';
+        }
+    });
+
+    // HTML로딩이 완료되고, 실행됨
+    $(document).ready(function () {
+
+        // // 로그아웃
+        // $("#btnUserLogout").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+        //     location.href = "/bootstrap/index";
+        // })
+
+        // // 회원가입
+        // $("#btnUserReg").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+        //     location.href = "/user/userRegForm";
+        // })
+        //
+        // // 아이디 찾기
+        // $("#btnFindUserId").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+        //     location.href = "/user/findUserId";
+        // })
+        //
+        // // 비밀번호 찾기
+        // $("#btnFindPassword").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+        //     location.href = "/user/findPassword";
+        // })
+    })
+
+    /*]]>*/
+</script>
+
+<!-- Header Section Begin -->
+<header class="header-section">
+    <div class="top-nav">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <ul class="tn-left">
+                        <!--                            <li><i class="fa fa-phone"></i> (12) 345 67890</li>-->
+                        <!--                            <li><i class="fa fa-envelope"></i> info.colorlib@gmail.com</li>-->
+                    </ul>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="tn-right">
+                        <div class="top-social">
+                            <!-- 여기에 소셜 아이콘들을 넣어주세요 -->
+                        </div>
+                        <div class="language-option">
+                            <!-- 세션 아이디가 있으면 -->
+                            <div id="myPage" style="display: none;">
+                                <img src="/img/free-icon-user-860784.png" alt="">
+                                <div class="flag-dropdown">
+                                    <ul>
+                                        <li><a href="/profile">마이페이지</a></li>
+                                        <li th:if="${session['SS_USER_ID'] != null}"><a class="get-a-quote" id="btnUserLogout">로그아웃</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- 세션 아이디가 없으면 -->
+                            <div id="loginButton" style="display: block;">
+                                <a class="a_" href="/user/login">로그인</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        // 로그아웃 로직
+        document.getElementById("btnUserLogout").addEventListener("click", function (event) {
+            if (confirm("로그아웃 하시겠습니까?")) {
+
+                window.location.href = "/user/logout"; // 로그아웃 페이지로 이동
+
+            } else {
+
+                event.preventDefault(); // 기본 동작인 링크 이동을 취소
+            }
+        });
+    </script>
+
+    <div class="menu-item">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-2">
+                    <div class="logo">
+                        <a href="/index">
+                            <img src="/img/logo.png" alt="">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-10">
+                    <div class="nav-menu">
+                        <nav class="mainmenu">
+                            <ul>
+                                <li class="active"><a href="/index">Home</a></li>
+                                <li><a href="./rooms.html">Rooms</a></li>
+                                <li><a href="./about-us.html">About Us</a></li>
+                                <li><a href="./pages.html">Pages</a>
+                                    <ul class="dropdown">
+                                        <li><a href="./room-details.html">Room Details</a></li>
+                                        <li><a href="./blog-details.html">Blog Details</a></li>
+                                        <li><a href="#">Family Room</a></li>
+                                        <li><a href="#">Premium Room</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="./blog.html">News</a></li>
+                                <li><a href="./contact.html">Contact</a></li>
+                            </ul>
+                        </nav>
+                        <div class="nav-right search-switch">
+                            <i class="icon_search"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- Header End -->

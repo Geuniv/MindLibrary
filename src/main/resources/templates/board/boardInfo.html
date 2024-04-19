@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시판 글보기</title>
+    <link rel="stylesheet" href="/css/table.css"/>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        // // Controller에서 받은 세션에 저장된 값
+        // const session_user_id = "[[${#strings.isEmpty(session.SESSION_USER_ID)? '': session.SESSION_USER_ID}]]";
+        //
+        // // 공지사항 게시글 작성자 아이디
+        // const user_id = "[[${rDTO.userId}]]";
+        //
+        // // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
+        // const nSeq = "[[${rDTO.noticeSeq}]]";
+
+        const ssUserId = [[${session.SS_USER_ID}]]; // Controller에서 받은 세션에 저장된 값
+        const userId = [[${rDTO.userId}]]; // 공지사항 게시글 작성자 아이디
+        const bSeq = [[${rDTO.communitySeq}]]; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
+
+        $(document).ready(function () {
+            $("#btnEdit").on("click", function () {
+                doEdit();
+            });
+
+            $("#btnDelete").on("click", function () {
+                doDelete();
+            });
+
+            $("#btnList").on("click", function () {
+                location.href = "/board/boardList";
+            });
+        });
+
+        function doEdit() {
+            if (ssUserId === userId) {
+                location.href = "/board/boardEditInfo?nSeq=" + bSeq;
+            } else if (ssUserId === "") {
+                alert("로그인 하시길 바랍니다.");
+            } else {
+                alert("본인이 작성한 글만 수정 가능합니다.");
+            }
+        }
+
+        function doDelete() {
+            if (ssUserId === userId) {
+                if (confirm("작성한 글을 삭제하시겠습니까?")) {
+                    $.ajax({
+                        url: "/board/boardDelete",
+                        type: "post",
+                        dataType: "JSON",
+                        data: {"bSeq": bSeq},
+                        success: function (json) {
+                            alert(json.msg);
+                            location.href = "/board/boardList";
+                        }
+                    });
+                }
+            } else if (ssUserId === "") {
+                alert("로그인 하시길 바랍니다.");
+            } else {
+                alert("본인이 작성한 글만 수정 가능합니다.");
+            }
+        }
+        /*]]>*/
+    </script>
+</head>
+<body>
+<h2>공지사항 상세보기</h2>
+<hr/>
+<br/>
+<div class="divTable minimalistBlack">
+    <div class="divTableBody">
+        <div class="divTableRow">
+            <div class="divTableCell">제목</div>
+            <div class="divTableCell" th:text="${rDTO.boardTitle}"></div>
+        </div>
+        <div class="divTableRow">
+            <div class="divTableCell">공지글 여부</div>
+            <div class="divTableCell">
+                예<input type="radio" name="noticeYn" value="Y" th:checked="${rDTO.notification eq 'Y'}"/>
+                아니오<input type="radio" name="noticeYn" value="N" th:checked="${rDTO.notification eq 'N'}"/>
+            </div>
+        </div>
+        <div class="divTableRow">
+            <div class="divTableCell">작성일</div>
+            <div class="divTableCell" th:text="${rDTO.boardRegDt}"></div>
+        </div>
+        <div class="divTableRow">
+            <div class="divTableCell">조회수</div>
+            <div class="divTableCell" th:text="${rDTO.boardViews}"></div>
+        </div>
+        <div class="divTableRow">
+            <div class="divTableCell">내용</div>
+            <div class="divTableCell" th:text="${rDTO.boardContent}"></div>
+        </div>
+    </div>
+</div>
+<div>
+    <button id="btnEdit" type="button">수정</button>
+    <button id="btnDelete" type="button">삭제</button>
+    <button id="btnList" type="button">목록</button>
+</div>
+</body>
+</html>

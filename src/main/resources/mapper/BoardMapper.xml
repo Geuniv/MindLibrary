@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="kopo.poly.persistance.mapper.IBoardMapper">
+
+    <!-- 커뮤니티 리스트 쿼리 -->
+    <select id="getBoardList" resultType="BoardDTO">
+        SELECT BOARD_SEQ, BOARD_TITLE, BOARD_VIEWS, USER_ID,
+               DATE_FORMAT(BOARD_REG_DT, '%Y/%m/%d %H:%i:%s') AS BOARD_REG_DT
+        FROM MIND_BOARD
+        ORDER BY BOARD_REG_DT DESC
+    </select>
+
+    <!-- 커뮤니티 등록 쿼리 -->
+    <insert id="insertBoardInfo" parameterType="BoardDTO">
+        INSERT INTO MIND_BOARD
+        (
+            BOARD_SEQ, NOTIFICATION, BOARD_TITLE, BOARD_CONTENT, USER_ID, BOARD_VIEWS, BOARD_LIKE,
+            BOARD_REG_ID, BOARD_REG_DT, BOARD_CHG_ID, BOARD_CHG_DT
+        )
+        VALUES(
+                      (SELECT COALESCE(MAX(A.BOARD_SEQ),0)+1 FROM MIND_BOARD A),
+                      #{notification}, #{boardTitle}, #{boardContent}, #{userId}, 0, 0, #{userId}, NOW(), #{userId}, NOW()
+              )
+    </insert>
+
+    <!-- 게시판 상세보기 쿼리 -->
+    <select id="getBoardInfo" resultType="BoardDTO">
+        SELECT BOARD_SEQ, BOARD_TITLE, BOARD_VIEWS, USER_ID,
+               BOARD_CONTENT, DATE_FORMAT(BOARD_REG_DT, '%y-%m-%d') AS BOARD_REG_DT
+        FROM MIND_BOARD
+        WHERE BOARD_SEQ = #{boardSeq}
+    </select>
+
+    <!-- 조회수 증가 쿼리 -->
+    <update id="updateBoardReadCnt" parameterType="BoardDTO">
+        UPDATE MIND_BOARD SET
+            BOARD_VIEWS = BOARD_VIEWS + 1
+        WHERE
+            BOARD_SEQ = #{boardSeq}
+    </update>
+
+    <!-- 커뮤니티 수정 쿼리 -->
+    <update id="updateBoardInfo" parameterType="BoardDTO">
+        UPDATE MIND_BOARD SET
+                             BOARD_TITLE = #{boardTitle},
+                             BOARD_CONTENT = #{boardContent},
+                             BOARD_CHG_ID = #{userId},
+                             BOARD_CHG_DT = NOW()
+        WHERE
+            BOARD_SEQ = #{boardSeq}
+    </update>
+
+    <!-- 커뮤니티 삭제 쿼리 -->
+    <delete id="deleteBoarInfo" parameterType="BoardDTO">
+        DELETE FROM MIND_BOARD
+        WHERE BOARD_SEQ = #{boardSeq}
+    </delete>
+</mapper>

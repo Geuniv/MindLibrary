@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+    <!--    <link rel="stylesheet" href="/css/table.css"/>-->
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+
+        // 아아디 중복 체크 여부 (중복 Y / 중복 아님 : N
+        let userIdCheck = "Y";
+
+        // HTML로딩이 완료되고, 실행됨
+        $(document).ready(function () {
+            let f = document.getElementById("f"); // form 태그
+
+            // 아아디 중복체크
+            $("#btnUserId").on("click", function () {
+                userIdExists(f)
+            })
+
+            // 이메일 중복체크
+            $("#btnEmail").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+                emailExists(f)
+            })
+
+            // 우편번호 찾기
+            $("#btnAddr").on("click", function () {
+                kakaoPost(f);
+            })
+
+            // 회원가입
+            $("#btnSend").on("click", function () {
+                doSubmit(f);
+            })
+        })
+
+        // 회원아이디 중복 체크
+        function userIdExists(f) {
+            if (f.userId.value === "") {
+                alert("아이디를 입력하세요.")
+                f.userId.focus();
+                return;
+            }
+
+            // Ajax 호출해서 회원가입하기
+            $.ajax({
+                url : "/user/getUserIdExists",
+                type : "post",
+                dataType : "JSON",
+                data : $("#f").serialize(),
+                success : function (json) {
+                    if (json.existsYn === "Y") {
+                        alert("이미 가입된 아이디가 존재합니다.");
+                        f.userId.focus();
+                    } else {
+                        alert("가입 가능한 아이디입니다.");
+                        userIdCheck = "N";
+                    }
+                }
+            })
+        }
+
+        // 이메일 중복 체크
+        function emailExists(f) {
+            if (f.userEmail.value === "") {
+                alert("이메일을 입력하세요.");
+                f.userEmail.focus();
+                return;
+            }
+
+            // Ajax 호출해서 회원가입하기
+            $.ajax({
+                    url: "/user/getEmailExists",
+                    type: "post", // 전송방식은 Post
+                    dataType: "JSON", // 전송 결과는 JSON으로 받기
+                    data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                    success: function (json) { // 호출이 성공했다면..
+
+                        if (json.existsYn === "Y") {
+                            alert("이미 가입된 이메일 주소가 존재합니다.");
+                            f.userEmail.focus();
+
+                        } else {
+                            alert("이메일로 인증번호가 발송되었습니다. \n받은 메일의 인증번호를 입력하기 바랍니다.");
+                            emailAuthNumber = json.authNumber;
+
+                        }
+
+                    }
+                }
+            )
+        }
+
+        // 카카오 우편번호 조회 API 호출
+        // function kakaoPost(f) {
+        //     new daum.Postcode({
+        //         oncomplete: function (data) {
+        //             // kakao 에서 제공하는 data는 JSON구조로 주소 조회 결과값을 전달함
+        //             // 주요 결과값
+        //             // 주소 : data.address
+        //             // 우편번호 : data.zonecode
+        //             let address = data.address; // 주소
+        //             let zonecode = data.zonecode; // 우편번호
+        //             f.addr1.value = "(" + zonecode + ")" + address
+        //         }
+        //     }).open();
+        // }
+
+        // 회원가입 정보의 유효성 체크하기
+        function doSubmit(f) {
+            if (f.userId.value === "") {
+                alert("아이디를 입력하세요.");
+                f.userId.focus();
+                return;
+            }
+            if (userIdCheck !== "N") {
+                alert("아이디 중복 체크 및 중복되지 않은 아이디로 가입 바랍니다.");
+                f.userId.focus();
+                return;
+            }
+            if (f.userPassword.value === "") {
+                alert("비밀번호를 입력하세요.");
+                f.userPassword.focus();
+                return;
+            }
+            if (f.userPassword2.value === "") {
+                alert("비밀번호확인을 입력하세요.");
+                f.userPassword2.focus();
+                return;
+            }
+            if (f.userPassword.value !== f.userPassword2.value) {
+                alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+                f.userPassword.focus();
+                return;
+            }
+            if (f.userEmail.value === "") {
+                alert("이메일 입력하세요.");
+                f.userEmail.focus();
+                return;
+            }
+            if (f.userName.value === "") {
+                alert("이름을 입력하세요.");
+                f.userName.focus();
+                return;
+            }
+            if (f.userNickName.value === "") {
+                alert("닉네임을 입력하세요.");
+                f.userNickName.focus();
+                return;
+            }
+            if (f.userAge.value === "") {
+                alert("나이를 입력하세요.");
+                f.userAge.focus();
+                return;
+            }
+            if (f.userGender.value === "") {
+                alert("성별을 선택하세요.");
+                f.userGender.focus();
+                return;
+            }
+            // if (f.userInterest.value === "") {
+            //     alert("관심사를 선택하세요.");
+            //     f.userInterest.focus();
+            //     return;
+            // }
+
+            // // 관심사 체크박스의 값을 배열로 저장하기
+            // const interests = [];
+            // $("input[name='userInterest']:checked").each(function() {
+            //     interests.push($(this).val());
+            // });
+            //
+            // // 폼 데이터에 관심사 배열 추가
+            // f.append('userInterest', interests);
+
+            // Ajax 호출해서 회원가입하기
+            $.ajax({
+                url : "/user/insertUserInfo",
+                type : "post", // 전송방식은 Post
+                dataType : "JSON",
+                data : $("#f").serialize(),
+                success : function (json) {
+                    if (json.result === 1) {
+                        alert(json.msg);
+                        location.href = "/user/login";
+                    } else {
+                        alert(json.msg);
+                    }
+                }
+            })
+        }
+
+        $(document).ready(function(){
+            let signup = $(".links").find("li").find("#signup") ;
+            let signin = $(".links").find("li").find("#signin") ;
+            let reset  = $(".links").find("li").find("#reset")  ;
+            let first_input = $("form").find(".first-input");
+            let hidden_input = $("form").find(".input__block").find("#repeat__password");
+            let signin_btn  = $("form").find(".signin__btn");
+
+            //----------- sign up ---------------------
+            signup.on("click",function(e){
+                e.preventDefault();
+                $(this).parent().parent().siblings("h1").text("SIGN UP");
+                $(this).parent().css("opacity","1");
+                $(this).parent().siblings().css("opacity",".6");
+                first_input.removeClass("first-input__block").addClass("signup-input__block");
+                hidden_input.css({
+                    "opacity" : "1",
+                    "display" : "block"
+                });
+                signin_btn.text("Sign up");
+            });
+
+
+            //----------- sign in ---------------------
+            signin.on("click",function(e){
+                e.preventDefault();
+                $(this).parent().parent().siblings("h1").text("SIGN IN");
+                $(this).parent().css("opacity","1");
+                $(this).parent().siblings().css("opacity",".6");
+                first_input.addClass("first-input__block")
+                    .removeClass("signup-input__block");
+                hidden_input.css({
+                    "opacity" : "0",
+                    "display" : "none"
+                });
+                signin_btn.text("Sign in");
+            });
+
+            //----------- reset ---------------------
+            reset.on("click",function(e){
+                e.preventDefault();
+                $(this).parent().parent().siblings("form")
+                    .find(".input__block").find(".input").val("");
+            })
+        });
+    </script>
+    <!--    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js">-->
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: white;
+        }
+
+        .container {
+            display: block;
+            max-width: 680px;
+            width: 80%;
+            /*margin: 120px auto;*/
+        }
+
+        .container_find {
+            text-align: right;
+            max-width: 640px;
+        }
+
+        h1 {
+            color: #e91e63;
+            font-size: 48px;
+            letter-spacing: -3px;
+            text-align: center;
+            margin: 120px 0 80px 0;
+            padding: 120px;
+            transition: .2s linear;
+        }
+
+        .links {
+            list-style-type: none;
+            /*margin-left: 23%;*/
+            /*margin-right: 23%;*/
+
+            li {
+                display: inline-block;
+                margin: 0 20px 0 0;
+                transition: .2s linear;
+
+                &:nth-child(2) {
+                    opacity: .6;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+
+                &:nth-child(3) {
+                    opacity: .6;
+                    float: right;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+
+                a {
+                    text-decoration: none;
+                    color: #0f132a;
+                    font-weight: bolder;
+                    text-align: center;
+                    cursor: pointer;
+                }
+            }
+        }
+
+
+        form {
+            width: 100%;
+            max-width: 680px;
+            margin: 40px auto 10px;
+
+            .input__block {
+                margin: 20px auto;
+                display: block;
+                position: relative;
+
+                &.first-input__block {
+                    &::before {
+                        content: "";
+                        position: absolute;
+                        top: -15px;
+                        left: 50px;
+                        display: block;
+                        width: 0;
+                        height: 0;
+                        background: transparent;
+                        border-left: 15px solid transparent;
+                        border-right: 15px solid transparent;
+                        /*border-bottom: 15px solid rgba(15, 19, 42, .1);*/
+                        transition: .2s linear;
+                    }
+                }
+
+                &.signup-input__block {
+                    &::before {
+                        content: "";
+                        position: absolute;
+                        top: -15px;
+                        left: 150px;
+                        display: block;
+                        width: 0;
+                        height: 0;
+                        background: transparent;
+                        border-left: 15px solid transparent;
+                        border-right: 15px solid transparent;
+                        /*border-bottom: 15px solid rgba(15, 19, 42, .1);*/
+                        transition: .2s linear;
+                    }
+                }
+
+                input {
+                    display: block;
+                    width: 90%;
+                    max-width: 680px;
+                    height: 50px;
+                    margin: 0 auto;
+                    border-radius: 8px;
+                    border: none;
+                    background: rgba(15, 19, 42, .1);
+                    color: rgba(15, 19, 42, .3);
+                    padding: 0 0 0 15px;
+                    font-size: 14px;
+                    font-family: 'Montserrat', sans-serif;
+
+                    &:focus,
+                    &:active {
+                        outline: none;
+                        border: none;
+                        color: rgba(15, 19, 42, 1);
+                    }
+
+                    &.repeat__password {
+                        opacity: 0;
+                        display: none;
+                        transition: .2s linear;
+                    }
+                }
+            }
+
+            .signin__btn {
+                background: #e91e63;
+                color: white;
+                display: block;
+                width: 92.5%;
+                max-width: 680px;
+                height: 50px;
+                border-radius: 8px;
+                margin: 0 auto;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                font-family: 'Montserrat', sans-serif;
+                box-shadow: 0 15px 30px rgba(233, 30, 99, .36);
+                transition: .2s linear;
+
+                &:hover {
+                    box-shadow: 0 0 0 rgba(233, 30, 99, .0);
+                }
+            }
+        }
+
+        .separator {
+            display: block;
+            margin: 30px auto 10px;
+            text-align: center;
+            height: 40px;
+            position: relative;
+            background: transparent;
+            color: rgba(15, 19, 42, .4);
+            font-size: 13px;
+            width: 90%;
+            max-width: 680px;
+
+            &::before {
+                content: "";
+                position: absolute;
+                top: 8px;
+                left: 0;
+                background: rgba(15, 19, 42, .2);
+                height: 1px;
+                width: 45%;
+            }
+
+            &::after {
+                content: "";
+                position: absolute;
+                top: 8px;
+                right: 0;
+                background: rgba(15, 19, 42, .2);
+                height: 1px;
+                width: 45%;
+            }
+        }
+
+        .google__btn,
+        .github__btn {
+            display: block;
+            width: 90%;
+            max-width: 680px;
+            margin: 20px auto;
+            height: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            border-radius: 8px;
+            border: none;
+            line-height: 40px;
+
+            &.google__btn {
+                background: #5b90f0;
+                color: white;
+                box-shadow: 0 15px 30px rgba(91, 144, 240, .36);
+                transition: .2s linear;
+
+                .fa {
+                    font-size: 20px;
+                    padding: 0 5px 0 0;
+                }
+
+                &:hover {
+                    box-shadow: 0 0 0 rgba(91, 144, 240, .0);
+                }
+            }
+
+            &.github__btn {
+                background: #25282d;
+                color: white;
+                box-shadow: 0 15px 30px rgba(37, 40, 45, .36);
+                transition: .2s linear;
+
+                .fa {
+                    font-size: 20px;
+                    padding: 0 5px 0 0;
+                }
+
+                &:hover {
+                    box-shadow: 0 0 0 rgba(37, 40, 45, .0);
+                }
+            }
+        }
+
+        footer {
+            p {
+                text-align: center;
+
+                .fa {
+                    color: #e91e63;
+                }
+
+                a {
+                    text-decoration: none;
+                    font-size: 17px;
+                    margin: 0 5px;
+
+                    .fa-facebook {
+                        color: #3b5998;
+                    }
+
+                    .fa-twitter {
+                        color: #1da1f2;
+                    }
+
+                    .fa-instagram {
+                        color: #f77737;
+                    }
+
+                    .fa-linkedin {
+                        color: #0077b5;
+                    }
+
+                    .fa-behance {
+                        color: #1769ff;
+                    }
+                }
+
+            }
+        }
+
+        .a_ {
+            text-decoration: none;
+            color: #0f132a;
+            font-weight: bolder;
+            text-align: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="top"></th:block>
+<!-- End Header -->
+
+<div class="container">
+    <!-- Heading -->
+    <h1>SIGN IN</h1>
+
+    <!-- Links -->
+    <ul class="links">
+        <li>
+            <a href="#" id="signin">SIGN IN</a>
+        </li>
+        <li>
+            <a href="#" id="signup">SIGN UP</a>
+        </li>
+        <li>
+            <a href="#" id="reset">RESET</a>
+        </li>
+    </ul>
+
+    <!-- Form -->
+    <form  id="f" action="" method="post">
+        <!-- email input -->
+        <div class="first-input input__block first-input__block">
+            <input type="text" placeholder="아이디" class="input" id="userId" th:name="userId"  />
+            <button id="btnUserId" type="button">아이디 중복체크</button>
+        </div>
+        <!-- password input -->
+        <div class="input__block">
+            <input type="password" placeholder="비밀번호" class="input" id="userPassword" th:name="userPassword"    />
+        </div>
+        <!-- repeat password input -->
+        <!--        <div class="input__block">-->
+        <!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password"    />-->
+        <!--        </div>-->
+        <div class="input__block">
+            <input type="password" placeholder="비밀번호확인" class="input repeat__password" id="userPassword2" th:name="userPassword2"    />
+        </div>
+        <div class="input__block">
+            <input type="email" placeholder="이메일" class="input" id="userEmail" th:name="userEmail"    />
+            <input type="text" placeholder="인증번호" class="input" th:name="authNumber"    />
+            <button id="btnEmail" type="button">이메일 중복체크</button>
+        </div>
+        <div class="input__block">
+            <input type="text" placeholder="닉네임" class="input" id="userNickName" th:name="userNickName"    />
+        </div>
+        <div class="input__block">
+            <laㅣbel><input type="radio" class="input" name="userGender"  placeholder="남자" th:value="1"/>남자</laㅣbel>
+            <label><input type="radio" class="input" name="userGender"  placeholder="여자" th:value="2"/>여자</label>
+        </div>
+        <div class="input__block">
+            <label><input type="checkbox" class="input" name="userInterest" value="book"/>책</label>
+            <label><input type="checkbox" class="input" name="userInterest" value="movie"/>영화</label>
+            <label><input type="checkbox" class="input" name="userInterest" value="drama"/>드라마</label>
+            <label><input type="checkbox" class="input" name="userInterest" value="song"/>노래</label>
+        </div>
+
+        <!-- sign in button -->
+        <button id="btnSend" type="button" class="signin__btn">
+            Sign up
+        </button>
+        <br/><br/>
+    </form>
+    <!-- separator -->
+    <div class="separator">
+        <!--        <p>OR</p>-->
+    </div>
+    <!--    &lt;!&ndash; google button &ndash;&gt;-->
+    <!--    <button class="google__btn">-->
+    <!--        <i class="fa fa-google"></i>-->
+    <!--        Sign in with Google-->
+    <!--    </button>-->
+    <!--    &lt;!&ndash; google button &ndash;&gt;-->
+    <!--    <button class="github__btn">-->
+    <!--        <i class="fa fa-github"></i>-->
+    <!--        Sign in with GitHub-->
+    <!--    </button>-->
+</div>
+
+</body>
+
+<!--<footer>-->
+<!--    <p>-->
+<!--        Thank you for watching-->
+<!--        <i class="fa fa-heart"></i>-->
+<!--        <i class="fa fa-heart"></i>-->
+<!--        <i class="fa fa-heart"></i>-->
+<!--    </p>-->
+<!--    <p>-->
+<!--        Chouaib Blgn :-->
+<!--        <a href="https://www.facebook.com/chouaib45" >-->
+<!--            <i class="fa fa-facebook"></i>-->
+<!--        </a>-->
+<!--        <a href="http://twitter.com/chouaibblgn45">-->
+<!--            <i class="fa fa-twitter"></i>-->
+<!--        </a>-->
+<!--        <a href="http://instagram.com/chouaib_blgn">-->
+<!--            <i class="fa fa-instagram"></i>-->
+<!--        </a>-->
+<!--        <a href="http://linkedin.com/in/chouaibblgn/">-->
+<!--            <i class="fa fa-linkedin"></i>-->
+<!--        </a>-->
+<!--        <a href="https://www.behance.net/geek30">-->
+<!--            <i class="fa fa-behance"></i>-->
+<!--        </a>-->
+<!--    </p>-->
+<!--</footer>-->
+
+<!-- ======= Header ======= -->
+<th:block th:replace="footer"></th:block>
+<!-- End Header -->
+
+</html>
