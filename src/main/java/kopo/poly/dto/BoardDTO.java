@@ -9,6 +9,8 @@ public record BoardDTO(
 
         String userId,
 
+        String userNickname,
+
         String notification,
 
         String boardTitle,

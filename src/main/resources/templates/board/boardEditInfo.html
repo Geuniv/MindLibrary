@@ -1,10 +1,195 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>공지사항 수정하기</title>
+    <link rel="stylesheet" href="/css/table.css"/>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+
+        // HTML로딩이 완료되고, 실행됨
+        $(document).ready(function () {
+            // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+            $("#btnSend").on("click", function () {
+                doSubmit(); // 공지사항 수정하기 실행
+            })
+        })
+
+        //글자 길이 바이트 단위로 체크하기(바이트값 전달)
+        function calBytes(str) {
+            let tcount = 0;
+            let tmpStr = String(str);
+            let strCnt = tmpStr.length;
+            let onechar;
+            for (let i = 0; i < strCnt; i++) {
+                onechar = tmpStr.charAt(i);
+                if (escape(onechar).length > 4) {
+                    tcount += 2;
+                } else {
+                    tcount += 1;
+                }
+            }
+            return tcount;
+        }
+
+        // 공지사항 저장하기
+        function doSubmit() {
+
+            let f = document.getElementById("f"); // form 태그
+
+            if (f.boardTitle.value === "") {
+                alert("제목을 입력하시기 바랍니다.");
+                f.boardTitle.focus();
+                return;
+            }
+            if (calBytes(f.boardTitle.value) > 200) {
+                alert("최대 200Bytes까지 입력 가능합니다.");
+                f.boardTitle.focus();
+                return;
+            }
+            // let noticeCheck = false; //체크 여부 확인 변수
+            // for (let i = 0; i < f.notification.length; i++) {
+            //     if (f.notification[i].checked) {
+            //         noticeCheck = true;
+            //         break;
+            //     }
+            // }
+            // if (noticeCheck === false) {
+            //     alert("공지글 여부를 선택하시기 바랍니다.");
+            //     f.notification[0].focus();
+            //     return;
+            // }
+            if (f.boardContent.value === "") {
+                alert("내용을 입력하시기 바랍니다.");
+                f.boardContent.focus();
+                return;
+            }
+            if (calBytes(f.boardContent.value) > 4000) {
+                alert("최대 4000Bytes까지 입력 가능합니다.");
+                f.boardContent.focus();
+                return;
+            }
+
+            // Ajax 호출해서 글 등록하기
+            $.ajax({
+                    url: "/board/boardUpdate",
+                    type: "post", // 전송방식은 Post
+                    dataType: "JSON", // 전송 결과는 JSON으로 받기
+                    data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                    success: function (json) { // /notice/noticeUpdate 호출이 성공했다면..
+                        alert(json.msg); // 메시지 띄우기
+                        location.href = "/board/boardList"; // 공지사항 리스트 이동
+                    }
+                }
+            )
+        }
+    </script>
+
+    <style>
+        .btn {
+            border: none;
+            background: #0e1d34;
+            /*background: linear-gradient(0deg, rgba(6, 14, 131, 1) 0%, rgba(12, 25, 180, 1) 100%);*/
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: rgb(0, 3, 255);
+            background: linear-gradient(0deg, rgba(0, 3, 255, 1) 0%, rgba(2, 125, 251, 1) 100%);
+        }
+
+        .find-btn {
+            text-align: center;
+        }
+
+        /*작성하기 css*/
+        .write-container {
+            max-width: 1300px;
+            margin: 20px auto;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .write-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .write-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            width: calc(100% - 22px); /* 조정된 부분 */
+            box-sizing: border-box; /* 너비 계산에 padding과 border 포함 */
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 500px;
+            resize: none; /*textarea 모서리 사이즈 조절 없앰*/
+        }
+
+        .contents_box {
+            position: relative;
+            max-width: 1440px;
+            margin: 0 auto;
+            min-height: 500px;
+            padding: 1px 10px 0 10px;
+        }
+
+    </style>
 </head>
 <body>
+<h2>공지사항 수정하기</h2>
+<hr/>
+<br/>
+<section class="COMMUNITY">
+    <form name="f" id="f">
+        <div class="contents_box">
+            <input type="hidden" name="boardSeq" th:value="${rDTO.boardSeq}"/>
+            <div class="write-container">
+
+                <div class="form-group">
+                    <div class="title">제목</div>
+                    <input type="text" name="boardTitle" maxlength="100" th:value="${rDTO.boardTitle}"
+                           style="width: 95%"/>
+                </div>
+                <div class="form-group">
+                    <div class="title">조회수</div>
+                    <div th:text="${rDTO.boardViews}"></div>
+                </div>
+                <div class="form-group">
+                    <div class="content">내용</div>
+                    <textarea name="boardContent" style="width: 95%" th:text="${rDTO.boardContent}"></textarea>
+                </div>
+            </div>
+            <div class="find-btn">
+                <button class="btn" id="btnSend" type="button">수정</button>
+                <button class="btn" id="reset" type="reset">다시 작성</button>
+            </div>
+        </div>
+    </form>
+</section>
 
 </body>
 </html>

@@ -7,19 +7,9 @@
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
-
-        // // Controller에서 받은 세션에 저장된 값
-        // const session_user_id = "[[${#strings.isEmpty(session.SESSION_USER_ID)? '': session.SESSION_USER_ID}]]";
-        //
-        // // 공지사항 게시글 작성자 아이디
-        // const user_id = "[[${rDTO.userId}]]";
-        //
-        // // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
-        // const nSeq = "[[${rDTO.noticeSeq}]]";
-
         const ssUserId = [[${session.SS_USER_ID}]]; // Controller에서 받은 세션에 저장된 값
         const userId = [[${rDTO.userId}]]; // 공지사항 게시글 작성자 아이디
-        const bSeq = [[${rDTO.communitySeq}]]; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
+        const bSeq = [[${rDTO.boardSeq}]]; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
 
         $(document).ready(function () {
             $("#btnEdit").on("click", function () {
@@ -37,8 +27,8 @@
 
         function doEdit() {
             if (ssUserId === userId) {
-                location.href = "/board/boardEditInfo?nSeq=" + bSeq;
-            } else if (ssUserId === "") {
+                location.href = "/board/boardEditInfo?bSeq=" + bSeq;
+            } else if (ssUserId === null) {
                 alert("로그인 하시길 바랍니다.");
             } else {
                 alert("본인이 작성한 글만 수정 가능합니다.");

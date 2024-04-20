@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @RequestMapping(value = "/board")
+//특정 메소드와 매핑하기 위해 사용, 구형이다
 @RequiredArgsConstructor
 @Controller
 public class BoardController {
@@ -31,19 +33,31 @@ public class BoardController {
 
         log.info(this.getClass().getName() + ".boardList Start!");
 
-        String userId = (String) session.getAttribute("SS_USER_ID"); // 아이디 세션값
+        String ssUserId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
 
-        log.info("세션에 저장 되어있는 아이디('SS_USER_ID') : " + userId);
+        log.info("세션에 저장 되어있는 아이디('SS_USER_ID') : " + ssUserId);
 
-        BoardDTO pDTO = BoardDTO.builder().userId(userId).build();
+        List<Map<String, Object>> pList = boardService.getBoardList();
+        if (pList == null) pList = new ArrayList<>();
 
-        BoardDTO rDTO = Optional.ofNullable(boardService.getBoardInfo(pDTO, true))
-                .orElseGet(() -> BoardDTO.builder().build());
+        log.info(pList.toString());
 
-        model.addAttribute("rDTO", rDTO);
+        List<BoardDTO> rList = new ArrayList<>();
 
-        // 커뮤니티 리스트 조회하기
-        List<BoardDTO> rList = Optional.ofNullable(boardService.getBoardList()).orElseGet(ArrayList::new);
+        for (Map<String, Object> rMap : pList) {
+            BoardDTO rDTO = BoardDTO.builder().boardSeq(String.valueOf(rMap.get("boardSeq"))
+            ).notification(String.valueOf(rMap.get("notification"))
+            ).boardTitle(String.valueOf(rMap.get("boardTitle"))
+            ).userId(String.valueOf(rMap.get("userId"))
+            ).boardContent(String.valueOf(rMap.get("boardContent"))
+            ).userNickname(String.valueOf(rMap.get("userNickname"))
+            ).boardViews(String.valueOf(rMap.get("boardViews"))
+            ).boardRegDt(String.valueOf(rMap.get("boardRegDt"))
+            ).boardRegId(String.valueOf(rMap.get("boardRegId"))
+            ).build();
+
+            rList.add(rDTO);
+        }
 
         /**페이징 시작 부분*/
 
@@ -76,7 +90,7 @@ public class BoardController {
         log.info(this.getClass().getName() + ".boardList End!");
 
         // 함수 처리가 끝나고 보여줄 html 파일명
-        return "board/boardList";
+        return "/board/boardList";
     }
 
     /** 커뮤니티 작성 페이지 이동*/
@@ -87,7 +101,7 @@ public class BoardController {
 
         log.info(this.getClass().getName() + ".boardReg End!");
 
-        return "board/boardReg";
+        return "/board/boardReg";
     }
 
     /** 커뮤니티 글 등록 */
@@ -141,12 +155,15 @@ public class BoardController {
 
         log.info(this.getClass().getName() + ".boardInfo Start!");
 
+        String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
+
         String bSeq = CmmUtil.nvl(request.getParameter("bSeq")); // 공지글 번호(PK)
 
+        log.info("세션 아이디 : " + userId);
         log.info("bSeq : " + bSeq);
 
         // 값 전달은 반드시 DTO 객체를 이용해서 처리함 전달 받은 값을 DTO 객체에 넣는다.
-        BoardDTO pDTO = BoardDTO.builder().boardSeq(bSeq).build();
+        BoardDTO pDTO = BoardDTO.builder().boardSeq(bSeq).userId(userId).build();
 
         // 공지사항 상세정보 가져오기
         BoardDTO rDTO = Optional.ofNullable(boardService.getBoardInfo(pDTO, true)).orElseGet(() -> BoardDTO.builder().build());
@@ -210,19 +227,23 @@ public class BoardController {
         MsgDTO dto = null; // 결과 메시지 구조
 
         try {
-            String userId = CmmUtil.nvl((String) session.getAttribute("SESSION_USER_ID")); // 아이디
-            String bSeq = CmmUtil.nvl(request.getParameter("bSeq")); // 글번호(PK)
-            String title = CmmUtil.nvl(request.getParameter("title")); // 제목
-            String communityYn = CmmUtil.nvl(request.getParameter("communityYn")); // 공지글 여부
-            String contents = CmmUtil.nvl(request.getParameter("contents")); // 내용
+            String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID")); // 아이디
+            String boardSeq = CmmUtil.nvl(request.getParameter("boardSeq")); // 글번호(PK)
+            String boardTitle = CmmUtil.nvl(request.getParameter("boardTitle")); // 제목
+            String notification = CmmUtil.nvl(request.getParameter("notification")); // 공지글 여부
+            String boardContent = CmmUtil.nvl(request.getParameter("boardContent")); // 내용
 
             log.info("userId : " + userId);
-            log.info("bSeq : " + bSeq);
-            log.info("title : " + title);
-            log.info("communityYn : " + communityYn);
-            log.info("contents : " + contents);
+            log.info("boardSeq : " + boardSeq);
+            log.info("boardTitle : " + boardTitle);
+            log.info("notification : " + notification);
+            log.info("boardContent : " + boardContent);
 
-            BoardDTO pDTO = BoardDTO.builder().userId(userId).boardSeq(bSeq).boardTitle(title).boardContent(contents).build();
+            BoardDTO pDTO = BoardDTO.builder()
+                    .userId(userId)
+                    .boardSeq(boardSeq)
+                    .boardTitle(boardTitle)
+                    .boardContent(boardContent).build();
 
             // 게시글 수정하기 DB
             boardService.updateBoardInfo(pDTO);

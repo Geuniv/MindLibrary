@@ -6,9 +6,32 @@
     <link rel="stylesheet" href="/css/table.css"/>
     <script type="text/javascript">
 
-        //상세보기 이동
+        $(document).ready(function () {
+
+            const ssUserId = [[${session.SS_USER_ID}]]; // Controller에서 받은 세션에 저장된 값
+            const userId = []; // userId 가져오기
+            for (let i = 0; i < rList.length; i++) {
+                userId.push(rList[i].userId);
+            }
+
+            // 글 작성
+            $("#btnWrite").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+                doWrite();
+            })
+        })
+
+        // 상세보기 이동
         function doDetail(seq) {
             location.href = "/board/boardInfo?bSeq=" + seq;
+        }
+
+        // 글 작성하기
+        function doWrite() {
+            if (ssUserId !== null && ssUserId !== undefined) {
+                window.location.href = "/board/boardReg";
+            } else {
+                alert("로그인 후 이용 가능합니다.");
+            }
         }
 
     </script>
@@ -31,13 +54,15 @@
         <div th:each="dto : ${rList}" class="divTableRow">
             <div th:if="${dto.notification eq 'Y'}" class="divTableCell">공지</div>
             <div th:unless="${dto.notification eq 'Y'}" class="divTableCell" th:text="${dto.boardSeq}">0</div>
-            <div class="divTableCell" th:text="${dto.boardTitle}" th:onclick="'doDetail(\'' + ${dto.boardSeq} + '\')'"></div>
+            <div class="divTableCell" th:text="${dto.boardTitle}" th:attr="onclick='doDetail(\'' + ${dto.boardSeq} + '\')'"></div>
             <div class="divTableCell" th:text="${dto.boardViews}">0</div>
-            <div class="divTableCell" th:text="${dto.userName}"></div>
-            <div class="divTableCell" th:text="${dto.boardRegDt()}"></div>
+            <div class="divTableCell" th:text="${dto.userNickname}"></div>
+            <div class="divTableCell" th:text="${dto.boardRegDt}"></div>
         </div>
     </div>
 </div>
-<a href="/board/boardReg">글쓰기</a>
+<div class="find-btn">
+    <button class="btn" id="btnWrite">글쓰기</button>
+</div>
 </body>
 </html>

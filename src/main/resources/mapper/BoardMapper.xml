@@ -4,12 +4,26 @@
 <!-- JAVA와 연결할 Mapper 파일 설정 -->
 <mapper namespace="kopo.poly.persistance.mapper.IBoardMapper">
 
+    <resultMap id="boardResult" type="java.util.HashMap">
+        <id column="BOARD_SEQ" property="boardSeq"/>
+        <result column="BOARD_SEQ" property="boardSeq"/>
+        <result column="NOTIFICATION" property="notification"/>
+        <result column="USER_ID" property="userId"/>
+        <result column="BOARD_TITLE" property="boardTitle"/>
+        <result column="BOARD_CONTENT" property="boardContent"/>
+        <result column="BOARD_VIEWS" property="boardViews"/>
+        <result column="BOARD_REG_ID" property="boardRegId"/>
+        <result column="BOARD_REG_DT" property="boardRegDt"/>
+        <result column="USER_NICKNAME" property="userNickname"/>
+    </resultMap>
+
     <!-- 커뮤니티 리스트 쿼리 -->
-    <select id="getBoardList" resultType="BoardDTO">
-        SELECT BOARD_SEQ, BOARD_TITLE, BOARD_VIEWS, USER_ID,
-               DATE_FORMAT(BOARD_REG_DT, '%Y/%m/%d %H:%i:%s') AS BOARD_REG_DT
-        FROM MIND_BOARD
-        ORDER BY BOARD_REG_DT DESC
+    <select id="getBoardList" resultMap="boardResult">
+        SELECT B.BOARD_SEQ, B.BOARD_TITLE, B.BOARD_VIEWS, B.USER_ID, U.USER_NICKNAME,
+               DATE_FORMAT(B.BOARD_REG_DT, '%Y/%m/%d %H:%i:%s') AS BOARD_REG_DT
+        FROM MIND_BOARD B, USER_INFO U
+        WHERE B.USER_ID = U.USER_ID
+        ORDER BY B.BOARD_REG_DT DESC
     </select>
 
     <!-- 커뮤니티 등록 쿼리 -->
@@ -26,7 +40,7 @@
     </insert>
 
     <!-- 게시판 상세보기 쿼리 -->
-    <select id="getBoardInfo" resultType="BoardDTO">
+    <select id="getBoardInfo" resultMap="boardResult">
         SELECT BOARD_SEQ, BOARD_TITLE, BOARD_VIEWS, USER_ID,
                BOARD_CONTENT, DATE_FORMAT(BOARD_REG_DT, '%y-%m-%d') AS BOARD_REG_DT
         FROM MIND_BOARD
@@ -53,7 +67,7 @@
     </update>
 
     <!-- 커뮤니티 삭제 쿼리 -->
-    <delete id="deleteBoarInfo" parameterType="BoardDTO">
+    <delete id="deleteBoardInfo" parameterType="BoardDTO">
         DELETE FROM MIND_BOARD
         WHERE BOARD_SEQ = #{boardSeq}
     </delete>

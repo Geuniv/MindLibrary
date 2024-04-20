@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -17,10 +18,11 @@ public class BoardService implements IBoardService {
 
     private final IBoardMapper boardMapper;
 
+    /* 게시글 목록 조회 코드 */
     @Override
-    public List<BoardDTO> getBoardList() throws Exception {
+    public List<Map<String, Object>> getBoardList() throws Exception {
 
-        log.info(this.getClass().getName() + ".getBoardList Start!!");
+        log.info(this.getClass().getName() + ".getPostList start!");
 
         return boardMapper.getBoardList();
     }
@@ -29,14 +31,29 @@ public class BoardService implements IBoardService {
     @Override
     public BoardDTO getBoardInfo(BoardDTO pDTO, boolean type) throws Exception {
 
-        log.info(this.getClass().getName() + ".getBoardInfo Start!!");
+        log.info(this.getClass().getName() + ".getBoardInfo Start!");
 
-        // 상세보기할 때마다, 조회수 증가하기(수정보기는 제외)
-        if (type) {
-            log.info("Update ReadCNT");
-            boardMapper.updateBoardReadCnt(pDTO);
-        }
-        return boardMapper.getBoardInfo(pDTO);
+        log.info("Update ReadCNT");
+
+        boardMapper.updateBoardReadCnt(pDTO);
+
+        Map<String, Object> rMap = boardMapper.getBoardInfo(pDTO);
+
+        BoardDTO rDTO = BoardDTO.builder().boardSeq(String.valueOf(rMap.get("boardSeq"))
+        ).notification(String.valueOf(rMap.get("notification"))
+        ).boardTitle(String.valueOf(rMap.get("boardTitle"))
+        ).boardContent(String.valueOf(rMap.get("boardContent"))
+        ).userId(String.valueOf(rMap.get("userId"))
+        ).userNickname(String.valueOf(rMap.get("userNickname"))
+        ).boardViews(String.valueOf(rMap.get("boardViews"))
+        ).boardRegDt(String.valueOf(rMap.get("boardRegDt"))
+        ).boardRegId(String.valueOf(rMap.get("boardRegId"))
+        ).build();
+
+        log.info(this.getClass().getName() + ".getBoardInfo End!");
+
+        return rDTO;
+
     }
 
     @Transactional

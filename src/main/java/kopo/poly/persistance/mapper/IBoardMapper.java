@@ -4,18 +4,19 @@ import kopo.poly.dto.BoardDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface IBoardMapper {
 
     // 커뮤니티 리스트
-    List<BoardDTO> getBoardList() throws Exception;
+    List<Map<String, Object>> getBoardList() throws Exception; // 게시판 목록 조회
 
     // 커뮤니티 글 등록
     void insertBoardInfo(BoardDTO pDTO) throws Exception;
 
     // 커뮤니티 상세보기
-    BoardDTO getBoardInfo(BoardDTO pDTO) throws Exception;
+    Map<String, Object> getBoardInfo(BoardDTO pDTO) throws Exception; // 게시글 정보 조회
 
     // 커뮤니티 조회수 업데이트
     void updateBoardReadCnt(BoardDTO pDTO) throws Exception;
