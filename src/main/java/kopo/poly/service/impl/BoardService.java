@@ -1,6 +1,7 @@
 package kopo.poly.service.impl;
 
 import kopo.poly.dto.BoardDTO;
+import kopo.poly.dto.UserInfoDTO;
 import kopo.poly.persistance.mapper.IBoardMapper;
 import kopo.poly.service.IBoardService;
 import lombok.RequiredArgsConstructor;
@@ -84,5 +85,15 @@ public class BoardService implements IBoardService {
 
         boardMapper.deleteBoardInfo(pDTO);
 
+    }
+
+    @Override
+    public void deleteUserInfo(UserInfoDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".deleteUserInfo Start!");
+
+        boardMapper.deleteUserInfo(pDTO);
+
+        log.info(this.getClass().getName() + ".deleteUserInfo End!");
     }
 }

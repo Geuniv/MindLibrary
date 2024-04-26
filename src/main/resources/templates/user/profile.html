@@ -9,32 +9,12 @@
 
         $(document).ready(function () {
 
-            $("#btnDelete").on("click", function () {
-                doDelete()
+            $("#btnModify").on("click", function () {
+                location.href = "/user/profileModify";
 
             })
 
         })
-
-        // 회원 탈퇴
-        function doDelete() {
-
-            if (confirm("정말로 탈퇴하시겠습니까?")) {
-
-                // Ajax 호출해서 회원정보 삭제하기
-                $.ajax({
-                        url: "/profile/deleteUserInfo",
-                        type: "post",
-                        dataType: "JSON",
-                        success:
-                            function (json) {
-                                alert(json.msg);
-                                location.href = "/index"; // 인덱스 페이지로 이동
-                            }
-                    }
-                )
-            }
-        }
 
     </script>
 
@@ -179,7 +159,7 @@
             }
 
             .signin__btn {
-                background: #e91e63;
+                background: #0b0b0b;
                 color: white;
                 display: block;
                 width: 92.5%;
@@ -191,11 +171,11 @@
                 cursor: pointer;
                 font-size: 14px;
                 font-family: 'Montserrat', sans-serif;
-                box-shadow: 0 15px 30px rgba(233, 30, 99, .36);
+                box-shadow: 0 15px 30px rgba(80, 80, 80, .36);
                 transition: .2s linear;
 
                 &:hover {
-                    box-shadow: 0 0 0 rgba(233, 30, 99, .0);
+                    box-shadow: 0 0 0 rgba(80, 80, 80, .0);
                 }
             }
         }
@@ -324,6 +304,27 @@
             text-align: center;
             cursor: pointer;
         }
+
+        /* 둥근 네모 영역 스타일 */
+        .profile-picture {
+            width: 200px; /* 원하는 사이즈로 설정 */
+            height: 200px; /* 원하는 사이즈로 설정 */
+            border-radius: 50%; /* 둥근 모서리 */
+            border: 2px solid #ccc; /* 기본 테두리 */
+            overflow: hidden; /* 넘치는 부분 잘라내기 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 33%;
+            margin-bottom: 10%;
+        }
+
+        /* 이미지 스타일 */
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 이미지 비율 유지 및 잘라내기 */
+        }
     </style>
 </head>
 <body>
@@ -334,73 +335,87 @@
 
 <div class="container">
     <!-- Heading -->
-    <h1>My Page</h1>
+    <h1>회원 정보</h1>
 
     <!-- Form -->
-    <form  id="f" action="" method="post">
-        <!-- email input -->
-        <div class="first-input input__block first-input__block">
-            <h5>아이디 | [[${rDTO.userId}]]</h5>
-<!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
+    <form id="f" action="" method="post">
+
+        <div class="row d-flex no-gutters">
+            <div class="profile-picture">
+
+                <div th:if="${rList != null and not #lists.isEmpty(rList)}">
+                    <div th:each="dto : ${rList}">
+                        <img th:if="${dto.fileUrl != null}" th:src="${dto.fileUrl}" width="100%" alt="Image">
+                        <img th:if="${dto.fileUrl == null}" src="/img/profile.png" width="100%" alt="Default Image">
+                        <br><br>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="first-input input__block first-input__block">
-            <h5>이메일 | [[${rDTO.userEmail}]]</h5>
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
-        </div>
-        <div class="first-input input__block first-input__block">
-            <h5>이름 | [[${rDTO.userName}]]</h5>
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
-        </div>
-        <div class="first-input input__block first-input__block">
-            <h5>닉네임 | [[${rDTO.userNickname}]]</h5>
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
-        </div>
-        <div class="first-input input__block first-input__block">
-            <h5>나이 | [[${rDTO.userAge}]]</h5>
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
-        </div>
-        <div class="first-input input__block first-input__block">
-            <h5>성별 | [[${rDTO.userGender}]]</h5>
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
-        </div>
-        <div class="first-input input__block first-input__block">
-            <h5>관심사 | [[${rDTO.userInterest}]]</h5>
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
-        </div>
-        <div class="first-input input__block first-input__block">
-            <h5>가입일 | [[${rDTO.memberSince}]]</h5>
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
+
+        <div class="container" style="margin-left: 3%;">
+            <!-- email input -->
+            <div class="first-input input__block first-input__block">
+                <h5>아이디 | [[${rDTO.userId}]]</h5>
+                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
+            </div>
+            <div class="first-input input__block first-input__block">
+                <h5>이메일 | [[${rDTO.userEmail}]]</h5>
+                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
+            </div>
+            <div class="first-input input__block first-input__block">
+                <h5>이름 | [[${rDTO.userName}]]</h5>
+                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
+            </div>
+            <div class="first-input input__block first-input__block">
+                <h5>닉네임 | [[${rDTO.userNickname}]]</h5>
+                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
+            </div>
+            <div class="first-input input__block first-input__block">
+                <h5>나이 | [[${rDTO.userAge}]]</h5>
+                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
+            </div>
+            <div class="first-input input__block first-input__block">
+                <h5>성별 | [[${rDTO.userGender}]]</h5>
+                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
+            </div>
+            <div class="first-input input__block first-input__block">
+                <h5>관심사 | [[${rDTO.userInterest}]]</h5>
+                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
+            </div>
+            <div class="first-input input__block first-input__block">
+                <h5>가입일 | [[${rDTO.memberSince}]]</h5>
+                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
+            </div>
         </div>
 
         <!-- password input -->
-<!--        <div class="input__block">-->
-<!--            <input type="password" placeholder="Password" class="input" id="userPassword" th:name="userPassword"    />-->
-<!--        </div>-->
+        <!--        <div class="input__block">-->
+        <!--            <input type="password" placeholder="Password" class="input" id="userPassword" th:name="userPassword"    />-->
+        <!--        </div>-->
         <!-- repeat password input -->
         <!--        <div class="input__block">-->
         <!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password"    />-->
         <!--        </div>-->
-<!--        <div class="input__block">-->
-<!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password" th:name="userPassword2"    />-->
-<!--        </div>-->
+        <!--        <div class="input__block">-->
+        <!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password" th:name="userPassword2"    />-->
+        <!--        </div>-->
 
 
-<!--        <div class="container_find">-->
-<!--            <a href="/user/findUserId" class="a_">아이디 찾기</a>-->
-<!--            <br/>-->
-<!--            <a href="/user/findPassword" class="a_">비밀번호 찾기</a>-->
-<!--        </div>-->
+        <!--        <div class="container_find">-->
+        <!--            <a href="/user/findUserId" class="a_">아이디 찾기</a>-->
+        <!--            <br/>-->
+        <!--            <a href="/user/findPassword" class="a_">비밀번호 찾기</a>-->
+        <!--        </div>-->
 
         <br/>
 
-        <a href="profile/profileModify">
-        <!-- sign in button -->
-        <button id="btnModify" type="button" class="signin__btn">
-            회원정보 수정
-        </button>
+        <a href="/profile/profileModify">
+            <!-- sign in button -->
+            <button id="btnModify" type="button" class="signin__btn">
+                회원정보 수정
+            </button>
         </a>
-        <br/>
-        <button id="btnDelete" class="signin__btn">회원 탈퇴</button>
         <br/><br/>
     </form>
     <!-- separator -->
@@ -417,6 +432,7 @@
     <!--        <i class="fa fa-github"></i>-->
     <!--        Sign in with GitHub-->
     <!--    </button>-->
+</div>
 </div>
 
 <!-- ======= Header ======= -->

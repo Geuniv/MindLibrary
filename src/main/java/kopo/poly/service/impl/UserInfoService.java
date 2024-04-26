@@ -2,7 +2,10 @@ package kopo.poly.service.impl;
 
 import kopo.poly.dto.MailDTO;
 import kopo.poly.dto.UserInfoDTO;
+import kopo.poly.persistance.mapper.IBoardMapper;
+import kopo.poly.persistance.mapper.IFileMapper;
 import kopo.poly.persistance.mapper.IUserInfoMapper;
+import kopo.poly.service.IBoardService;
 import kopo.poly.service.IMailService;
 import kopo.poly.service.IUserInfoService;
 import kopo.poly.util.CmmUtil;
@@ -11,6 +14,7 @@ import kopo.poly.util.EncryptUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -23,6 +27,10 @@ public class UserInfoService implements IUserInfoService {
     private final IUserInfoMapper userInfoMapper; // 회원관련 SQL 사용하기 위한 Mapper 가져오기
 
     private final IMailService mailService; //메일 발송을 위한 MailService 자바 객체 가져오기
+
+//    private final IFileMapper fileMapper;
+//
+//    private final IBoardMapper boardMapper;
 
     @Override
     public UserInfoDTO getUserIdExists(UserInfoDTO pDTO) throws Exception {
@@ -214,5 +222,17 @@ public class UserInfoService implements IUserInfoService {
         return success;
 
     }
+
+//    /* 회원 탈퇴 */
+//    @Transactional
+//    @Override
+//    public void deleteUser(UserInfoDTO pDTO) throws Exception {
+//
+//        log.info(this.getClass().getName() + ".회원 탈퇴");
+//
+//        boardMapper.deleteUserInfo(pDTO);
+////        commentMapper.deleteUser(pDTO);
+//        userInfoMapper.deleteUser(pDTO);
+//    }
 
 }

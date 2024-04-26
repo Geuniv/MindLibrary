@@ -7,92 +7,414 @@
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
+
         const ssUserId = [[${session.SS_USER_ID}]]; // Controller에서 받은 세션에 저장된 값
         const userId = [[${rDTO.userId}]]; // 공지사항 게시글 작성자 아이디
         const bSeq = [[${rDTO.boardSeq}]]; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
 
         $(document).ready(function () {
+            // 버튼 클릭했을 때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+            $("#btnCmt").on("click", function () {
+                doComment(); // 댓글 작성 실행
+            })
+
+            // // 본인 계정이 아닌 사용자에게 버튼 숨김
+            // $(".btnCmtDelete").each(function () {
+            //     var commentUserId = $(this).prevAll(".commentUserId").val(); // 추가: 댓글의 userId 가져오기
+            //
+            //     // 숨김 처리
+            //     $(this).hide();
+            //
+            //     // 본인 계정과 댓글 userId 비교
+            //     if (ssUserId === commentUserId) {
+            //         // 본인 계정이라면 표시
+            //         $(this).show();
+            //     }
+            // });
+
+            $(".btnCmtDelete").on("click", function () {
+                // 현재 클릭된 버튼의 부모 요소인 .comment에서 commentSeq와 commentUserId를 찾음
+                var commentSeq = $(this).closest('.comment').find(".commentSeq").val();
+                var commentUserId = $(this).closest('.comment').find(".commentUserId").val();
+                console.log(commentSeq, commentUserId);
+
+                if (ssUserId === commentUserId) {
+                    if (confirm("작성한 댓글을 삭제하시겠습니까?")) {
+                        // Ajax 호출해서 댓글 삭제하기
+                        $.ajax({
+                            url: "/comment/commentDelete",
+                            type: "post",
+                            dataType: "JSON",
+                            data: {"commentSeq": commentSeq},
+                            success: function (json) {
+                                alert(json.msg);
+                                location.reload();
+                            }
+                        });
+                    }
+                } else if (ssUserId === "") {
+                    alert("로그인 하시길 바랍니다.");
+                } else {
+                    alert("본인이 작성한 댓글만 삭제 가능합니다.");
+                }
+            });
+
             $("#btnEdit").on("click", function () {
-                doEdit();
-            });
-
+                doEdit(); // 커뮤니티 수정하기 실행
+            })
             $("#btnDelete").on("click", function () {
-                doDelete();
-            });
-
+                doDelete(); // 커뮤니티 삭제하기 실행
+            })
             $("#btnList").on("click", function () {
-                location.href = "/board/boardList";
-            });
-        });
+                location.href = "/board/boardList"; // 커뮤니티 리스트 이동
+            })
+        })
 
+        // 글자 길이 바이트 단위로 체크하기(바이트값 전달)
+        function calBytes(str) {
+            let tcount = 0;
+            let tmpStr = String(str);
+            let strCnt = tmpStr.length;
+            let onechar;
+            for (let i = 0; i < strCnt; i++) {
+                onechar = tmpStr.charAt(i);
+                if (escape(onechar).length > 4) {
+                    tcount += 2;
+                } else {
+                    tcount += 1;
+                }
+            }
+            return tcount;
+        }
+
+        // 수정하기
         function doEdit() {
             if (ssUserId === userId) {
                 location.href = "/board/boardEditInfo?bSeq=" + bSeq;
-            } else if (ssUserId === null) {
-                alert("로그인 하시길 바랍니다.");
-            } else {
-                alert("본인이 작성한 글만 수정 가능합니다.");
-            }
-        }
-
-        function doDelete() {
-            if (ssUserId === userId) {
-                if (confirm("작성한 글을 삭제하시겠습니까?")) {
-                    $.ajax({
-                        url: "/board/boardDelete",
-                        type: "post",
-                        dataType: "JSON",
-                        data: {"bSeq": bSeq},
-                        success: function (json) {
-                            alert(json.msg);
-                            location.href = "/board/boardList";
-                        }
-                    });
-                }
             } else if (ssUserId === "") {
                 alert("로그인 하시길 바랍니다.");
             } else {
                 alert("본인이 작성한 글만 수정 가능합니다.");
             }
         }
+
+        // 삭제하기
+        function doDelete() {
+            if (ssUserId === userId) {
+                if (confirm("작성한 글을 삭제하시겠습니까?")) {
+
+                    // Ajax 호출해서 글 삭제하기
+                    $.ajax({
+                            url: "/board/boardDelete",
+                            type: "post", // 전송방식은 Post
+                            dataType: "JSON", // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                            data: {"bSeq": bSeq},
+                            success:
+                                function (json) { // /community/communityDelete 호출이 성공한다면...
+                                    alert(json.msg); // 메시지 띄우기
+                                    location.href = "/board/boardList"; // 커뮤니티 리스트로 이동
+                                }
+                        }
+                    )
+                }
+            } else if (ssUserId === "") {
+                alert("로그인 하시길 바랍니다.");
+            } else {
+                alert("본인이 작성한 글만 삭제 가능합니다.");
+            }
+        }
+
+        // 댓글 저장하기
+        function doComment() {
+            let f = document.getElementById("f"); // form 태그
+            if (f.commentContents.value === "") {
+                alert("내용을 입력하시기 바랍니다.");
+                f.commentContents.focus();
+                return;
+            }
+            if (calBytes(f.commentContents.value) > 4000) {
+                alert("최대 4000Bytes까지 입력 가능합니다.");
+                f.commentContents.focus();
+                return;
+            }
+
+            if (ssUserId === null) {
+                alert("로그인 후에 댓글을 등록할 수 있습니다.");
+                return;
+            }
+
+
+            // Ajax 호출해서 글 등록하기
+            $.ajax({
+                    url: "/comment/commentInsert",
+                    type: "post", // 전송방식은 Post
+                    dataType: "JSON", // 전송 결과는 Json으로 받기
+                    data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                    success: function (json) { // /comment/commentInsert 호출이 성공했다면..
+                        alert(json.msg); // 메시지 띄우기
+                        location.href = "/board/boardInfo?bSeq=" + bSeq; // 커뮤니티 리스트 이동
+
+                        doOutput();
+                    }
+                }
+            )
+        }
+
+        function doOutput() {
+            $.ajax({
+                url: "/comment/commentList",
+                type: "get",
+                dataType: "JSON",
+                data: $("#f").serialize(),
+                success: function (json) {
+                    alert(json.msg);
+                    location.href = "/board/boardInfo?bSeq=" + bSeq; // 커뮤니티 리스트 이동
+                }
+            })
+
+        }
+
+
+        // // 답글 저장하기
+        // function doReComment(commentSeq) {
+        //     let f = document.getElementById("f"); // form 태그
+        //     console.log(document.getElementById("recommentContent").value);
+        //     console.log(commentSeq)
+        //
+        //     if (f.recommentContent[0].value === "") {
+        //         alert("내용을 입력하시기 바랍니다.");
+        //         f.recommentContent.focus();
+        //         return;
+        //     }
+        //     if (calBytes(f.recommentContent[0].value) > 4000) {
+        //         alert("최대 4000Bytes까지 입력 가능합니다.");
+        //         f.recommentContent.focus();
+        //         return;
+        //     }
+        //
+        //     if (ssUserId === null) {
+        //         alert("로그인 후에 댓글을 등록할 수 있습니다.");
+        //         return;
+        //     }
+        //
+        //
+        //     // Ajax 호출해서 글 등록하기
+        //     $.ajax({
+        //             url: "/comment/recommentInsert",
+        //             type: "post", // 전송방식은 Post
+        //             dataType: "JSON", // 전송 결과는 Json으로 받기
+        //             data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+        //             success: function (json) { // /comment/commentInsert 호출이 성공했다면..
+        //                 alert(json.msg); // 메시지 띄우기
+        //                 location.href = "/community/communityInfo?nSeq=" + nSeq; // 커뮤니티 리스트 이동
+        //
+        //                 doReOutput();
+        //             }
+        //         }
+        //     )
+        // }
+        //
+        // function doReOutput() {
+        //     $.ajax({
+        //         url: "/comment/commentList",
+        //         type: "get",
+        //         dataType: "JSON",
+        //         data: $("#f").serialize(),
+        //         success: function (json) {
+        //             alert(json.msg);
+        //             location.href = "/community/communityInfo?nSeq=" + nSeq; // 커뮤니티 리스트 이동
+        //         }
+        //     })
+        //
+        // }
+
         /*]]>*/
     </script>
+    <style>
+        .site-btn {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff;
+            letter-spacing: 2px;
+            background: #0b0b0b;
+            border: none;
+            padding: 14px 42px 13px;
+            display: inline-block;
+            border-radius: 2px;
+        }
+    </style>
 </head>
 <body>
-<h2>공지사항 상세보기</h2>
-<hr/>
-<br/>
-<div class="divTable minimalistBlack">
-    <div class="divTableBody">
-        <div class="divTableRow">
-            <div class="divTableCell">제목</div>
-            <div class="divTableCell" th:text="${rDTO.boardTitle}"></div>
-        </div>
-        <div class="divTableRow">
-            <div class="divTableCell">공지글 여부</div>
-            <div class="divTableCell">
-                예<input type="radio" name="noticeYn" value="Y" th:checked="${rDTO.notification eq 'Y'}"/>
-                아니오<input type="radio" name="noticeYn" value="N" th:checked="${rDTO.notification eq 'N'}"/>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="top"></th:block>
+<!-- End Header -->
+
+<!-- Blog Details Hero Section Begin -->
+<!--data-setbg="/img/blog/blog-details/black.jpg"-->
+<section class="blog-details-hero set-bg" style="background: #0b0b0b;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="bd-hero-text">
+                    <!--                        <span>Travel Trip & Camping</span>-->
+                    <h2>[[${rDTO.boardTitle}]]</h2>
+                    <ul>
+                        <li class="b-time"><i class="icon_clock_alt"></i>[[${rDTO.boardRegDt}]]</li>
+                        <li><i class="icon_profile"></i> [[${rDTO.userNickname}]]</li>
+                    </ul>
+                </div>
             </div>
         </div>
-        <div class="divTableRow">
-            <div class="divTableCell">작성일</div>
-            <div class="divTableCell" th:text="${rDTO.boardRegDt}"></div>
-        </div>
-        <div class="divTableRow">
-            <div class="divTableCell">조회수</div>
-            <div class="divTableCell" th:text="${rDTO.boardViews}"></div>
-        </div>
-        <div class="divTableRow">
-            <div class="divTableCell">내용</div>
-            <div class="divTableCell" th:text="${rDTO.boardContent}"></div>
+    </div>
+</section>
+<!-- Blog Details Hero End -->
+
+<!-- Blog Details Section Begin -->
+<section class="blog-details-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="blog-details-text">
+                    <div class="bd-title">
+                        <p>
+                            [[${rDTO.boardContent}]]
+                        </p>
+                        <!--                            <p>Thinking about overseas adventure travel? Have you put any thought into the best places-->
+                        <!--                                to go when it comes to overseas adventure travel? Nepal is one of the most popular-->
+                        <!--                                places of all, when you visit this magical country you will have the best adventures-->
+                        <!--                                right there at your doorstep. Only overseas adventure travel in Nepal will give you-->
+                        <!--                                these kinds of opportunities so if this is not on your list of possible places to visit-->
+                        <!--                                yet then now is the time to put it on there!</p>-->
+                        <!--                            <p>In Nepal your overseas adventure travel is going to be fascinating. You will get to see-->
+                        <!--                                the Himalayan Mountains and experience all that the rich Nepalese culture has to offer.-->
+                        <!--                                They are an amazing people who have managed to hang on to their own culture and beliefs-->
+                        <!--                                longer than most other countries. When overseas adventure travel takes you to Nepal you-->
+                        <!--                                will have the chance to see all of the fantastic and one of a kind lakes and forests and-->
+                        <!--                                you can even spend days or weeks camping out in their forests with a specialized guide.-->
+                        <!--                                And the waterfalls in Nepal are to die for, you will never see anything more gorgeous in-->
+                        <!--                                your life as their waterfalls! This should be at the top of your overseas adventure-->
+                        <!--                                travel destination list for sure!</p>-->
+                    </div>
+                    <!--                        <div class="bd-pic">-->
+                    <!--                            <div class="bp-item">-->
+                    <!--                                <img src="img/blog/blog-details/blog-details-1.jpg" alt="">-->
+                    <!--                            </div>-->
+                    <!--                            <div class="bp-item">-->
+                    <!--                                <img src="img/blog/blog-details/blog-details-2.jpg" alt="">-->
+                    <!--                            </div>-->
+                    <!--                            <div class="bp-item">-->
+                    <!--                                <img src="img/blog/blog-details/blog-details-3.jpg" alt="">-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="bd-more-text">-->
+                    <!--                            <div class="bm-item">-->
+                    <!--                                <h4>If you live in New York City</h4>-->
+                    <!--                                <p>You know all about the traffic there. Getting places is often next to impossible,-->
+                    <!--                                    even with the gazillion yellow cabs. If you’re like me you often look with envy at-->
+                    <!--                                    those shiny limousines with their unformed drivers and wish you could sit in one.-->
+                    <!--                                    Well, you can. New York limo service is more affordable than you think, whether it’s-->
+                    <!--                                    for Newark airport transportation, LaGuardia airport transportation, or to drive-->
+                    <!--                                    wherever you wish to go.</p>-->
+                    <!--                            </div>-->
+                    <!--                            <div class="bm-item">-->
+                    <!--                                <h4>Every time I hail a cab in New York City</h4>-->
+                    <!--                                <p>I hope I’ll be lucky enough to get one that’s halfway decent and that the driver-->
+                    <!--                                    actually speaks English. I have spent many anxious moments wondering if I ever get-->
+                    <!--                                    to my destination. Or whether I’d get ripped off. Even if all goes well, I can’t say-->
+                    <!--                                    I can remember many rides in New York cabs that were very pleasant. And given how-->
+                    <!--                                    much they cost by now, going with a limo makes ever more sense.</p>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <div class="tag-share">
+                        <div class="tags">
+                            <a href="#">Travel Trip</a>
+                            <a href="#">Camping</a>
+                            <a href="#">Event</a>
+                        </div>
+                        <div class="social-share">
+                            <span>Share:</span>
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-tripadvisor"></i></a>
+                            <a href="#"><i class="fa fa-instagram"></i></a>
+                            <a href="#"><i class="fa fa-youtube-play"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 text-center">
+                        <button id="btnEdit" type="button" class="site-btn">수정하기</button>
+                        <button id="btnDelete" type="button" class="site-btn">삭제하기</button>
+                        <button id="btnList" type="button" class="site-btn">목록</button>
+                    </div>
+                    <div class="comment-option" th:each="dto : ${rList}">
+<!--                        <h4>[[${dto.commentSeq}]]</h4>-->
+                        <div class="single-comment-item first-comment">
+<!--                            <div class="sc-author">-->
+<!--&lt;!&ndash;                                <img src="img/blog/blog-details/avatar/avatar-1.jpg" alt="">&ndash;&gt;-->
+<!--                            </div>-->
+                            <div class="sc-text">
+                                <span>[[${dto.commentRegDt}]]</span>
+                                <h5>[[${dto.userNickname}]]</h5>
+                                <p>[[${dto.commentContents}]]</p>
+<!--                                <a href="#" class="comment-btn">Like</a>-->
+<!--                                <a href="#" class="comment-btn">Reply</a>-->
+                            </div>
+                        </div>
+<!--                        <div class="single-comment-item reply-comment">-->
+<!--                            <div class="sc-author">-->
+<!--                                <img src="img/blog/blog-details/avatar/avatar-2.jpg" alt="">-->
+<!--                            </div>-->
+<!--                            <div class="sc-text">-->
+<!--                                <span>27 Aug 2019</span>-->
+<!--                                <h5>Brandon Kelley</h5>-->
+<!--                                <p>Neque porro qui squam est, qui dolorem ipsum quia dolor sit amet, consectetur,-->
+<!--                                    adipisci velit, sed quia non numquam eius modi tempora. incidunt ut labore et-->
+<!--                                    dolore magnam.</p>-->
+<!--                                <a href="#" class="comment-btn like-btn">Like</a>-->
+<!--                                <a href="#" class="comment-btn reply-btn">Reply</a>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="single-comment-item second-comment ">-->
+<!--                            <div class="sc-author">-->
+<!--                                <img src="img/blog/blog-details/avatar/avatar-3.jpg" alt="">-->
+<!--                            </div>-->
+<!--                            <div class="sc-text">-->
+<!--                                <span>27 Aug 2019</span>-->
+<!--                                <h5>Brandon Kelley</h5>-->
+<!--                                <p>Neque porro qui squam est, qui dolorem ipsum quia dolor sit amet, consectetur,-->
+<!--                                    adipisci velit, sed quia non numquam eius modi tempora. incidunt ut labore et-->
+<!--                                    dolore magnam.</p>-->
+<!--                                <a href="#" class="comment-btn">Like</a>-->
+<!--                                <a href="#" class="comment-btn">Reply</a>-->
+<!--                            </div>-->
+<!--                        </div>-->
+                    </div>
+                    <div class="leave-comment">
+                        <label for="commentContents">댓글</label>
+                        <form id="f" name="f" class="comment-form">
+                                <div class="col-lg-12 text-center">
+                                    <input type="hidden" name="boardSeq" th:value="${rDTO.boardSeq}">
+                                    <textarea id="commentContents" name="commentContents" rows="4" placeholder="댓글을 입력하세요"></textarea>
+
+<!--                                    <button type="submit" class="site-btn">Send Message</button>-->
+                                    <button class="btn" id="btnCmt" type="button" style="margin-top: 10px">작성</button>
+                                </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-<div>
-    <button id="btnEdit" type="button">수정</button>
-    <button id="btnDelete" type="button">삭제</button>
-    <button id="btnList" type="button">목록</button>
-</div>
+</section>
+<!-- Blog Details Section End -->
+<br/>
+
+</main><!-- End #main -->
 </body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="footer"></th:block>
+<!-- End Header -->
+
 </html>

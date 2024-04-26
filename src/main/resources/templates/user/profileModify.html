@@ -2,24 +2,163 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+
     <script type="text/javascript">
 
+        let arr = []; // 이미지 배열 선언
+
+        // HTML로딩이 완료되고, 실행됨
         $(document).ready(function () {
+            let f = document.getElementById("f"); // form 태그
 
-            // let f = document.getElementById("f"); // form 태그
-            //
-            // $("#btnModify").on("click", function () {
-            //     do()
-            //
-            // $("#btnDelete").on("click", function () {
-            //     doDelete()
-            //
-            // })
+            var userInterests = "${rDTO.userInterest}".split(','); // 사용자의 관심사 목록 가져오기
+            userInterests.forEach(function (interest) {
+                $('input[type="checkbox"][value="' + interest + '"]').prop('checked', true); // 체크된 상태로 설정
+            })
 
+            $("#btnModify").on("click", function () {
+                doFile()
+            })
+
+            // 회원정보 수정하기
+            $("#btnDelete").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+                doDelete()
+            })
+
+            $("input[type='file']").change(function (e) {
+                preview(e.target.files);
+            });
+
+            $("#file-input").change(function (e) {
+                removePreviousImage();
+                preview(e.target.files);
+            });
+
+            $("input[type='file']").change(function (e) {
+
+                var files = e.target.files;
+                arr = Array.prototype.slice.call(files);
+
+                // 업로드 가능 파일인지 체크
+                for (var i = 0; i < files.length; i++) {
+                    if (!!checkExtension(files[i].name, files[i].size)) {
+                        return false;
+                    }
+                }
+                preview(arr);
+            });
         })
+
+        // 파일 확인
+        function checkExtension(fileName, fileSize) {
+            var regex = new RegExp("(.*?)\.(exe|sh|zip|alz)$");
+            var maxSize = 20971520; // 20MB
+
+            if (fileSize >= maxSize) {
+                alert('파일 사이즈 초과');
+                $("input[type='file']").val("");
+                return false;
+            }
+
+            if (regex.test(fileName)) {
+                alert('업로드 불가능한 파일이 있습니다.');
+                $("input[type='file']").val("");
+                return false;
+            }
+            return true;
+        }
+
+        // 이전 이미지 삭제 함수
+        function removePreviousImage() {
+            $(".profile-picture").empty(); // 이전 이미지를 포함한 모든 요소 삭제
+        }
+
+
+        // 이미지 미리보기 함수
+        function preview(files) {
+            var preview = document.getElementsByClassName('profile-picture')[0]; // 프로필 사진을 감싸는 div
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var imageType = /^image\//;
+
+                if (!imageType.test(file.type)) {
+                    continue;
+                }
+
+                var img = document.createElement("img");
+                img.classList.add("preview-image");
+                img.file = file;
+
+                preview.appendChild(img);
+
+                var reader = new FileReader();
+                reader.onload = (function (aImg) {
+                    return function (e) {
+                        aImg.src = e.target.result;
+                    };
+                })(img);
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 이미지 삭제
+        function removeImage(button) {
+            let fileName = $(button).val();
+
+            arr = arr.filter(function (file) {
+                return file.name !== fileName;
+            });
+
+            console.log(arr); // 파일 목록 확인
+
+            $(button).closest('div').remove(); // 부모 div를 삭제하도록 수정
+        }
+
+        function doFile() {
+
+            let f = document.getElementById("f"); // form 태그
+
+            const interests = [];
+            $("input[name='userInterest']:checked").each(function() {
+                interests.push($(this).val());
+            });
+
+            // let formData = new FormData($("#f")[0]);
+            let formData = new FormData();
+            formData.append('userNickname', f.userNickname.value);
+            formData.append('userInterest', interests);
+            // formData.append('addr2', f.addr2.value);
+
+            // 이미지 파일들을 formData에 추가
+            for (let i = 0; i < arr.length; i++) {
+                formData.append('file', arr[i]);
+            }
+
+            if (confirm("수정하시겠습니까?")) {
+
+                // Ajax 호출해서 회원정보 삭제하기
+                $.ajax({
+                        url: "/profile/profileModifyProc",
+                        type: "post",
+                        dataType: "JSON",
+                        data: formData, // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                        processData: false,  // 중요: processData를 false로 설정해야 폼 데이터가 자동으로 변환되지 않습니다.
+                        contentType: false,  // 중요: contentType을 false로 설정해야 멀티파트로 제대로 전송됩니다.
+                        success:
+                            function (json) {
+                                alert(json.msg);
+                                location.href = "/profile"; // 인덱스 페이지로 이동
+                            }
+                    }
+                )
+            }
+        }
 
         // 회원 탈퇴
         function doDelete() {
@@ -184,7 +323,7 @@
             }
 
             .signin__btn {
-                background: #e91e63;
+                background: #0b0b0b;
                 color: white;
                 display: block;
                 width: 92.5%;
@@ -196,12 +335,33 @@
                 cursor: pointer;
                 font-size: 14px;
                 font-family: 'Montserrat', sans-serif;
-                box-shadow: 0 15px 30px rgba(233, 30, 99, .36);
+                box-shadow: 0 15px 30px rgba(80, 80, 80, .36);
                 transition: .2s linear;
 
                 &:hover {
-                    box-shadow: 0 0 0 rgba(233, 30, 99, .0);
+                    box-shadow: 0 0 0 rgba(80, 80, 80, .0);
                 }
+
+            }
+
+            .checkbox_btn {
+                width: 90%;
+                max-width: 680px;
+                height: 50px;
+                border-radius: 8px;
+                margin: 0 auto;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                display: flex; /* Flexbox 설정 */
+                align-items: center; /* 수직 가운데 정렬 */
+            !important; /* !important를 추가하여 강제로 스타일을 적용합니다. */
+            }
+
+            .checkbox_btn label {
+                flex: 1; /* 동일한 너비로 설정 */
+                text-align: center; /* 가운데 정렬 */
+            !important; /* !important를 추가하여 강제로 스타일을 적용합니다. */
             }
         }
 
@@ -329,6 +489,28 @@
             text-align: center;
             cursor: pointer;
         }
+
+        /* 둥근 네모 영역 스타일 */
+        .profile-picture {
+            width: 200px; /* 원하는 사이즈로 설정 */
+            height: 200px; /* 원하는 사이즈로 설정 */
+            border-radius: 50%; /* 둥근 모서리 */
+            border: 2px solid #ccc; /* 기본 테두리 */
+            overflow: hidden; /* 넘치는 부분 잘라내기 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 33%;
+            margin-bottom: 10%;
+        }
+
+
+        /* 이미지 스타일 */
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 이미지 비율 유지 및 잘라내기 */
+        }
     </style>
 </head>
 <body>
@@ -343,50 +525,76 @@
 
     <!-- Form -->
     <form id="f" action="" method="post">
+
+        <div class="profile-picture">
+            <div th:if="${rList != null and not #lists.isEmpty(rList)}">
+                <div th:each="dto : ${rList}">
+                    <img th:if="${dto.fileUrl != null}" th:src="${dto.fileUrl}" width="100%" alt="Image">
+                    <img th:if="${dto.fileUrl == null}" src="/img/profile.png" width="100%" alt="Default Image">
+                    <br><br>
+                </div>
+            </div>
+            <div id="preview"></div>
+        </div>
+        <input id="file-input" type="file" multiple style="margin-top: 0px; margin-left: 35%">
+
         <!-- email input -->
         <div class="first-input input__block first-input__block">
             <label class="label">아이디</label>
             <input type="text" class="input" id="userId" name="userId" th:placeholder="${rDTO.userId}" disabled=""
-                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding: 0; background-color: #F5F5F5 !important; "/>
+                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important; "/>
         </div>
         <div class="first-input input__block first-input__block">
             <label class="label">이메일</label>
-            <input type="email" class="input" id="userEmail" name="userEmail" th:placeholder="${rDTO.userEmail}" disabled=""
-                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding: 0; background-color: #F5F5F5 !important; "/>
+            <input type="email" class="input" id="userEmail" name="userEmail" th:placeholder="${rDTO.userEmail}"
+                   disabled=""
+                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important; "/>
         </div>
         <div class="first-input input__block first-input__block">
             <label class="label">이름</label>
             <input type="text" class="input" id="userName" name="userName" th:placeholder="${rDTO.userName}" disabled=""
-                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding: 0; background-color: #F5F5F5 !important;" />
+                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important;"/>
             <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
         </div>
         <div class="first-input input__block first-input__block">
             <label class="label">닉네임</label>
             <input type="text" class="input" id="userNickname" name="userNickname" th:placeholder="${rDTO.userNickname}"
-                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding: 0;" />
+                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1);;"/>
         </div>
         <div class="first-input input__block first-input__block">
             <label class="label">생년월일</label>
             <input type="text" class="input" id="userAge" name="userAge" th:placeholder="${rDTO.userAge}" disabled=""
-                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding: 0; background-color: #F5F5F5 !important;" />
+                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important;"/>
             <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
         </div>
         <div class="first-input input__block first-input__block">
             <label class="label">성별</label>
-            <input type="text" class="input" id="userGender" name="userGender" th:placeholder="${rDTO.userGender}" disabled=""
-                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding: 0; background-color: #F5F5F5 !important;" />
+            <input type="text" class="input" id="userGender" name="userGender" th:placeholder="${rDTO.userGender}"
+                   disabled=""
+                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important;"/>
             <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
         </div>
-        <div class="first-input input__block first-input__block">
+        <div class="input__block">
             <label class="label">관심사</label>
-            <input type="text" class="input" id="userInterest" name="userInterest" th:placeholder="${rDTO.userInterest}" disabled=""
-                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding: 0;" />
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
+            <input type="hidden" id="userInterest" name="userInterest" th:value="${rDTO.userInterest}"/>
+            <div class="checkbox_btn">
+                <label><input type="checkbox" class="interest-checkbox" name="userInterest" value="책"
+                              th:checked="${#strings.contains(rDTO.userInterest, '책')}"/> 책</label>
+                <label><input type="checkbox" class="interest-checkbox" name="userInterest" value="영화"
+                              th:checked="${#strings.contains(rDTO.userInterest, '영화')}"/> 영화</label>
+                <label><input type="checkbox" class="interest-checkbox" name="userInterest" value="드라마"
+                              th:checked="${#strings.contains(rDTO.userInterest, '드라마')}"/> 드라마</label>
+                <label><input type="checkbox" class="interest-checkbox" name="userInterest" value="노래"
+                              th:checked="${#strings.contains(rDTO.userInterest, '노래')}"/> 노래</label>
+            </div>
         </div>
+
+        <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
         <div class="first-input input__block first-input__block">
-            <label class="label">관심사</label>
-            <input type="text" class="input" id="memberSince" name="memberSince" th:placeholder="${rDTO.memberSince}" disabled=""
-                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); padding: 0; background-color: #F5F5F5 !important;" />
+            <label class="label">가입일</label>
+            <input type="text" class="input" id="memberSince" name="memberSince" th:placeholder="${rDTO.memberSince}"
+                   disabled=""
+                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important;"/>
             <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
         </div>
 
@@ -411,12 +619,12 @@
 
         <br/>
 
-        <a href="#">
-            <!-- sign in button -->
-            <button id="btnModify" type="button" class="signin__btn">
-                회원정보 수정
-            </button>
-        </a>
+        <!--        <a href="#">-->
+        <!-- sign in button -->
+        <button id="btnModify" type="button" class="signin__btn">
+            회원정보 수정
+        </button>
+        <!--        </a>-->
         <br/>
         <button id="btnDelete" class="signin__btn">회원 탈퇴</button>
         <br/><br/>

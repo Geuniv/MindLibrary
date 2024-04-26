@@ -74,43 +74,61 @@
 
         /*]]>*/
     </script>
+<!--    <style>-->
+<!--        .site-btn {-->
+<!--            font-size: 13px;-->
+<!--            font-weight: 700;-->
+<!--            text-transform: uppercase;-->
+<!--            color: #ffffff;-->
+<!--            letter-spacing: 2px;-->
+<!--            background: #0b0b0b;-->
+<!--            border: none;-->
+<!--            padding: 14px 42px 13px;-->
+<!--            display: inline-block;-->
+<!--            border-radius: 2px;-->
+<!--        }-->
+<!--    </style>-->
 </head>
 <body>
-<h2>공지사항 등록하기</h2>
-<hr/>
-<br/>
-<form id="f">
-    <div class="divTable minimalistBlack">
-        <div class="divTableBody">
-            <div class="divTableRow">
-                <div class="divTableCell">제목</div>
-                <div class="divTableCell">
-                    <input type="text" name="boardTitle" maxlength="100" style="width: 95%"/>
-                </div>
-            </div>
-<!--            <div class="divTableRow">-->
-<!--                <div class="divTableCell">공지글 여부</div>-->
-<!--                <div class="divTableCell">-->
-<!--                    예<input type="radio" name="noticeYn" value="Y"/>-->
-<!--                    아니오<input type="radio" name="noticeYn" value="N"/>-->
-<!--                </div>-->
-<!--            </div>-->
-            <div class="divTableRow">
-                <div class="divTableCell">조회수</div>
-                <div class="divTableCell"></div>
-            </div>
-            <div class="divTableRow">
-                <div class="divTableCell">내용</div>
-                <div class="divTableCell">
-                    <textarea name="boardContent" style="width: 95%; height: 400px"></textarea>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="top"></th:block>
+<!-- End Header -->
+
+<!-- Blog Details Section Begin -->
+<section class="blog-details-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="blog-details-text">
+                    <div class="bd-title">
+                        <div class="leave-comment">
+                            <h4>게시글 작성하기</h4>
+                            <form id="f" name="f" action="#" class="comment-form">
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <input type="text" id="boardTitle" name="boardTitle" placeholder="제목" maxlength="500"/>
+                                        <textarea name="boardContent" id="boardContent" placeholder="내용" style="height: 500px;"></textarea>
+
+                                        <button id="btnSend" type="button" class="site-btn">글작성</button>
+                                        <button class="site-btn" type="reset">다시 작성</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div>
-        <button id="btnSend" type="button">등록</button>
-        <button type="reset">다시 작성</button>
-    </div>
-</form>
+</section>
+<!-- Blog Details Section End -->
+<br/>
+
 </body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="footer"></th:block>
+<!-- End Header -->
+
 </html>

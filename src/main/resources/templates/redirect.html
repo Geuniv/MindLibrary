@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>redirect</title>
+</head>
+<body>
+<script th:inline="javascript">
+    let msg = [[${msg}]] /*'';*/
+    let url = [[${url}]] /*'/main';*/
+    alert(msg);
+    location.href=url;
+</script>
+<meta charset="UTF-8">
+</body>
+</html>

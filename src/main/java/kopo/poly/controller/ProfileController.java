@@ -1,22 +1,24 @@
 package kopo.poly.controller;
 
+import kopo.poly.dto.FileDTO;
 import kopo.poly.dto.MsgDTO;
 import kopo.poly.dto.UserInfoDTO;
-import kopo.poly.service.IProfileService;
-import kopo.poly.service.IUserInfoService;
+import kopo.poly.service.*;
 import kopo.poly.util.CmmUtil;
 import kopo.poly.util.EncryptUtil;
+import kopo.poly.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -27,42 +29,63 @@ public class ProfileController {
 
     private final IProfileService profileService;
 
-//    private final IUserInfoService userInfoService;
+    private final IUserInfoService userInfoService;
+
+    private final IFileService fileService;
+
+    private final IS3Service s3Service;
+
+    private final IBoardService boardService;
 
     @GetMapping(value = "")
-    public String profile(ModelMap modelMap, HttpSession session) throws Exception {
+    public String profile(ModelMap model, HttpSession session,
+                          @RequestParam(defaultValue = "1") int page) throws Exception {
 
-        log.info(this.getClass().getName() + "프로필 조회 컨트롤러 시작 !");
+        log.info(this.getClass().getName() + "마이페이지 조회 컨트롤러 시작!");
 
         String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
 
-        log.info("세션에서 받아온 userId : " + userId);
+        log.info("SS_USER_ID : " + userId);
 
         UserInfoDTO pDTO = new UserInfoDTO();
         pDTO.setUserId(userId);
 
         UserInfoDTO rDTO = Optional.ofNullable(profileService.getProfile(pDTO)).orElseGet(UserInfoDTO::new);
 
-        log.info("DB에서 가져와 복호화 하기 전 이메일 : " + rDTO.getUserEmail());
+        log.info("pDTO : " + pDTO);
+
+        // 이미지 가져오기
+        List<FileDTO> rList = Optional.ofNullable(fileService.getFile(pDTO)).orElseGet(ArrayList::new);
+
+        log.info("rList : " + rList);
+
+        model.addAttribute("rList", rList);
+
+        log.info("rList : " + rList);
+
+        // 이미지 가져오기 종료
+
+        log.info("복호화 전 Email : " + rDTO.getUserEmail());
 
         rDTO.setUserEmail(EncryptUtil.decAES128CBC(rDTO.getUserEmail()));
 
-        log.info("DB에서 가져와 복호화 하고나서 이메일 : " + rDTO.getUserEmail());
+        log.info("복호화 후 Email : " + rDTO.getUserEmail());
 
-        modelMap.addAttribute("rDTO", rDTO);
+        model.addAttribute("rDTO", rDTO);
 
         log.info("회원정보 조회 rDTO.toString() : " + rDTO.toString());
 
-        log.info(this.getClass().getName() + "프로필 조회 컨트롤러 끝 !");
+        log.info(this.getClass().getName() + "마이페이지 조회 컨트롤러 종료!");
 
         return "/user/profile";
+
     }
 
 
     @GetMapping(value = "/profileModify")
-    public String profileModify(HttpSession session, ModelMap modelMap) throws Exception {
+    public String profileModify(HttpSession session, ModelMap model) throws Exception {
 
-        log.info(this.getClass().getName() + ".profileModify Start!");
+        log.info(this.getClass().getName() + "마이페이지 수정페이지 보여주기 시작!");
 
         String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
 
@@ -75,57 +98,118 @@ public class ProfileController {
 
         UserInfoDTO rDTO = Optional.ofNullable(profileService.getProfile(pDTO)).orElseGet(UserInfoDTO::new);
 
+        // 이미지 가져오기
+        List<FileDTO> rList = Optional.ofNullable(fileService.getFile(pDTO)).orElseGet(ArrayList::new);
+
+        log.info("rList : " + rList);
+
+//        rList.add(rDTO.getImage(fDTO.getFileUrl()));
+        model.addAttribute("rList", rList);
+
+        log.info("rList : " + rList);
+
+        // 이미지 가져오기 종료
+
         log.info("DB에서 가져와 복호화 하기 전 이메일 : " + rDTO.getUserEmail());
 
         rDTO.setUserEmail(EncryptUtil.decAES128CBC(rDTO.getUserEmail()));
 
         log.info("DB에서 가져와 복호화 하고나서 이메일 : " + rDTO.getUserEmail());
 
-        modelMap.addAttribute("rDTO", rDTO);
+        model.addAttribute("rDTO", rDTO);
 
         log.info("회원정보 조회 rDTO.toString() : " + rDTO.toString());
 
-        log.info(this.getClass().getName() + "profileModify End!");
+        log.info(this.getClass().getName() + "마이페이지 수정페이지 보여주기 종료!");
 
         return "/user/profileModify";
     }
 
 
     @ResponseBody
-    @PostMapping(value = "/profileModify/updateProc")
-    public MsgDTO updateProc(HttpSession session, HttpServletRequest request) {
+    @PostMapping(value = "/profileModifyProc")
+    public MsgDTO updateProc(HttpSession session, HttpServletRequest request,
+                             @RequestParam(value = "file", required = false) List<MultipartFile> files) {
 
-        log.info(this.getClass().getName() + ".profileModify/updateProc Start!");
+        log.info(this.getClass().getName() + "마이페이지 수정 시작!");
 
         String msg = "";
         int result = 0;
         MsgDTO rDTO = null;
 
+
         try {
 
             String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
-            String userPassword = CmmUtil.nvl(request.getParameter("userPassword"));
-            String userName = CmmUtil.nvl(request.getParameter("userName"));
-//            String addr1 = CmmUtil.nvl(request.getParameter("addr1"));
-//            String addr2 = CmmUtil.nvl(request.getParameter("addr2"));
+            String userNickname = CmmUtil.nvl(request.getParameter("userNickname"));
+            String[] userInterestArray = request.getParameterValues("userInterest"); // 관심사 배열
+            String userInterest = String.join(",", userInterestArray); // 배열을 쉼표로 구분된 문자열로 변환
 
             log.info("userId : " + userId);
-            log.info("userPassword : " + userPassword);
-            log.info("userName : " + userName);
-//            log.info("addr1 : " + addr1);
-//            log.info("addr2 : " + addr2);
+            log.info("userNickame : " + userNickname);
+            log.info("userInterest : " + userInterest);
+
+
 
             UserInfoDTO pDTO = new UserInfoDTO();
             pDTO.setUserId(userId);
-            pDTO.setUserPassword(EncryptUtil.encHashSHA256(userPassword));
-            pDTO.setUserName(userName);
-//            pDTO.setAddr1(addr1);
-//            pDTO.setAddr2(addr2);
+            pDTO.setUserNickname(userNickname);
+            pDTO.setUserInterest(userInterest);
+
 
             profileService.updateProfile(pDTO);
 
             msg = "수정되었습니다.";
             result = 1;
+
+            if (files != null) {
+
+                // 기존에 있던 파일들 삭제
+                fileService.deleteFile(pDTO);
+
+                String saveFilePath = FileUtil.mkdirForData();      // 웹서버에 저장할 파일 경로 생성
+
+                log.info("userId : " + userId);
+
+                for (MultipartFile mf : files) {
+
+                    log.info("mf : " + mf);
+
+                    String orgFileName = mf.getOriginalFilename();      // 파일의 원본 명
+                    String fileSize = String.valueOf(mf.getSize());     // 파일 크기
+                    String ext = orgFileName.substring(orgFileName.lastIndexOf(".") + 1,    // 확장자
+                            orgFileName.length()).toLowerCase();
+
+                    // 이미지 파일만 실행되도록 함
+                    if (ext.equals("jpeg") || ext.equals("jpg") || ext.equals("gif") || ext.equals("png")) {
+
+
+                        log.info("userId : " + userId);
+                        log.info("orgFileName : " + orgFileName);
+                        log.info("fileSize : " + fileSize);
+                        log.info("ext : " + ext);
+                        log.info("saveFilePath : " + saveFilePath);
+
+                        FileDTO fileDTO = new FileDTO();
+                        fileDTO.setOrgFileName(orgFileName);
+                        fileDTO.setFilePath(saveFilePath);
+                        fileDTO.setFileSize(fileSize);
+                        fileDTO.setUserId(userId);
+
+
+                        FileDTO fDTO = s3Service.uploadFile(mf, ext);
+                        fileDTO.setFileUrl(fDTO.getFileUrl());
+                        fileDTO.setFileName(fDTO.getFileName());
+
+                        log.info("sageFileUrl : " + fDTO.getFileUrl());
+
+                        fileService.insertFile(fileDTO);
+
+                        fileDTO = null;
+
+                    }
+                }
+            }
 
 
         } catch (Exception e) {
@@ -137,12 +221,11 @@ public class ProfileController {
 
             rDTO = MsgDTO.builder().msg(msg).result(result).build();
 
-            log.info(this.getClass().getName() + ".profileModify/updateProc End!");
+            log.info(this.getClass().getName() + "마이페이지 수정 종료!");
         }
 
         return rDTO;
     }
-
 
     @ResponseBody
     @PostMapping(value = "/deleteUserInfo")
@@ -153,14 +236,38 @@ public class ProfileController {
         String msg = ""; // 메시지 내용
         MsgDTO rDTO = null; // 결과 메시지 구조
 
+        String fileSeq = CmmUtil.nvl((request.getParameter("fileSeq")));
+        String boardSeq = CmmUtil.nvl(request.getParameter("boardSeq"));
+        String commentSeq = CmmUtil.nvl(request.getParameter("commentSeq"));
+        String challengeSeq = CmmUtil.nvl(request.getParameter("challengeSeq"));
+        String checkSeq = CmmUtil.nvl(request.getParameter("checkSeq"));
+        String testSeq = CmmUtil.nvl(request.getParameter("testSeq"));
+
+
         try {
 
             String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
 
             log.info("SS_USER_ID : " + userId);
+            log.info("fileSeq : " + fileSeq);
+            log.info("boardSeq : " + boardSeq);
+            log.info("commentSeq : " + commentSeq);
+            log.info("challengeSeq : " + challengeSeq);
+            log.info("checkSeq : " + checkSeq);
+            log.info("testSeq : " + testSeq);
 
             UserInfoDTO pDTO = new UserInfoDTO();
             pDTO.setUserId(userId);
+            pDTO.setFileSeq(fileSeq);
+            pDTO.setBoardSeq(boardSeq);
+            pDTO.setCommentSeq(commentSeq);
+            pDTO.setChallengeSeq(challengeSeq);
+            pDTO.setCheckSeq(checkSeq);
+            pDTO.setTestSeq(testSeq);
+
+            // userId를 외래키로 참조하는 서비스들 삭제
+            fileService.deleteFile(pDTO);
+            boardService.deleteUserInfo(pDTO);
 
             // 회원정보 삭제하기 메서드 호출
             profileService.deleteUserInfo(pDTO);
@@ -177,16 +284,6 @@ public class ProfileController {
 
             rDTO = MsgDTO.builder().msg(msg).build();
 
-//            // 만약 access_Token이 존재하면, 카카오 로그아웃 메소드 호출하기!
-//            if (session.getAttribute("access_Token") != null) {
-//
-//                // 카카오 로그아웃 메소드 호출
-//                loginService.kakaoLogout((String) session.getAttribute("access_Token"));
-//
-//                // 세션에 있는 접근토큰 삭제하기!
-//                session.removeAttribute("access_Token");
-//            }
-
             // 세션에 있는 유저아이디 삭제하기!
             session.removeAttribute("SS_USER_ID");
 
@@ -198,5 +295,4 @@ public class ProfileController {
 
         return rDTO;
     }
-
 }

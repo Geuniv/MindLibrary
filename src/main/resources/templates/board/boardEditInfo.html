@@ -5,17 +5,21 @@
     <title>공지사항 수정하기</title>
     <link rel="stylesheet" href="/css/table.css"/>
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
 
-        // HTML로딩이 완료되고, 실행됨
+        // const ssUserId = [[${session.SS_USER_ID}]]; // Controller에서 받은 세션에 저장된 값
+        // const userId = [[${rDTO.userId}]]; // 공지사항 게시글 작성자 아이디
+        // const bSeq = [[${rDTO.boardSeq}]]; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
+
+        // html 로딩이 완료되고 , 실행됨
         $(document).ready(function () {
-            // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+            // 버튼 클릭됐을 때 , 발생되는 이벤트 생성함(onclick 이벤트와 동일)
             $("#btnSend").on("click", function () {
-                doSubmit(); // 공지사항 수정하기 실행
+                doSubmit(); // 커뮤니티 수정하기 실행
             })
         })
 
-        //글자 길이 바이트 단위로 체크하기(바이트값 전달)
         function calBytes(str) {
             let tcount = 0;
             let tmpStr = String(str);
@@ -32,7 +36,7 @@
             return tcount;
         }
 
-        // 공지사항 저장하기
+        // 커뮤니티 수정하기
         function doSubmit() {
 
             let f = document.getElementById("f"); // form 태그
@@ -47,18 +51,6 @@
                 f.boardTitle.focus();
                 return;
             }
-            // let noticeCheck = false; //체크 여부 확인 변수
-            // for (let i = 0; i < f.notification.length; i++) {
-            //     if (f.notification[i].checked) {
-            //         noticeCheck = true;
-            //         break;
-            //     }
-            // }
-            // if (noticeCheck === false) {
-            //     alert("공지글 여부를 선택하시기 바랍니다.");
-            //     f.notification[0].focus();
-            //     return;
-            // }
             if (f.boardContent.value === "") {
                 alert("내용을 입력하시기 바랍니다.");
                 f.boardContent.focus();
@@ -69,24 +61,25 @@
                 f.boardContent.focus();
                 return;
             }
-
             // Ajax 호출해서 글 등록하기
             $.ajax({
                     url: "/board/boardUpdate",
                     type: "post", // 전송방식은 Post
                     dataType: "JSON", // 전송 결과는 JSON으로 받기
                     data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
-                    success: function (json) { // /notice/noticeUpdate 호출이 성공했다면..
+                    success: function (json) { // /community/communityUpdate 호출이 성공했다.면..
                         alert(json.msg); // 메시지 띄우기
-                        location.href = "/board/boardList"; // 공지사항 리스트 이동
+                        location.href = "/board/boardList"; // 커뮤니티 리스트 이동
                     }
                 }
             )
         }
+
+        /*]]>*/
     </script>
 
     <style>
-        .btn {
+        .btn_ {
             border: none;
             background: #0e1d34;
             /*background: linear-gradient(0deg, rgba(6, 14, 131, 1) 0%, rgba(12, 25, 180, 1) 100%);*/
@@ -94,7 +87,7 @@
             margin-top: 10px;
         }
 
-        .btn:hover {
+        .btn_:hover {
             background: rgb(0, 3, 255);
             background: linear-gradient(0deg, rgba(0, 3, 255, 1) 0%, rgba(2, 125, 251, 1) 100%);
         }
@@ -157,39 +150,61 @@
             padding: 1px 10px 0 10px;
         }
 
+        .site-btn {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff;
+            letter-spacing: 2px;
+            background: #0b0b0b;
+            border: none;
+            padding: 14px 42px 13px;
+            display: inline-block;
+            border-radius: 2px;
+        }
     </style>
 </head>
 <body>
-<h2>공지사항 수정하기</h2>
-<hr/>
-<br/>
-<section class="COMMUNITY">
-    <form name="f" id="f">
-        <div class="contents_box">
-            <input type="hidden" name="boardSeq" th:value="${rDTO.boardSeq}"/>
-            <div class="write-container">
 
-                <div class="form-group">
-                    <div class="title">제목</div>
-                    <input type="text" name="boardTitle" maxlength="100" th:value="${rDTO.boardTitle}"
-                           style="width: 95%"/>
+<!-- ======= Header ======= -->
+<th:block th:replace="top"></th:block>
+<!-- End Header -->
+
+<!-- Blog Details Section Begin -->
+<section class="blog-details-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="blog-details-text">
+                    <div class="bd-title">
+                        <div class="leave-comment">
+                            <h4>게시글 수정하기</h4>
+                            <form id="f" name="f" class="comment-form">
+                                <input type="hidden" name="boardSeq" th:value="${rDTO.boardSeq}"/>
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <input type="text" id="boardTitle" name="boardTitle" placeholder="제목" maxlength="200" th:value="${rDTO.boardTitle}"/>
+                                        <textarea name="boardContent" id="boardContent" placeholder="내용" style="height: 500px;">[[${rDTO.boardContent}]]</textarea>
+
+                                        <button id="btnSend" type="button" class="site-btn">수정하기</button>
+                                        <button class="site-btn" type="reset">다시 작성</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <div class="title">조회수</div>
-                    <div th:text="${rDTO.boardViews}"></div>
-                </div>
-                <div class="form-group">
-                    <div class="content">내용</div>
-                    <textarea name="boardContent" style="width: 95%" th:text="${rDTO.boardContent}"></textarea>
-                </div>
-            </div>
-            <div class="find-btn">
-                <button class="btn" id="btnSend" type="button">수정</button>
-                <button class="btn" id="reset" type="reset">다시 작성</button>
             </div>
         </div>
-    </form>
+    </div>
 </section>
+<!-- Blog Details Section End -->
+<br/>
 
 </body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="footer"></th:block>
+<!-- End Header -->
+
 </html>

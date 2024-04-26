@@ -19,7 +19,8 @@ public class MainController {
 
         log.info(this.getClass().getName() + ".index End !");
 
-        return "/bootstrap/index";
+        return "/index";
 
     }
+
 }

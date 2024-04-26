@@ -140,6 +140,11 @@
                 f.userEmail.focus();
                 return;
             }
+            if (f.authNumber.value === "") {
+                alert("인증번호를 입력하세요.");
+                f.authNumber.focus();
+                return;
+            }
             if (f.userName.value === "") {
                 alert("이름을 입력하세요.");
                 f.userName.focus();
@@ -166,14 +171,14 @@
             //     return;
             // }
 
-            // // 관심사 체크박스의 값을 배열로 저장하기
-            // const interests = [];
-            // $("input[name='userInterest']:checked").each(function() {
-            //     interests.push($(this).val());
-            // });
-            //
-            // // 폼 데이터에 관심사 배열 추가
-            // f.append('userInterest', interests);
+            // 관심사 체크박스의 값을 배열로 저장하기
+            const interests = [];
+            $("input[name='userInterest']:checked").each(function() {
+                interests.push($(this).val());
+            });
+
+            // 폼 데이터에 관심사 배열 추가
+            f.append('userInterest', interests);
 
             // Ajax 호출해서 회원가입하기
             $.ajax({
@@ -192,51 +197,51 @@
             })
         }
 
-        $(document).ready(function(){
-            let signup = $(".links").find("li").find("#signup") ;
-            let signin = $(".links").find("li").find("#signin") ;
-            let reset  = $(".links").find("li").find("#reset")  ;
-            let first_input = $("form").find(".first-input");
-            let hidden_input = $("form").find(".input__block").find("#repeat__password");
-            let signin_btn  = $("form").find(".signin__btn");
-
-            //----------- sign up ---------------------
-            signup.on("click",function(e){
-                e.preventDefault();
-                $(this).parent().parent().siblings("h1").text("SIGN UP");
-                $(this).parent().css("opacity","1");
-                $(this).parent().siblings().css("opacity",".6");
-                first_input.removeClass("first-input__block").addClass("signup-input__block");
-                hidden_input.css({
-                    "opacity" : "1",
-                    "display" : "block"
-                });
-                signin_btn.text("Sign up");
-            });
-
-
-            //----------- sign in ---------------------
-            signin.on("click",function(e){
-                e.preventDefault();
-                $(this).parent().parent().siblings("h1").text("SIGN IN");
-                $(this).parent().css("opacity","1");
-                $(this).parent().siblings().css("opacity",".6");
-                first_input.addClass("first-input__block")
-                    .removeClass("signup-input__block");
-                hidden_input.css({
-                    "opacity" : "0",
-                    "display" : "none"
-                });
-                signin_btn.text("Sign in");
-            });
-
-            //----------- reset ---------------------
-            reset.on("click",function(e){
-                e.preventDefault();
-                $(this).parent().parent().siblings("form")
-                    .find(".input__block").find(".input").val("");
-            })
-        });
+        // $(document).ready(function(){
+        //     let signup = $(".links").find("li").find("#signup") ;
+        //     let signin = $(".links").find("li").find("#signin") ;
+        //     let reset  = $(".links").find("li").find("#reset")  ;
+        //     let first_input = $("form").find(".first-input");
+        //     let hidden_input = $("form").find(".input__block").find("#repeat__password");
+        //     let signin_btn  = $("form").find(".signin__btn");
+        //
+        //     //----------- sign up ---------------------
+        //     signup.on("click",function(e){
+        //         e.preventDefault();
+        //         $(this).parent().parent().siblings("h1").text("SIGN UP");
+        //         $(this).parent().css("opacity","1");
+        //         $(this).parent().siblings().css("opacity",".6");
+        //         first_input.removeClass("first-input__block").addClass("signup-input__block");
+        //         hidden_input.css({
+        //             "opacity" : "1",
+        //             "display" : "block"
+        //         });
+        //         signin_btn.text("Sign up");
+        //     });
+        //
+        //
+        //     //----------- sign in ---------------------
+        //     signin.on("click",function(e){
+        //         e.preventDefault();
+        //         $(this).parent().parent().siblings("h1").text("SIGN IN");
+        //         $(this).parent().css("opacity","1");
+        //         $(this).parent().siblings().css("opacity",".6");
+        //         first_input.addClass("first-input__block")
+        //             .removeClass("signup-input__block");
+        //         hidden_input.css({
+        //             "opacity" : "0",
+        //             "display" : "none"
+        //         });
+        //         signin_btn.text("Sign in");
+        //     });
+        //
+        //     //----------- reset ---------------------
+        //     reset.on("click",function(e){
+        //         e.preventDefault();
+        //         $(this).parent().parent().siblings("form")
+        //             .find(".input__block").find(".input").val("");
+        //     })
+        // });
     </script>
     <!--    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js">-->
 
@@ -279,22 +284,30 @@
                 margin: 0 20px 0 0;
                 transition: .2s linear;
 
+                &:nth-child(1) {
+                    opacity: .6;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+
                 &:nth-child(2) {
-                    opacity: .6;
+                    opacity: 1;
 
                     &:hover {
                         opacity: 1;
                     }
                 }
 
-                &:nth-child(3) {
-                    opacity: .6;
-                    float: right;
+                /*&:nth-child(3) {*/
+                /*    opacity: .6;*/
+                /*    float: right;*/
 
-                    &:hover {
-                        opacity: 1;
-                    }
-                }
+                /*    &:hover {*/
+                /*        opacity: 1;*/
+                /*    }*/
+                /*}*/
 
                 a {
                     text-decoration: none;
@@ -381,7 +394,7 @@
             }
 
             .signin__btn {
-                background: #e91e63;
+                background: #000000;
                 color: white;
                 display: block;
                 width: 92.5%;
@@ -393,12 +406,72 @@
                 cursor: pointer;
                 font-size: 14px;
                 font-family: 'Montserrat', sans-serif;
-                box-shadow: 0 15px 30px rgba(233, 30, 99, .36);
+                box-shadow: 0 15px 30px rgba(80, 80, 80, .36);
                 transition: .2s linear;
 
                 &:hover {
-                    box-shadow: 0 0 0 rgba(233, 30, 99, .0);
+                    box-shadow: 0 0 0 rgba(80, 80, 80, .0);
                 }
+            }
+
+            /* 인증 확인 버튼 */
+            .auth__btn {
+                background: #000000;
+                color: white;
+                display: block;
+                width: 90%;
+                max-width: 680px;
+                height: 50px;
+                border-radius: 8px;
+                margin: 0 auto;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                font-family: 'Montserrat', sans-serif;
+                box-shadow: 0 15px 30px rgba(80, 80, 80, .36);
+                transition: .2s linear;
+
+                &:hover {
+                    box-shadow: 0 0 0 rgba(80, 80, 80, .0);
+                }
+            }
+
+            .radio_btn {
+                width: 90%;
+                max-width: 680px;
+                height: 50px;
+                border-radius: 8px;
+                /*margin: 0 auto;*/
+                margin-left: 20%;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                display: flex; /* Flexbox 설정 */
+                align-items: center; /* 수직 가운데 정렬 */
+            }
+
+            .radio_btn label {
+                flex: 1; /* 동일한 너비로 설정 */
+                text-align: center; /* 가운데 정렬 */
+                margin-left: 20%;
+            }
+
+            .checkbox_btn {
+                width: 90%;
+                max-width: 680px;
+                height: 50px;
+                border-radius: 8px;
+                margin: 0 auto;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                display: flex; /* Flexbox 설정 */
+                align-items: center; /* 수직 가운데 정렬 */
+            }
+
+            .checkbox_btn label {
+                flex: 1; /* 동일한 너비로 설정 */
+                text-align: center; /* 가운데 정렬 */
             }
         }
 
@@ -518,14 +591,6 @@
 
             }
         }
-
-        .a_ {
-            text-decoration: none;
-            color: #0f132a;
-            font-weight: bolder;
-            text-align: center;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -535,20 +600,22 @@
 <!-- End Header -->
 
 <div class="container">
+
+<!--    <img src="/img/background.jpg" style="background-image: inherit;">-->
     <!-- Heading -->
-    <h1>SIGN IN</h1>
+    <h1>회원가입</h1>
 
     <!-- Links -->
     <ul class="links">
         <li>
-            <a href="#" id="signin">SIGN IN</a>
+            <a href="/user/login" id="signin">로그인</a>
         </li>
         <li>
-            <a href="#" id="signup">SIGN UP</a>
+            <a href="/user/userRegForm" id="signup" class="a_">회원가입</a>
         </li>
-        <li>
-            <a href="#" id="reset">RESET</a>
-        </li>
+<!--        <li>-->
+<!--            <a href="#" id="reset">RESET</a>-->
+<!--        </li>-->
     </ul>
 
     <!-- Form -->
@@ -556,7 +623,8 @@
         <!-- email input -->
         <div class="first-input input__block first-input__block">
             <input type="text" placeholder="아이디" class="input" id="userId" th:name="userId"  />
-            <button id="btnUserId" type="button">아이디 중복체크</button>
+            <br/>
+            <button id="btnUserId" type="button" class="auth__btn">아이디 중복체크</button>
         </div>
         <!-- password input -->
         <div class="input__block">
@@ -567,33 +635,42 @@
         <!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password"    />-->
         <!--        </div>-->
         <div class="input__block">
-            <input type="password" placeholder="비밀번호확인" class="input repeat__password" id="userPassword2" th:name="userPassword2"    />
+            <input type="password" placeholder="비밀번호확인" class="input" id="userPassword2" th:name="userPassword2"    />
         </div>
         <div class="input__block">
             <input type="email" placeholder="이메일" class="input" id="userEmail" th:name="userEmail"    />
+            <br/>
             <input type="text" placeholder="인증번호" class="input" th:name="authNumber"    />
-            <button id="btnEmail" type="button">이메일 중복체크</button>
+            <br/>
+            <button id="btnEmail" type="button" class="auth__btn">이메일 중복체크</button>
         </div>
         <div class="input__block">
-            <input type="text" placeholder="닉네임" class="input" id="userNickName" th:name="userNickName"    />
+            <input type="text" placeholder="이름" class="input" id="userName" th:name="userName"    />
         </div>
         <div class="input__block">
-            <laㅣbel><input type="radio" class="input" name="userGender"  placeholder="남자" th:value="1"/>남자</laㅣbel>
-            <label><input type="radio" class="input" name="userGender"  placeholder="여자" th:value="2"/>여자</label>
+            <input type="text" placeholder="닉네임" class="input" id="userNickName" th:name="userNickname"    />
         </div>
         <div class="input__block">
-            <label><input type="checkbox" class="input" name="userInterest" value="book"/>책</label>
-            <label><input type="checkbox" class="input" name="userInterest" value="movie"/>영화</label>
-            <label><input type="checkbox" class="input" name="userInterest" value="drama"/>드라마</label>
-            <label><input type="checkbox" class="input" name="userInterest" value="song"/>노래</label>
+            <input type="date" name="userAge" style="width: 90%" placeholder="연령"/>
+        </div>
+        <div class="radio_btn">
+            <laㅣbel><input type="radio" class="input" name="userGender"  placeholder="남자" th:value="남자"/> 남자</laㅣbel>
+            <label><input type="radio" class="input" name="userGender"  placeholder="여자" th:value="여자"/> 여자</label>
+        </div>
+        <div class="checkbox_btn">
+            <label><input type="checkbox" class="input" name="userInterest" value="책"/> 책</label>
+            <label><input type="checkbox" class="input" name="userInterest" value="영화"/> 영화</label>
+            <label><input type="checkbox" class="input" name="userInterest" value="드라마"/> 드라마</label>
+            <label><input type="checkbox" class="input" name="userInterest" value="노래"/> 노래</label>
         </div>
 
         <!-- sign in button -->
         <button id="btnSend" type="button" class="signin__btn">
-            Sign up
+            회원가입
         </button>
         <br/><br/>
     </form>
+
     <!-- separator -->
     <div class="separator">
         <!--        <p>OR</p>-->

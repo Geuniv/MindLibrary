@@ -28,5 +28,8 @@ public interface IUserInfoMapper {
     // 비밀번호 재설정
     int updatePassword(UserInfoDTO pDTO) throws Exception;
 
+    // 회원탈퇴
+//    void deleteUser(UserInfoDTO pDTO) throws Exception;
+
 
 }

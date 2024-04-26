@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--JAVA와 연결할 Mapper 파일 설정-->
+<mapper namespace="kopo.poly.persistance.mapper.IFileMapper">
+
+    <insert id="insertFile" parameterType="FileDTO">
+        INSERT INTO FILE
+        (USER_ID, FILE_PATH, FILE_NAME, ORG_FILE_NAME, FILE_SIZE, FILE_URL)
+        VALUES (#{userId}, #{filePath}, #{fileName}, #{orgFileName}, #{fileSize}, #{fileUrl})
+    </insert>
+
+    <select id="getFile" parameterType="UserInfoDTO" resultType="FileDTO">
+        SELECT USER_ID, FILE_PATH, FILE_NAME, ORG_FILE_NAME, FILE_URL
+        FROM FILE
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <update id="updateFile" parameterType="UserInfoDTO">
+        UPDATE SET FILE
+        FILE_PATH = #{filePath},
+        FILE_NAME = #{fileName},
+        ORG_FILE_NAME = #{orgFileName}
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <delete id="deleteFile" parameterType="UserInfoDTO">
+        DELETE FROM FILE
+        WHERE USER_ID = #{userId}
+    </delete>
+</mapper>

@@ -3,8 +3,10 @@ package kopo.poly.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import kopo.poly.dto.BoardDTO;
+import kopo.poly.dto.CommentDTO;
 import kopo.poly.dto.MsgDTO;
 import kopo.poly.service.IBoardService;
+import kopo.poly.service.ICommentService;
 import kopo.poly.util.CmmUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +27,7 @@ import java.util.Optional;
 public class BoardController {
 
     private final IBoardService boardService;
-//    private final ICommentService commentService;
+    private final ICommentService commentService;
 
     /** 커뮤니티 리스트 보여주기 */
     @GetMapping(value = "boardList")
@@ -61,31 +63,33 @@ public class BoardController {
 
         /**페이징 시작 부분*/
 
-//        // 페이지당 보여줄 아이템 개수 정의
-//        int itemsPerPage = 10;
-//
-//        // 페이지네이션을 위해 전체 아이템 개수 구하기
-//        int totalItems = rList.size();
-//
-//        // 전체 페이지 개수 계산
-//        int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
-//
-//        // 현재 페이지에 해당하는 아이템들만 선택하여 rList에 할당
-//        int fromIndex = (page - 1) * itemsPerPage;
-//        int toIndex = Math.min(fromIndex + itemsPerPage, totalItems);
-//        rList = rList.subList(fromIndex, toIndex);
-//
-//
-//        model.addAttribute("rList", rList);
-//        model.addAttribute("currentPage", page);
-//        model.addAttribute("totalPages", totalPages);
-//
-//        log.info(this.getClass().getName() + ".페이지 번호 : " + page);
+        // 페이지당 보여줄 아이템 개수 정의
+        int itemsPerPage = 10;
+
+        // 페이지네이션을 위해 전체 아이템 개수 구하기
+        int totalItems = rList.size();
+
+        // 전체 페이지 개수 계산
+        int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
+
+        // 현재 페이지에 해당하는 아이템들만 선택하여 rList에 할당
+        int fromIndex = (page - 1) * itemsPerPage;
+        int toIndex = Math.min(fromIndex + itemsPerPage, totalItems);
+        rList = rList.subList(fromIndex, toIndex);
+
+
+        model.addAttribute("rList", rList);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+
+        log.info(this.getClass().getName() + ".페이지 번호 : " + page);
 
         /**페이징 끝부분*/
 
         // 조회된 리스트 결과값 넣어주기
         model.addAttribute("rList", rList);
+
+        log.info(rList.toString());
 
         log.info(this.getClass().getName() + ".boardList End!");
 
@@ -158,28 +162,31 @@ public class BoardController {
         String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
 
         String bSeq = CmmUtil.nvl(request.getParameter("bSeq")); // 공지글 번호(PK)
+        String userNickname = CmmUtil.nvl(request.getParameter("userNickname")); // 공지글 번호(PK)
 
         log.info("세션 아이디 : " + userId);
         log.info("bSeq : " + bSeq);
+        log.info("userNickname : " + userNickname);
 
         // 값 전달은 반드시 DTO 객체를 이용해서 처리함 전달 받은 값을 DTO 객체에 넣는다.
-        BoardDTO pDTO = BoardDTO.builder().boardSeq(bSeq).userId(userId).build();
+        BoardDTO pDTO = BoardDTO.builder().boardSeq(bSeq).userId(userId).userNickname(userNickname).build();
 
         // 공지사항 상세정보 가져오기
         BoardDTO rDTO = Optional.ofNullable(boardService.getBoardInfo(pDTO, true)).orElseGet(() -> BoardDTO.builder().build());
 
-//        CommentDTO cDTO = new CommentDTO();
-//        cDTO.setCommunitySeq(nSeq);
-//
-//        // 댓글 리스트 조회하기
-//        List<CommentDTO> rList = Optional.ofNullable(commentService.getCommentList(cDTO)).orElseGet(ArrayList::new);
-//
-//        // 조회된 리스트 결과값 넣어주기
-//        modelMap.addAttribute("rList", rList);
-//
-//        for (CommentDTO dto : rList) {
-//            log.info("commentSeq" + dto.getCommentSeq());
-//        }
+        CommentDTO cDTO = new CommentDTO();
+        cDTO.setBoardSeq(bSeq);
+
+        // 댓글 리스트 조회하기
+        List<CommentDTO> rList = Optional.ofNullable(commentService.getCommentList(cDTO)).orElseGet(ArrayList::new);
+
+        // 조회된 리스트 결과값 넣어주기
+        modelMap.addAttribute("rList", rList);
+
+        for (CommentDTO dto : rList) {
+            log.info("commentSeq" + dto.getCommentSeq());
+            log.info("userNickname" + dto.getUserNickname());
+        }
 
         // 조회된 리스트 결과값 넣어주기
         modelMap.addAttribute("rDTO", rDTO);
@@ -194,16 +201,19 @@ public class BoardController {
 
     /** 게시판 수정을 위한 페이지*/
     @GetMapping(value = "boardEditInfo")
-    public String boardEditInfo(HttpServletRequest request, ModelMap modelMap) throws Exception {
+    public String boardEditInfo(HttpServletRequest request, ModelMap modelMap, HttpSession session) throws Exception {
 
         log.info(this.getClass().getName() + ".boardEditInfo Start!");
 
-        String bSeq = CmmUtil.nvl(request.getParameter("bSeq")); // 공지글 번호
+        String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
 
+        String bSeq = CmmUtil.nvl(request.getParameter("bSeq")); // 공지글 번호(PK)
+
+        log.info("세션 아이디 : " + userId);
         log.info("bSeq : " + bSeq);
 
         // 값 전달은 반드시 DTO 객체를 이용해서 처리함 전달 받은 값을 DTO 객체에 넣는다.
-        BoardDTO pDTO = BoardDTO.builder().boardSeq(bSeq).build();
+        BoardDTO pDTO = BoardDTO.builder().boardSeq(bSeq).userId(userId).build();
 
         BoardDTO rDTO = Optional.ofNullable(boardService.getBoardInfo(pDTO, false)).orElseGet(() -> BoardDTO.builder().build());
 
@@ -233,7 +243,7 @@ public class BoardController {
             String notification = CmmUtil.nvl(request.getParameter("notification")); // 공지글 여부
             String boardContent = CmmUtil.nvl(request.getParameter("boardContent")); // 내용
 
-            log.info("userId : " + userId);
+            log.info(" 여기 있어요 userId : " + userId);
             log.info("boardSeq : " + boardSeq);
             log.info("boardTitle : " + boardTitle);
             log.info("notification : " + notification);
@@ -244,6 +254,8 @@ public class BoardController {
                     .boardSeq(boardSeq)
                     .boardTitle(boardTitle)
                     .boardContent(boardContent).build();
+
+            log.info(pDTO.toString());
 
             // 게시글 수정하기 DB
             boardService.updateBoardInfo(pDTO);

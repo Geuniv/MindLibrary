@@ -1,6 +1,7 @@
 package kopo.poly.service;
 
 import kopo.poly.dto.BoardDTO;
+import kopo.poly.dto.UserInfoDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -38,4 +39,8 @@ public interface IBoardService {
      * @param pDTO 삭제할 BoardSeq 값
      * */
     void deleteBoardInfo(BoardDTO pDTO) throws Exception;
+
+    /* 회원 탈퇴 */
+    void deleteUserInfo(UserInfoDTO pDTO) throws Exception;
+
 }

@@ -41,11 +41,13 @@
 
     <!-- 게시판 상세보기 쿼리 -->
     <select id="getBoardInfo" resultMap="boardResult">
-        SELECT BOARD_SEQ, BOARD_TITLE, BOARD_VIEWS, USER_ID,
-               BOARD_CONTENT, DATE_FORMAT(BOARD_REG_DT, '%y-%m-%d') AS BOARD_REG_DT
-        FROM MIND_BOARD
-        WHERE BOARD_SEQ = #{boardSeq}
+        SELECT B.BOARD_SEQ, B.BOARD_TITLE, B.BOARD_VIEWS, B.USER_ID, U.USER_NICKNAME,
+               B.BOARD_CONTENT, DATE_FORMAT(B.BOARD_REG_DT, '%y-%m-%d') AS BOARD_REG_DT
+        FROM MIND_BOARD B
+                 JOIN USER_INFO U ON B.USER_ID = U.USER_ID
+        WHERE B.BOARD_SEQ = #{boardSeq}
     </select>
+
 
     <!-- 조회수 증가 쿼리 -->
     <update id="updateBoardReadCnt" parameterType="BoardDTO">
@@ -71,4 +73,11 @@
         DELETE FROM MIND_BOARD
         WHERE BOARD_SEQ = #{boardSeq}
     </delete>
+
+    <!-- 회원 탈퇴 -->
+    <delete id="deleteUserInfo" parameterType="UserInfoDTO">
+        DELETE FROM MIND_BOARD
+        WHERE USER_ID = #{userId};
+    </delete>
+
 </mapper>

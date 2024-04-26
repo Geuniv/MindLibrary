@@ -22,4 +22,7 @@ public interface IUserInfoService {
     // 비밀번호 재설정
     int newPasswordProc(UserInfoDTO pDTO) throws Exception;
 
+    /* 회원 탈퇴 */
+//    void deleteUser(UserInfoDTO pDTO) throws Exception;
+
 }

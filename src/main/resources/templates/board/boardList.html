@@ -2,67 +2,280 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>게시판 리스트</title>
+    <title>게시판</title>
     <link rel="stylesheet" href="/css/table.css"/>
-    <script type="text/javascript">
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
 
         $(document).ready(function () {
 
-            const ssUserId = [[${session.SS_USER_ID}]]; // Controller에서 받은 세션에 저장된 값
-            const userId = []; // userId 가져오기
-            for (let i = 0; i < rList.length; i++) {
-                userId.push(rList[i].userId);
-            }
+            const ssUserId = /*[[${session.SS_USER_ID}]]*/ null; // Controller에서 받은 세션에 저장된 값
 
             // 글 작성
             $("#btnWrite").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
-                doWrite();
-            })
-        })
+                if (ssUserId === null || ssUserId === undefined) {
+                    alert("로그인 후 이용 가능합니다.");
+                } else {
+                    location.href = "/board/boardReg";
+                }
+            });
+        });
 
         // 상세보기 이동
         function doDetail(seq) {
             location.href = "/board/boardInfo?bSeq=" + seq;
         }
 
-        // 글 작성하기
-        function doWrite() {
-            if (ssUserId !== null && ssUserId !== undefined) {
-                window.location.href = "/board/boardReg";
-            } else {
-                alert("로그인 후 이용 가능합니다.");
-            }
+        /*]]>*/
+    </script>
+
+    <style>
+
+        /*커뮤니티 리스트 css*/
+        .community-table {
+            max-width: 1300px;
+            margin: 20px auto;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
         }
 
-    </script>
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0e1d34;
+            color: white;
+            padding: 10px;
+            text-align: center;
+
+        }
+
+        .table-header div {
+            flex: 1; /* 자동으로 너비를 나누어 갖게 함 */
+        }
+
+        .table-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+
+        .table-row div {
+            flex: 1; /* 자동으로 너비를 나누어 갖게 함 */
+        }
+
+        .table-row:hover {
+            background-color: #f9f9f9;
+        }
+
+        .write-button {
+            display: block;
+            margin: 20px auto;
+            padding: 8px 15px; /* 크기 조절 */
+            background-color: #0e1d34;
+            width: 20vw; /* 가로 크기를 화면 너비의 20%로 설정 */
+            min-width: 100px; /* 최소 가로 크기 지정 */
+            max-width: 200px; /* 최대 가로 크기 지정 */
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            overflow: hidden;
+        }
+
+        .write-button:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .page-link {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 5px;
+            background-color: #0e1d34;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .page-link:hover {
+            background-color: #091621;
+            transform: scale(1.05);
+        }
+
+        .btn_ {
+            border: none;
+            background: #0b0b0b;
+            /*background: linear-gradient(0deg, rgba(6, 14, 131, 1) 0%, rgba(12, 25, 180, 1) 100%);*/
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn_:hover {
+            background: rgb(0, 3, 255);
+            background: linear-gradient(0deg, rgba(0, 3, 255, 1) 0%, rgba(2, 125, 251, 1) 100%);
+        }
+
+        .find-btn {
+            margin-top: 1px;
+            text-align: center;
+        }
+
+        /*.contents_box {*/
+        /*    position: relative;*/
+        /*    max-width: 1440px;*/
+        /*    margin: 0 auto;*/
+        /*    min-height: 500px;*/
+        /*    padding: 1px 10px 0 10px;*/
+        /*}*/
+
+        .room-pagination {
+            overflow: auto; /* 너비를 벗어나는 경우 스크롤 생성 */
+        }
+
+        .block-27 ul {
+            list-style-type: none; /* 목록 기호 제거 */
+            padding: 0; /* 내부 간격 제거 */
+            margin: 0; /* 외부 간격 제거 */
+            white-space: nowrap; /* 한 줄에 모두 표시되도록 설정 */
+        }
+
+        .block-27 ul li {
+            display: inline; /* 항목을 수평으로 배치 */
+            margin-right: 5px; /* 각 항목 사이의 간격 설정 */
+        }
+
+        .block-27 ul li a {
+            display: inline-block; /* 링크를 블록 요소로 설정하여 각 항목이 클릭 가능하도록 함 */
+            padding: 5px 10px; /* 링크 내부 간격 설정 */
+            text-decoration: none; /* 링크에 밑줄 제거 */
+            border: 1px solid #ccc; /* 링크 테두리 추가 */
+            border-radius: 3px; /* 링크 테두리를 둥글게 설정 */
+        }
+
+        .block-27 ul li a:hover {
+            background-color: #0b0b0b; /* 호버 했을 때의 배경색 설정 */
+            color: white; /* 호버 했을 때의 텍스트 색상 설정 */
+        }
+
+
+        .block-27 ul li.active a {
+            background-color: #0b0b0b; /* 활성 페이지의 배경색 설정 */
+            color: #fff; /* 활성 페이지의 텍스트 색상 설정 */
+        }
+
+        .site-btn {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff;
+            letter-spacing: 2px;
+            background: #0b0b0b;
+            border: none;
+            padding: 14px 42px 13px;
+            display: inline-block;
+            border-radius: 2px;
+        }
+    </style>
 </head>
 <body>
-<h2>게시판</h2>
-<hr/>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="top"></th:block>
+<!-- End Header -->
+
+<main id="main">
+
+    <!--    &lt;!&ndash; ======= Breadcrumbs ======= &ndash;&gt;-->
+    <!--    <div class="breadcrumbs">-->
+    <!--        <div class="page-header d-flex align-items-center" style="background-image: url('/img/community.png');">-->
+    <!--            <div class="container position-relative">-->
+    <!--                <div class="row d-flex justify-content-center">-->
+    <!--                    <div class="col-lg-6 text-center">-->
+    <!--                        <h2>COMMUNITY</h2>-->
+    <!--                        <p>커뮤니티를 통해 서로 소통을 해보세요!</p>-->
+    <!--                    </div>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--        <nav>-->
+    <!--            <div class="container">-->
+    <!--                <ol>-->
+    <!--                    <li><a href="index.html">Home</a></li>-->
+    <!--                    <li>커뮤니티</li>-->
+    <!--                </ol>-->
+    <!--            </div>-->
+    <!--        </nav>-->
+    <!--    </div>&lt;!&ndash; End Breadcrumbs &ndash;&gt;-->
+
+    <section class="COMMUNITY">
+        <div class="community-table">
+            <div class="table-header">
+                <div>순번</div>
+                <div>제목</div>
+                <div>조회수</div>
+                <div>등록자</div>
+                <div>등록일</div>
+            </div>
+
+            <div class="table-row" th:each="dto:${rList}">
+                <div class="table-row">
+                    <div name="bSeq" id="bSeq">[[${dto.boardSeq}]]</div>
+                    <div th:attr="onclick='doDetail(\'' + ${dto.boardSeq()} + '\')'">[[${dto.boardTitle}]]</div>
+                    <div>[[${dto.boardViews}]]</div>
+                    <!--                    <div th:if="${dto.userId.startsWith('naver_')}">네이버사용자</div>-->
+                    <!--                    <div th:unless="${dto.userId.startsWith('naver_')}">[[${dto.userId}]]</div>-->
+                    <div>[[${dto.userNickname}]]</div>
+                    <div>[[${dto.boardRegDt}]]</div>
+                </div>
+            </div>
+        </div>
+        <!-- 페이지 네이션 부분 -->
+        <div class="col-lg-12">
+        <div class="room-pagination">
+                <div class="block-27" th:href="@{/board/boardList(page=1)}">
+                    <ul>
+                        <li th:if="${currentPage > 1}">
+                            <a th:href="@{/board/boardList(page=${currentPage - 1})}">&lt;</a></li>
+
+                        <li class="active" th:each="pageNumber : ${#numbers.sequence(1, totalPages)}"
+                            th:class="${pageNumber == currentPage ? 'active' : ''}">
+                            <a th:href="@{/board/boardList(page=${pageNumber})}"
+                               th:text="${pageNumber}"></a></li>
+
+                        <li th:if="${currentPage < totalPages}">
+                            <a th:href="@{/board/boardList(page=${currentPage + 1})}">&gt;</a></li>
+                    </ul>
+                </div>
+        </div>
+        </div>
+        <br/>
+        <!-- 페이지 네이션 끝부분-->
+        <div class="find-btn">
+            <button class="site-btn" id="btnWrite" type="button">글쓰기</button>
+        </div>
+    </section>
 <br/>
-<div class="divTable minimalistBlack">
-    <div class="divTableHeading">
-        <div class="divTableRow">
-            <div class="divTableHead">순번</div>
-            <div class="divTableHead">제목</div>
-            <div class="divTableHead">조회수</div>
-            <div class="divTableHead">등록자</div>
-            <div class="divTableHead">등록일</div>
-        </div>
-    </div>
-    <div class="divTableBody">
-        <div th:each="dto : ${rList}" class="divTableRow">
-            <div th:if="${dto.notification eq 'Y'}" class="divTableCell">공지</div>
-            <div th:unless="${dto.notification eq 'Y'}" class="divTableCell" th:text="${dto.boardSeq}">0</div>
-            <div class="divTableCell" th:text="${dto.boardTitle}" th:attr="onclick='doDetail(\'' + ${dto.boardSeq} + '\')'"></div>
-            <div class="divTableCell" th:text="${dto.boardViews}">0</div>
-            <div class="divTableCell" th:text="${dto.userNickname}"></div>
-            <div class="divTableCell" th:text="${dto.boardRegDt}"></div>
-        </div>
-    </div>
-</div>
-<div class="find-btn">
-    <button class="btn" id="btnWrite">글쓰기</button>
-</div>
+</main><!-- End #main -->
 </body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="footer"></th:block>
+<!-- End Header -->
 </html>

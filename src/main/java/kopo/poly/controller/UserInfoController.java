@@ -341,6 +341,11 @@ public class UserInfoController {
     public String findUserIdProc(HttpServletRequest request, ModelMap model) throws Exception {
         log.info(this.getClass().getName() + ".user/findUserIdProc Start!");
 
+        int res = 0; //로그인 처리 결과를 저장할 변수 (로그인 성공 : 1, 아이디, 비밀번호 불일치로인한 실패 : 0, 시스템 에러 : 2)
+        String msg = ""; //로그인 결과에 대한 메시지를 전달할 변수
+        MsgDTO dto = null; // 결과 메시지 구조
+        String url = "/index";
+
         /*
          * ########################################################################
          *        웹(회원정보 입력화면)에서 받는 정보를 String 변수에 저장!!
@@ -545,6 +550,59 @@ public class UserInfoController {
 
         log.info(this.getClass().getName() + ".logout End!");
 
-        return "/bootstrap/index";
+        return "/index";
     }
+
+    /*  회원 탈퇴 실행 로직  */
+//    @PostMapping(value = "delete")
+//    public String userDelete(ModelMap modelMap, HttpServletRequest request, HttpSession session) throws Exception {
+//
+//        log.info(this.getClass().getName() + ".controller 회원 탈퇴 실행");
+//
+//        String msg = "";
+//        String url = "/index";
+//
+//        try {
+//
+//            String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
+////            String password = CmmUtil.nvl(request.getParameter("userDeletePw"));
+//
+//            log.info("탈퇴할 회원 ID : " + userId);
+////            log.info("입력한 password : " + password);
+//
+//            UserInfoDTO pDTO = new UserInfoDTO();
+//            pDTO.setUserId(userId);
+////            pDTO.setPassword(EncryptUtil.encHashSHA256(password));
+//
+//            UserInfoDTO rDTO = userInfoService.getLogin(pDTO);
+//
+//            if (CmmUtil.nvl(rDTO.getUserId()).length() > 0) {
+//                /*  회원 삭제용 비즈니스 로직 호출(쿼리문)  */
+//                userInfoService.deleteUser(pDTO);
+//
+//                msg = "탈퇴되었습니다.";
+//
+//                session.invalidate();
+//            }
+//
+//        } catch (Exception e) {
+//
+//            msg = "탈퇴에 실패하였습니다.";
+//            url = "/user/myPage";
+//
+//            /*  실패 사유 확인용 로그  */
+//            log.info(e.toString());
+//            e.printStackTrace();    // Exception 발생 이유와 위치는 어디에서 발생했는지 전체적인 단계 출력
+//
+//        } finally {
+//
+//            modelMap.addAttribute("msg", msg);
+//            modelMap.addAttribute("url", url);
+//
+//            log.info(this.getClass().getName() + ".controller 회원 탈퇴 종료");
+//
+//        }
+//
+//        return "/redirect";
+//    }
 }
