@@ -50,7 +50,7 @@
         ORDER BY MEMBER_SINCE DESC
     </select>
 
-    <!-- 게시판 상세보기 쿼리 -->
+    <!-- 유저 정보 상세보기 쿼리 -->
     <select id="getUserInfo" resultType="UserInfoDTO">
         SELECT USER_ID, USER_PASSWORD, USER_EMAIL, USER_NAME, USER_NICKNAME,
                USER_AGE, USER_GENDER, USER_INTEREST, MEMBER_SINCE
@@ -86,6 +86,7 @@
         </if>
     </select>
 
+    <!-- 비밀번호 수정 쿼리 -->
     <update id="updatePassword" parameterType="UserInfoDTO">
         UPDATE USER_INFO
         SET USER_PASSWORD = #{userPassword}

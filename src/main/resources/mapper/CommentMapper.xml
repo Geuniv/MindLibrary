@@ -26,9 +26,19 @@
                );
     </insert>
 
+<!--    &lt;!&ndash; 커뮤니티 수정 쿼리 &ndash;&gt;-->
+<!--    <update id="updateBoardInfo" parameterType="BoardDTO">-->
+<!--        UPDATE COMMENT_COMMENT SET-->
+<!--                                   COMMENT_CONTENTS = #{commentContents},-->
+<!--                                   BOARD_CHG_ID = #{userId},-->
+<!--                                  BOARD_CHG_DT = NOW()-->
+<!--        WHERE-->
+<!--            COMMENT_SEQ = #{commentSeq}-->
+<!--    </update>-->
+
     <!--댓글 삭제 쿼리-->
     <delete id="deleteCommentInfo" parameterType="CommentDTO">
-        DELETE FROM COMMENT_COMMENT
+        DELETE FROM MIND_COMMENT
         WHERE COMMENT_SEQ = #{commentSeq}
     </delete>
 </mapper>

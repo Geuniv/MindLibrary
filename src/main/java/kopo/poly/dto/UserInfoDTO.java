@@ -36,7 +36,7 @@ public class UserInfoDTO {
     // 이메일 중복체크를 위한 인증번호
     private int authNumber;
 
-    // 외래킨들
+    // 외래키들
     private String fileSeq;
     private String boardSeq;
     private String commentSeq;

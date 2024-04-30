@@ -30,4 +30,7 @@ public class CommentDTO {
     private String commentChgId;
 
     private String commentChgDt;
+
+    // 외래키들
+    private String fileSeq;
 }

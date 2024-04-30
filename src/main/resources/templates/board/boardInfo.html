@@ -8,9 +8,9 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
-        const ssUserId = [[${session.SS_USER_ID}]]; // Controller에서 받은 세션에 저장된 값
-        const userId = [[${rDTO.userId}]]; // 공지사항 게시글 작성자 아이디
-        const bSeq = [[${rDTO.boardSeq}]]; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
+        const userId = /*[[${rDTO.userId}]]*/ ''; // 공지사항 게시글 작성자 아이디
+        const bSeq = /*[[${rDTO.boardSeq}]]*/ ''; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
 
         $(document).ready(function () {
             // 버튼 클릭했을 때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
@@ -34,8 +34,8 @@
 
             $(".btnCmtDelete").on("click", function () {
                 // 현재 클릭된 버튼의 부모 요소인 .comment에서 commentSeq와 commentUserId를 찾음
-                var commentSeq = $(this).closest('.comment').find(".commentSeq").val();
-                var commentUserId = $(this).closest('.comment').find(".commentUserId").val();
+                var commentSeq = $(this).closest('.comment-option').find(".commentSeq").val();
+                var commentUserId = $(this).closest('.comment-option').find(".commentUserId").val();
                 console.log(commentSeq, commentUserId);
 
                 if (ssUserId === commentUserId) {
@@ -243,6 +243,58 @@
             display: inline-block;
             border-radius: 2px;
         }
+
+        .dropdown {
+            margin-top: 5%;
+            position: absolute;
+            margin-left: 98%;
+            top: 0;
+            right: 0;
+        }
+
+        /*.sc-text .btnCmtEdit,*/
+        /*.sc-text .btnCmtDelete,*/
+        /*.sc-text .dropbtn {*/
+        /*    display: none;*/
+        /*}*/
+
+        .dropbtn {
+            border: 0px;
+            background-color: #FFFFFF;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #0b0b0b;
+            min-width: 70px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            border-radius: 4px;
+        }
+
+        .dropdown-content button {
+            color: #f9f9f9;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            background-color: #0b0b0b; /* 통일된 배경색 */
+            border: none; /* 버튼에 보더 없앰 */
+            border-radius: 4px; /* 버튼에 둥근 모서리 추가 */
+            cursor: pointer;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #707079; /* hover 시 배경색 변경 */
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown:hover .dropbtn {
+            background-color: #707079;
+        }
     </style>
 </head>
 <body>
@@ -348,10 +400,25 @@
                         <button id="btnList" type="button" class="site-btn">목록</button>
                     </div>
                     <div class="comment-option" th:each="dto : ${rList}">
+                        <input type="hidden" class="commentSeq" th:value="${dto.commentSeq}">
+                        <input type="hidden" class="commentUserId" th:value="${dto.userId}">
 <!--                        <h4>[[${dto.commentSeq}]]</h4>-->
                         <div class="single-comment-item first-comment">
 <!--                            <div class="sc-author">-->
 <!--&lt;!&ndash;                                <img src="img/blog/blog-details/avatar/avatar-1.jpg" alt="">&ndash;&gt;-->
+<!--                            </div>-->
+                            <div class="dropdown">
+                                <button class="dropbtn">⋮</button>
+                                <div class="dropdown-content">
+                                    <button class="btnCmtEdit" type="button">수정</button>
+                                    <button class="btnCmtDelete" type="button">삭제</button>
+                                </div>
+                            </div>
+<!--                            <div class="sc-author">-->
+<!--                                <div th:if="${fList != null and not #lists.isEmpty(fList)}">-->
+<!--                                    <div th:each="fDto : ${fList}">-->
+<!--                                        <img th:if="${fDto.fileUrl != null}" th:src="${fDto.fileUrl}" width="100%" alt="Image">-->
+<!--                                        <img th:if="${fDto.fileUrl == null}" src="/img/profile.png" width="100%" alt="Default Image">-->
 <!--                            </div>-->
                             <div class="sc-text">
                                 <span>[[${dto.commentRegDt}]]</span>

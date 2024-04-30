@@ -2,11 +2,11 @@ package kopo.poly.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import kopo.poly.dto.BoardDTO;
-import kopo.poly.dto.CommentDTO;
-import kopo.poly.dto.MsgDTO;
+import kopo.poly.dto.*;
 import kopo.poly.service.IBoardService;
 import kopo.poly.service.ICommentService;
+import kopo.poly.service.IFileService;
+import kopo.poly.service.IProfileService;
 import kopo.poly.util.CmmUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,12 @@ import java.util.Optional;
 public class BoardController {
 
     private final IBoardService boardService;
+
     private final ICommentService commentService;
+
+    private final IFileService fileService;
+
+    private final IProfileService profileService;
 
     /** 커뮤니티 리스트 보여주기 */
     @GetMapping(value = "boardList")
@@ -184,14 +189,32 @@ public class BoardController {
         modelMap.addAttribute("rList", rList);
 
         for (CommentDTO dto : rList) {
-            log.info("commentSeq" + dto.getCommentSeq());
-            log.info("userNickname" + dto.getUserNickname());
+            log.info("commentSeq : " + dto.getCommentSeq());
+            log.info("userNickname : " + dto.getUserNickname());
         }
 
         // 조회된 리스트 결과값 넣어주기
         modelMap.addAttribute("rDTO", rDTO);
 
         log.info("rDTO : " + rDTO.toString());
+
+//        UserInfoDTO uDTO = new UserInfoDTO();
+//        uDTO.setUserId(userId);
+//
+//        UserInfoDTO fDTO = Optional.ofNullable(profileService.getProfile(uDTO)).orElseGet(UserInfoDTO::new);
+//
+//        log.info("pDTO : " + pDTO);
+//
+//        // 이미지 가져오기
+//        List<FileDTO> fList = Optional.ofNullable(fileService.getFile(uDTO)).orElseGet(ArrayList::new);
+//
+//        log.info("fList : " + fList);
+//
+//        modelMap.addAttribute("fList", fList);
+//
+//        log.info("fList : " + fList);
+//
+//        // 이미지 가져오기 종료
 
         log.info(this.getClass().getName() + ".boardInfo End!");
 
