@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kopo.poly.persistance.mapper.ILikeMapper">
+
+    <!-- 좋아요 정보 조회 쿼리 -->
+    <select id="getLike" parameterType="LikeDTO" resultType="int">
+        SELECT COUNT(*) FROM LIKEY
+        WHERE BOARD_SEQ = #{boardSeq}
+          AND   USER_ID = #{userId}
+    </select>
+
+    <!-- 좋아요 개수 조회 쿼리 -->
+    <select id="getLikeCount" parameterType="LikeDTO" resultType="int">
+        SELECT COUNT(*) FROM LIKEY
+        WHERE BOARD_SEQ = #{boardSeq}
+    </select>
+
+    <!-- 좋아요 정보 삽입 쿼리 -->
+    <insert id="insertLike" parameterType="LikeDTO">
+        INSERT INTO LIKEY
+        VALUES (#{userId}, #{boardSeq})
+    </insert>
+
+    <!-- 좋아요 정보 삭제 쿼리 -->
+    <delete id="deleteLike" parameterType="LikeDTO">
+        DELETE FROM LIKEY
+        WHERE BOARD_SEQ = #{boardSeq}
+          AND   USER_ID = #{userId}
+    </delete>
+</mapper>

@@ -3,10 +3,7 @@ package kopo.poly.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import kopo.poly.dto.*;
-import kopo.poly.service.IBoardService;
-import kopo.poly.service.ICommentService;
-import kopo.poly.service.IFileService;
-import kopo.poly.service.IProfileService;
+import kopo.poly.service.*;
 import kopo.poly.util.CmmUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +30,8 @@ public class BoardController {
     private final IFileService fileService;
 
     private final IProfileService profileService;
+
+    private final ILikeService likeService;
 
     /** 커뮤니티 리스트 보여주기 */
     @GetMapping(value = "boardList")
@@ -160,7 +159,7 @@ public class BoardController {
 
     /** 게시판 상세보기 */
     @GetMapping(value = "boardInfo")
-    public String boardInfo(HttpSession session, HttpServletRequest request, ModelMap modelMap) throws Exception {
+    public String boardInfo(HttpSession session, HttpServletRequest request, ModelMap model) throws Exception {
 
         log.info(this.getClass().getName() + ".boardInfo Start!");
 
@@ -186,7 +185,7 @@ public class BoardController {
         List<CommentDTO> rList = Optional.ofNullable(commentService.getCommentList(cDTO)).orElseGet(ArrayList::new);
 
         // 조회된 리스트 결과값 넣어주기
-        modelMap.addAttribute("rList", rList);
+        model.addAttribute("rList", rList);
 
         for (CommentDTO dto : rList) {
             log.info("commentSeq : " + dto.getCommentSeq());
@@ -194,9 +193,19 @@ public class BoardController {
         }
 
         // 조회된 리스트 결과값 넣어주기
-        modelMap.addAttribute("rDTO", rDTO);
+        model.addAttribute("rDTO", rDTO);
 
         log.info("rDTO : " + rDTO.toString());
+
+        // 좋아요
+
+        LikeDTO lDTO = LikeDTO.builder().boardSeq(bSeq).build();
+
+        int likeCnt = likeService.getLikeCount(lDTO);
+
+        model.addAttribute("likeCnt", likeCnt);
+        
+        // 좋아요 끝
 
 //        UserInfoDTO uDTO = new UserInfoDTO();
 //        uDTO.setUserId(userId);

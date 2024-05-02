@@ -129,11 +129,18 @@
                 interests.push($(this).val());
             });
 
+            // 닉네임 값 가져오기
+            let newNickname = $("#userNickname").val().trim(); // 입력된 닉네임 값, 앞뒤 공백 제거
+
             // let formData = new FormData($("#f")[0]);
             let formData = new FormData();
-            formData.append('userNickname', f.userNickname.value);
+            // 닉네임이 비어있지 않은 경우에만 formData에 추가
+            if (newNickname !== "") {
+                formData.append('userNickname', newNickname);
+            } else {
+                formData.append('userNickname', f.userNickname.value);
+            }
             formData.append('userInterest', interests);
-            // formData.append('addr2', f.addr2.value);
 
             // 이미지 파일들을 formData에 추가
             for (let i = 0; i < arr.length; i++) {
@@ -558,7 +565,7 @@
         </div>
         <div class="first-input input__block first-input__block">
             <label class="label">닉네임</label>
-            <input type="text" class="input" id="userNickname" name="userNickname" th:placeholder="${rDTO.userNickname}"
+            <input type="text" class="input" id="userNickname" name="userNickname" th:placeholder="${rDTO.userNickname}" th:value="${rDTO.userNickname}"
                    style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1);;"/>
         </div>
         <div class="first-input input__block first-input__block">

@@ -8,13 +8,16 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
-        $(document).ready(function () {
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
 
-            const ssUserId = /*[[${session.SS_USER_ID}]]*/ null; // Controller에서 받은 세션에 저장된 값
+        // 세션 값이 null인 경우 공백 문자열로 변경
+        const userId = ssUserId !== null ? ssUserId : '';
+
+        $(document).ready(function () {
 
             // 글 작성
             $("#btnWrite").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
-                if (ssUserId === null || ssUserId === undefined) {
+                if (userId === "" || userId === undefined) {
                     alert("로그인 후 이용 가능합니다.");
                 } else {
                     location.href = "/board/boardReg";

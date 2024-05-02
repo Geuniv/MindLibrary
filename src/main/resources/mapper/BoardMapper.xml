@@ -80,4 +80,17 @@
         WHERE USER_ID = #{userId};
     </delete>
 
+<!--    &lt;!&ndash; 좋아요 정보 삽입 쿼리 &ndash;&gt;-->
+<!--    <insert id="insertLike" parameterType="LikeDTO">-->
+<!--        INSERT INTO LIKE-->
+<!--        VALUES (#{userId}, #{boardSeq})-->
+<!--    </insert>-->
+
+<!--    &lt;!&ndash; 좋아요 정보 삭제 쿼리 &ndash;&gt;-->
+<!--    <delete id="deleteLike" parameterType="LikeDTO">-->
+<!--        IN FROM LIKE-->
+<!--        WHERE BOARD_SEQ = #{boardSeq}-->
+<!--        AND   USER_ID = #{userId}-->
+<!--    </delete>-->
+
 </mapper>
