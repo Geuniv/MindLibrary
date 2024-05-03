@@ -27,6 +27,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+//	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.4' // 챗GPT
 	implementation 'org.springframework.boot:spring-boot-starter-mail' // S3 API
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.470' // 파일 업로드 위한 모듈 추가
 //	implementation 'javax.xml.bind:jaxb-api' // 파일 업로드
