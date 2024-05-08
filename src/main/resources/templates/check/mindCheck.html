@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마음 체크하기</title>
+    <link rel="stylesheet" href="/css/table.css"/>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        // html 로딩이 완료되고, 실행됨
+        $(document).ready(function () {
+            // 버튼 클릭됐을 때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+            $("#btnSend").on("click", function () {
+                doSubmit(); // 커뮤니티 등록하기 실행
+            })
+        })
+
+        // 커뮤니티 저장하기
+        function doSubmit() {
+            // form 태그 가져오기
+            let f = document.getElementById("f");
+
+            // 내용이 비어있는지 확인
+            if (f.content.value === "") {
+                alert("내용을 입력하시기 바랍니다.");
+                f.content.focus();
+                return;
+            }
+
+            // Ajax 호출해서 글 등록하기
+            $.ajax({
+                url: "/check/prompt",
+                type: "post",
+                dataType: "text", // 서버에서 문자열을 반환하므로 dataType을 text로 설정합니다.
+                data: $("#f").serialize(), // form 데이터를 직렬화하여 전송합니다.
+                success: function (data) { // 서버에서 반환된 데이터를 받습니다.
+                    // 반환된 데이터를 페이지에 표시합니다.
+                    // $("#result").text(data);
+                    alert(data)
+                },
+                error: function(xhr, status, error) {
+                    // 에러 발생 시 처리합니다.
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
+        /*]]>*/
+    </script>
+</head>
+<body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="top"></th:block>
+<!-- End Header -->
+
+<!-- Blog Details Section Begin -->
+<section class="blog-details-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="blog-details-text">
+                    <div class="bd-title">
+                        <div class="leave-comment">
+                            <h4>마음 체크하기</h4>
+                            <form id="f" name="f" action="#" class="comment-form">
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <textarea name="content" id="content" placeholder="내용" style="height: 500px;"></textarea>
+                                        <button id="btnSend" type="button" class="site-btn">글작성</button>
+                                        <button class="site-btn" type="reset">다시 작성</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Blog Details Section End -->
+
+</body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="footer"></th:block>
+<!-- End Header -->
+
+</html>

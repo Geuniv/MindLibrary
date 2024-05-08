@@ -1,12 +1,19 @@
 package kopo.poly.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kopo.poly.dto.ChatCompletionDTO;
+import kopo.poly.dto.ChatRequestMsgDTO;
 import kopo.poly.service.impl.ChatGPTService;
+import kopo.poly.util.CmmUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,15 +25,86 @@ import java.util.Map;
  * @since : 12/29/23
  */
 @Slf4j
-@RestController
-@RequestMapping(value = "/api/v1/chatGpt")
+//@RestController
+@RequestMapping(value = "/check") // /api/v1/chatGpt
+@RequiredArgsConstructor
+@Controller
 public class ChatGPTController {
 
     private final ChatGPTService chatGPTService;
 
-    public ChatGPTController(ChatGPTService chatGPTService) {
-        this.chatGPTService = chatGPTService;
+    /**
+     * [API] 최신 ChatGPT 프롬프트 명령어를 수행합니다. : gpt-4, gpt-4 turbo, gpt-3.5-turbo
+     *
+//     * @param chatCompletionDto
+     * @return
+     */
+//    @PostMapping("/prompt")
+//    public ResponseEntity<Map<String, Object>> selectPrompt(@RequestBody ChatCompletionDTO chatCompletionDto) {
+//        log.debug("param :: " + chatCompletionDto.toString());
+//        Map<String, Object> result = chatGPTService.prompt(chatCompletionDto);
+//        return new ResponseEntity<>(result, HttpStatus.OK);
+//    }
+
+    @GetMapping(value = "/mindCheck")
+    public String mindCheck() throws Exception {
+
+        log.info(this.getClass().getName() + ".mindCheck Start!");
+
+        log.info(this.getClass().getName() + ".mindCheck End!");
+
+        return "/check/mindCheck";
     }
+
+    @ResponseBody
+    @PostMapping("/prompt")
+    public String prompt(HttpServletRequest request) throws Exception {
+
+        log.info(this.getClass().getName() + ".prompt Start!");
+
+        String content = CmmUtil.nvl(request.getParameter("content"));
+//        String content = ("요즘 너무 우울해");
+
+        ChatRequestMsgDTO pDTO = ChatRequestMsgDTO.builder().role("system").content(content).build();
+
+
+        List<ChatRequestMsgDTO> rList = new ArrayList<>();
+        rList.add(pDTO);
+
+        ChatCompletionDTO rDTO = ChatCompletionDTO.builder().model("gpt-4-turbo").messages(rList).build();
+
+        Map<String, Object> json = chatGPTService.prompt(rDTO);
+
+        log.info(json.toString());
+
+        JSONObject jsonObject = new JSONObject(json);
+        JSONObject message = jsonObject.getJSONArray("choices").getJSONObject(0).getJSONObject("message");
+
+        String result = message.getString("content");
+
+        log.info("result : " + result);
+
+
+        log.info(this.getClass().getName() + ".prompt End!");
+
+
+        return result;
+    }
+
+    @PostMapping(value = "promptResult")
+    public String promptResult() throws Exception {
+        log.info(this.getClass().getName() + ".promptResult Start!");
+
+        log.info(this.getClass().getName() + ".promptResult End!");
+
+        return "/check/mindCheckResult";
+    }
+
+/*-----------------------------------------------------------------------------------------------*/
+
+//    public ChatGPTController(ChatGPTService chatGPTService) {
+//        this.chatGPTService = chatGPTService;
+//    }
 
     /**
      * [API] ChatGPT 모델 리스트를 조회합니다.
@@ -61,18 +139,5 @@ public class ChatGPTController {
 //        Map<String, Object> result = chatGPTService.legacyPrompt(completionDto);
 //        return new ResponseEntity<>(result, HttpStatus.OK);
 //    }
-
-    /**
-     * [API] 최신 ChatGPT 프롬프트 명령어를 수행합니다. : gpt-4, gpt-4 turbo, gpt-3.5-turbo
-     *
-     * @param chatCompletionDto
-     * @return
-     */
-    @PostMapping("/prompt")
-    public ResponseEntity<Map<String, Object>> selectPrompt(@RequestBody ChatCompletionDTO chatCompletionDto) {
-        log.debug("param :: " + chatCompletionDto.toString());
-        Map<String, Object> result = chatGPTService.prompt(chatCompletionDto);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
 
 }
