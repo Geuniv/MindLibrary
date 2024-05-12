@@ -42,21 +42,21 @@
                 )
     </insert>
 
-    <!-- 회원 목록 쿼리 -->
-    <select id="getUserList" resultType="UserInfoDTO">
-        SELECT USER_ID, USER_PASSWORD, USER_EMAIL, USER_NAME, USER_NICKNAME,
-               USER_AGE, USER_GENDER, USER_INTEREST, MEMBER_SINCE
-        FROM USER_INFO
-        ORDER BY MEMBER_SINCE DESC
-    </select>
+<!--    &lt;!&ndash; 회원 목록 쿼리 &ndash;&gt;-->
+<!--    <select id="getUserList" resultType="UserInfoDTO">-->
+<!--        SELECT USER_ID, USER_PASSWORD, USER_EMAIL, USER_NAME, USER_NICKNAME,-->
+<!--               USER_AGE, USER_GENDER, USER_INTEREST, MEMBER_SINCE-->
+<!--        FROM USER_INFO-->
+<!--        ORDER BY MEMBER_SINCE DESC-->
+<!--    </select>-->
 
-    <!-- 유저 정보 상세보기 쿼리 -->
-    <select id="getUserInfo" resultType="UserInfoDTO">
-        SELECT USER_ID, USER_PASSWORD, USER_EMAIL, USER_NAME, USER_NICKNAME,
-               USER_AGE, USER_GENDER, USER_INTEREST, MEMBER_SINCE
-        FROM USER_INFO
-        WHERE USER_ID = #{userId}
-    </select>
+<!--    &lt;!&ndash; 유저 정보 상세보기 쿼리 &ndash;&gt;-->
+<!--    <select id="getUserInfo" resultType="UserInfoDTO">-->
+<!--        SELECT USER_ID, USER_PASSWORD, USER_EMAIL, USER_NAME, USER_NICKNAME,-->
+<!--               USER_AGE, USER_GENDER, USER_INTEREST, MEMBER_SINCE-->
+<!--        FROM USER_INFO-->
+<!--        WHERE USER_ID = #{userId}-->
+<!--    </select>-->
 
     <!-- 로그인을 위해 아이디와 비밀번호가 일치하는지 확인하기 ( 2023.09.21 ) -->
     <select id="getLogin" parameterType="UserInfoDTO" resultType="UserInfoDTO">

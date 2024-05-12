@@ -65,6 +65,8 @@ public class BoardService implements IBoardService {
 
         boardMapper.insertBoardInfo(pDTO);
 
+        log.info(this.getClass().getName() + ".insertBoardInfo End!!");
+
     }
 
     @Transactional
@@ -75,6 +77,8 @@ public class BoardService implements IBoardService {
 
         boardMapper.updateBoardInfo(pDTO);
 
+        log.info(this.getClass().getName() + ".updateBoardInfo End!!");
+
     }
 
     @Transactional
@@ -84,6 +88,8 @@ public class BoardService implements IBoardService {
         log.info(this.getClass().getName() + ".deleteBoardInfo Start!!");
 
         boardMapper.deleteBoardInfo(pDTO);
+
+        log.info(this.getClass().getName() + ".deleteBoardInfo End!!");
 
     }
 
