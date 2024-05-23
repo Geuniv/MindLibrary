@@ -98,7 +98,7 @@ public class BoardController {
         log.info(this.getClass().getName() + ".boardList End!");
 
         // 함수 처리가 끝나고 보여줄 html 파일명
-        return "/board/boardList";
+        return "board/boardList";
     }
 
     /** 커뮤니티 작성 페이지 이동*/
@@ -109,7 +109,7 @@ public class BoardController {
 
         log.info(this.getClass().getName() + ".boardReg End!");
 
-        return "/board/boardReg";
+        return "board/boardReg";
     }
 
     /** 커뮤니티 글 등록 */
@@ -228,7 +228,7 @@ public class BoardController {
         log.info(this.getClass().getName() + ".boardInfo End!");
 
         // 함수 처리가 끝나고 보여줄 html 파일명
-        return "/board/boardInfo";
+        return "board/boardInfo";
     }
 
     /** 게시판 수정을 위한 페이지*/
@@ -255,7 +255,7 @@ public class BoardController {
         log.info(this.getClass().getName() + ".boardEditInfo End!");
 
         // 함수 처리가 끝나고 보여줄 html 파일명
-        return "/board/boardEditInfo";
+        return "board/boardEditInfo";
     }
 
     /** 게시판 글 수정 */

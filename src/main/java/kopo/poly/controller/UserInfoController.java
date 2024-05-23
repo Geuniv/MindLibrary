@@ -33,7 +33,7 @@ public class UserInfoController {
     public String userRegForm() {
         log.info(this.getClass().getName() + ".user/userRegForm");
 
-        return "/user/userRegForm";
+        return "user/userRegForm";
     }
 
     /**
@@ -550,7 +550,7 @@ public class UserInfoController {
 
         log.info(this.getClass().getName() + ".logout End!");
 
-        return "/index";
+        return "index";
     }
 
     /*  회원 탈퇴 실행 로직  */

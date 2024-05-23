@@ -19,7 +19,7 @@ public class MainController {
 
         log.info(this.getClass().getName() + ".index End !");
 
-        return "/index";
+        return "index";
 
     }
 
