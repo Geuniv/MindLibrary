@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마음 체크하기</title>
+    <link rel="stylesheet" href="/css/table.css"/>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        // html 로딩이 완료되고 , 실행됨
+        $(document).ready(function () {
+            // 버튼 클릭됐을 때 , 발생되는 이벤트 생성함(onclick 이벤트와 동일)
+            $("#btnSend").on("click", function () {
+                doSubmit(); // 커뮤니티 등록하기 실행
+            })
+        })
+
+        // // 커뮤니티 저장하기
+        // function doSubmit() {
+        //
+        //     let f = document.getElementById("f"); // form 태그
+        //
+        //     if (f.boardTitle.value === "") {
+        //         alert("제목을 입력하시기 바랍니다.");
+        //         f.boardTitle.focus();
+        //         return;
+        //     }
+        //     if (calBytes(f.boardTitle.value) > 200) {
+        //         alert("최대 200Bytes까지 입력 가능합니다.");
+        //         f.boardTitle.focus();
+        //         return;
+        //     }
+        //     if (f.boardContent.value === "") {
+        //         alert("내용을 입력하시기 바랍니다.");
+        //         f.boardContent.focus();
+        //         return;
+        //     }
+        //     if (calBytes(f.boardContent.value) > 4000) {
+        //         alert("최대 4000Bytes까지 입력 가능합니다.");
+        //         f.boardContent.focus();
+        //         return;
+        //     }
+        //     // Ajax 호출해서 글 등록하기
+        //     $.ajax({
+        //             url: "/api/v1/chatGpt/prompt",
+        //             type: "post", // 전송방식은 Post
+        //             dataType: "JSON", // 전송 결과는 Json으로 받기
+        //             data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+        //             success: function (json) { // /community/communityInsert 호출이 성공했다면..
+        //                 alert(json.msg); // 메시지 띄우기
+        //                 location.href = "/board/boardList"; // 커뮤니티 리스트 이동
+        //             }
+        //         }
+        //     )
+        // }
+
+        /*]]>*/
+    </script>
+    <!--    <style>-->
+    <!--        .site-btn {-->
+    <!--            font-size: 13px;-->
+    <!--            font-weight: 700;-->
+    <!--            text-transform: uppercase;-->
+    <!--            color: #ffffff;-->
+    <!--            letter-spacing: 2px;-->
+    <!--            background: #0b0b0b;-->
+    <!--            border: none;-->
+    <!--            padding: 14px 42px 13px;-->
+    <!--            display: inline-block;-->
+    <!--            border-radius: 2px;-->
+    <!--        }-->
+    <!--    </style>-->
+</head>
+<body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="top"></th:block>
+<!-- End Header -->
+
+<!-- Blog Details Section Begin -->
+<section class="blog-details-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="blog-details-text">
+                    <div class="bd-title">
+                        <div class="leave-comment">
+                            <h4>마음 체크하기</h4>
+                            <form id="f" name="f" action="#" class="comment-form">
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <textarea name="boardAnswer" id="boardAnswer" th:placeholder="${result}" style="height: 500px;"></textarea>
+
+                                        <button id="btnSend" type="button" class="site-btn">결과 저장하기</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Blog Details Section End -->
+<br/>
+
+</body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="footer"></th:block>
+<!-- End Header -->
+
+</html>

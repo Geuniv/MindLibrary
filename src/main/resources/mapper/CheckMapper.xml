@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="kopo.poly.persistance.mapper.ICheckMapper">
+
+    <!-- 회원 가입하기 ( 회원정보 등록하기 ) -->
+    <insert id="insertCheckInfo" parameterType="CheckDTO">
+        INSERT INTO MIND_CHECK
+        (CHECK_SEQ,
+         USER_ID,
+         USER_QUESTION,
+         USER_ANSWER)
+        VALUES (
+                (SELECT COALESCE(MAX(A.CHECK_SEQ),0)+1 FROM MIND_CHECK A),
+                #{userId},
+                #{userQuestion},
+                #{userAnswer}
+            )
+    </insert>
+
+    <!-- 마이페이지 회원정보 조회 -->
+    <select id="getCheckInfo" parameterType="CheckDTO" resultType="CheckDTO">
+        SELECT CHECK_SEQ, USER_ID, USER_QUESTION, USER_ANSWER
+        FROM MIND_CHECK
+        WHERE USER_ID = #{userId}
+    </select>
+
+</mapper>

@@ -8,46 +8,194 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
-        // html 로딩이 완료되고, 실행됨
-        $(document).ready(function () {
-            // 버튼 클릭됐을 때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
-            $("#btnSend").on("click", function () {
-                doSubmit(); // 커뮤니티 등록하기 실행
-            })
-        })
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
 
-        // 커뮤니티 저장하기
         function doSubmit() {
-            // form 태그 가져오기
-            let f = document.getElementById("f");
+            let f1 = document.getElementById("f1");
+            let f2 = document.getElementById("f2");
 
-            // 내용이 비어있는지 확인
-            if (f.content.value === "") {
+            if (f1.userQuestion.value === "") {
                 alert("내용을 입력하시기 바랍니다.");
-                f.content.focus();
+                f1.userQuestion.focus();
                 return;
             }
 
-            // Ajax 호출해서 글 등록하기
+            // AJAX 호출 시작 전에 로딩 애니메이션 표시
+            $("#loadingAnimation").show();
+
             $.ajax({
                 url: "/check/prompt",
                 type: "post",
-                dataType: "text", // 서버에서 문자열을 반환하므로 dataType을 text로 설정합니다.
-                data: $("#f").serialize(), // form 데이터를 직렬화하여 전송합니다.
-                success: function (data) { // 서버에서 반환된 데이터를 받습니다.
-                    // 반환된 데이터를 페이지에 표시합니다.
-                    // $("#result").text(data);
-                    alert(data)
+                dataType: "text",
+                data: $("#f1").serialize(),
+                success: function (data) {
+                    if (data.trim() !== "") {
+                        // 결과값이 있으면 userAnswer에 저장하고, 답변값만 표시
+                        $("#userAnswer").val(data);
+                        // 질문 값도 함께 전달
+                        $("#userQuestionValue").val(f1.userQuestion.value);
+                        // 폼 전환
+                        f1.style.display = "none";
+                        f2.style.display = "block";
+                    } else {
+                        // 결과값이 없으면 기존의 userQuestion에 저장된 값으로 userAnswer에 저장
+                        $("#userQuestionValue").val(f1.userQuestion.value);
+                    }
                 },
                 error: function(xhr, status, error) {
-                    // 에러 발생 시 처리합니다.
                     console.error(xhr.responseText);
+                },
+                complete: function() {
+                    // AJAX 호출 완료 후 로딩 애니메이션 숨김
+                    $("#loadingAnimation").hide();
                 }
             });
         }
 
+        function saveResult() {
+            let f = document.getElementById("f2");
+
+            // AJAX 호출 시작 전에 로딩 애니메이션 표시
+            $("#loadingAnimation").show();
+
+            $.ajax({
+                url: "/check/insertCheckInfo",
+                type: "post",
+                dataType: "json",
+                data: $("#f2").serialize(),
+                success: function (json) {
+                    alert(json.msg);
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                },
+                complete: function() {
+                    // AJAX 호출 완료 후 로딩 애니메이션 숨김
+                    $("#loadingAnimation").hide();
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            // 페이지 로드 시 로딩 애니메이션 숨기기
+            $("#loadingAnimation").hide();
+
+            $("#btnSend").on("click", function () {
+                if (ssUserId === null || ssUserId === undefined) {
+                    alert("로그인 후 이용 가능합니다.");
+                } else {
+                    doSubmit(); // 커뮤니티 등록하기 실행
+                }
+            });
+
+            $("#saveResultBtn").on("click", function () {
+                saveResult(); // 결과 저장하기 실행
+            });
+        });
+
         /*]]>*/
     </script>
+    <style>
+        /*-------------------------------------------
+        $ Main
+        -------------------------------------------*/
+
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+
+        html,
+        body,
+        input,
+        button,
+        textarea {
+            font: 100%/1.4 "Source Sans Pro", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .wrapper {
+            min-width: 290px;
+            max-width: 800px;
+            padding-left: 1em;
+            padding-right: 1em;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .text-giga { line-height: 1; font-size: 24px; font-weight: 300; }
+        .pad-top    { padding-top: 1em; }
+        .space-out { margin: 100px; }
+
+        /*-------------------------------------------
+        $ Loaders
+        -------------------------------------------*/
+
+        .submitLoader {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 3em;
+            display: inline-block;
+            position: relative;
+            vertical-align: middle;
+        }
+        .submitLoader,
+        .submitLoader:before,
+        .submitLoader:after {
+            animation: 1s infinite ease-in-out;
+        }
+        .submitLoader:before,
+        .submitLoader:after {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .loader-black { background-color: #333; }
+
+        /* Loader 8 */
+        .submitLoader:before,
+        .submitLoader:after {
+            content: '';
+            background-color: #333;
+            transform: scale(0);
+            animation: loader8 1.5s infinite ease-in-out;
+        }
+        .submitLoader:after { animation-delay: 0.75s; }
+
+        @keyframes loader8 {
+            0%   { transform: translateX(-100%) scale(0); }
+            50%  { transform: translateX(0%)    scale(1); }
+            100% { transform: translateX(100%)  scale(0); }
+        }
+
+        /* 로딩 애니메이션 중앙 배치 */
+        #loadingAnimation {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #loadingText {
+            margin-top: 1em;
+            font-size: 1.2em;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
 
@@ -64,12 +212,23 @@
                     <div class="bd-title">
                         <div class="leave-comment">
                             <h4>마음 체크하기</h4>
-                            <form id="f" name="f" action="#" class="comment-form">
+                            <form id="f1" name="f1" action="#" class="comment-form">
                                 <div class="row">
                                     <div class="col-lg-12 text-center">
-                                        <textarea name="content" id="content" placeholder="내용" style="height: 500px;"></textarea>
+                                        <!-- textarea를 이용하여 결과값을 표시 -->
+                                        <textarea name="userQuestion" id="userQuestion" placeholder="내용" style="height: 500px;"></textarea>
                                         <button id="btnSend" type="button" class="site-btn">글작성</button>
                                         <button class="site-btn" type="reset">다시 작성</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <form id="f2" name="f2" action="#" class="comment-form" style="display: none;">
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <!-- 결과값을 표시할 input -->
+                                        <textarea name="userAnswer" id="userAnswer" readonly style="height: 500px;">[[${result}]]</textarea>
+                                        <input type="hidden" name="userQuestion" id="userQuestionValue">
+                                        <button id="saveResultBtn" type="button" class="site-btn">결과 저장</button>
                                     </div>
                                 </div>
                             </form>
@@ -82,10 +241,16 @@
 </section>
 <!-- Blog Details Section End -->
 
+<!-- 로딩 애니메이션-->
+<div id="loadingAnimation">
+    <div class="submitLoader loader-8"></div>
+    <div id="loadingText">결과가 나오는중입니다 잠시만 기다려주세요...</div>
+</div>
+
 </body>
 
-<!-- ======= Header ======= -->
+<!-- ======= Footer ======= -->
 <th:block th:replace="footer"></th:block>
-<!-- End Header -->
+<!-- End Footer -->
 
 </html>
