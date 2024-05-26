@@ -31,5 +31,4 @@ public interface IUserInfoMapper {
     // 회원탈퇴
 //    void deleteUser(UserInfoDTO pDTO) throws Exception;
 
-
 }
