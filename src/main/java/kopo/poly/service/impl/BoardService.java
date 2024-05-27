@@ -23,7 +23,7 @@ public class BoardService implements IBoardService {
     @Override
     public List<Map<String, Object>> getBoardList() throws Exception {
 
-        log.info(this.getClass().getName() + ".getPostList start!");
+        log.info(this.getClass().getName() + ".getBoardList start!");
 
         return boardMapper.getBoardList();
     }
