@@ -124,8 +124,8 @@
         document.getElementById("btnUserLogout").addEventListener("click", function (event) {
             if (confirm("로그아웃 하시겠습니까?")) {
 
-                window.location.href = "/user/logout"; // 로그아웃 페이지로 이동
-                window.location.href = "/index";
+                window.location.href = "user/logout"; // 로그아웃 페이지로 이동
+                window.location.href = "index";
 
             } else {
 
@@ -160,7 +160,8 @@
 <!--                                        <li><a href="#">Premium Room</a></li>-->
 <!--                                    </ul>-->
 <!--                                </li>-->
-                                <li><a href="./blog.html">비대면 상담</a></li>
+                                <li><a href="/chat/intro">채팅</a></li>
+<!--                                <li><a href="/chat/intro">비대면 상담</a></li>-->
                                 <li><a href="./contact.html">지도</a></li>
                             </ul>
                         </nav>
