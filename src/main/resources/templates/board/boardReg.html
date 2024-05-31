@@ -8,6 +8,8 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
+        let arr = []; // 이미지 배열 선언
+
         // html 로딩이 완료되고 , 실행됨
         $(document).ready(function () {
             // 버튼 클릭됐을 때 , 발생되는 이벤트 생성함(onclick 이벤트와 동일)
@@ -92,7 +94,7 @@
 <body>
 
 <!-- ======= Header ======= -->
-<th:block th:replace="top"></th:block>
+<th:block th:replace="~{top}"></th:block>
 <!-- End Header -->
 
 <!-- Blog Details Section Begin -->
@@ -128,7 +130,7 @@
 </body>
 
 <!-- ======= Header ======= -->
-<th:block th:replace="footer"></th:block>
+<th:block th:replace="~{footer}"></th:block>
 <!-- End Header -->
 
 </html>
