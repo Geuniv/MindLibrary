@@ -538,19 +538,21 @@ public class UserInfoController {
     /**
      * 로그아웃 처리
      * */
-    @RequestMapping(value="/logout")
-    public String logout(HttpSession session, ModelMap model) throws Exception {
+    @ResponseBody
+    @PostMapping(value = "logout")
+    public MsgDTO logout(HttpSession session) {
 
-        log.info(this.getClass().getName() + ".logout Start!");
+        log.info(this.getClass().getName() + "로그아웃 시작!");
 
-        // 세션에 있는 유저아이디 삭제하기!
-        session.removeAttribute("SS_USER_ID");
+        session.setAttribute("SS_USER_ID", ""); // 세션 값 빈값으로 변경
+        session.removeAttribute("SS_USER_ID"); // 세션 값 지우기
 
-        log.info("세션 삭제 후 session.getAttribute(\"SS_USER_ID\") : " + session.getAttribute("SS_USER_ID"));
+        // 결과 메시지 전달하기
+        MsgDTO dto = MsgDTO.builder().msg("로그아웃하였습니다.").result(1).build();
 
-        log.info(this.getClass().getName() + ".logout End!");
+        log.info(this.getClass().getName() + "로그아웃 끝!");
 
-        return "index";
+        return dto;
     }
 
     /*  회원 탈퇴 실행 로직  */

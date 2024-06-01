@@ -34,7 +34,8 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
 
-    const isLoggedIn = [[${session['SS_USER_ID'] != null}]];
+    const isLoggedIn = /*[[${session['SS_USER_ID'] != null}]]*/ false;
+    // let isNaverUser = [[${session['SS_USER_ID'] != null && session['SS_USER_ID'].startsWith('naver_')}]];
 
     // 페이지 로드 시 실행되는 코드
     document.addEventListener('DOMContentLoaded', function () {
@@ -102,14 +103,14 @@
                                 <img src="/img/free-icon-user-860784.png" alt="">
                                 <div class="flag-dropdown">
                                     <ul>
-                                        <li><a href="/profile">마이페이지</a></li>
+                                        <li><a href="/profile" th:if="${session['SS_USER_ID'] != null}">마이페이지</a></li>
                                         <li th:if="${session['SS_USER_ID'] != null}"><a class="get-a-quote" id="btnUserLogout">로그아웃</a></li>
                                     </ul>
                                 </div>
                             </div>
                             <!-- 세션 아이디가 없으면 -->
                             <div id="loginButton" style="display: block;">
-                                <a class="a_" href="/user/login">로그인</a>
+                                <a class="a_" href="/user/login" th:unless="${session['SS_USER_ID'] != null}">로그인</a>
                             </div>
                         </div>
                     </div>
@@ -124,8 +125,21 @@
         document.getElementById("btnUserLogout").addEventListener("click", function (event) {
             if (confirm("로그아웃 하시겠습니까?")) {
 
-                window.location.href = "user/logout"; // 로그아웃 페이지로 이동
-                window.location.href = "index";
+                $.ajax({
+                    url: "/user/logout",
+                    type: "post",
+                    dataType: "JSON",
+                    success: function (json) {
+
+                        if (json.result === 1) {
+                            alert(json.msg);
+                            window.location.href = "/index"; // 로그아웃 페이지로 이동
+                        } else {
+                            alert(json.msg);
+                        }
+                    }
+                })
+
 
             } else {
 
@@ -133,6 +147,7 @@
             }
         });
     </script>
+
 
     <div class="menu-item">
         <div class="container">
