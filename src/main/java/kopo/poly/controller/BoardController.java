@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,8 @@ public class BoardController {
     private final ICommentService commentService;
 
     private final IFileService fileService;
+
+    private final IS3Service s3Service;
 
     private final IProfileService profileService;
 
@@ -115,7 +118,8 @@ public class BoardController {
     /** 커뮤니티 글 등록 */
     @ResponseBody
     @PostMapping(value = "boardInsert")
-    public MsgDTO boardInsert(HttpServletRequest request, HttpSession session) {
+    public MsgDTO boardInsert(HttpServletRequest request, HttpSession session,
+                              @RequestParam(value = "file", required = false) List<MultipartFile> files) {
 
         log.info(this.getClass().getName() + ".boardInsert Start!");
 

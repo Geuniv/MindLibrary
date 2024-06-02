@@ -69,6 +69,23 @@ public class BoardService implements IBoardService {
 
     }
 
+    @Override
+    public List<BoardDTO> getPostsByUserId(String userId) throws Exception {
+        return boardMapper.getPostsByUserId(userId);
+    }
+
+//    /* 커뮤니티 순번 가져오기 */
+//    @Override
+//    public String getNextBoardSeq() throws Exception {
+//
+//        log.info(".service 커뮤니티 순번 가져오기 실행");
+//
+//        BoardDTO pDTO = boardMapper.getNextBoardSeq();
+//
+//        return pDTO.boardSeq();
+//
+//    }
+
     @Transactional
     @Override
     public void updateBoardInfo(BoardDTO pDTO) throws Exception {

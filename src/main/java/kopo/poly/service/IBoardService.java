@@ -28,6 +28,9 @@ public interface IBoardService {
      */
     void insertBoardInfo(BoardDTO pDTO) throws Exception;
 
+    /* 커뮤니티 순번 가져오기 */
+//    String getNextBoardSeq() throws Exception;
+
     /**
      * 커뮤니티 수정
      * @param pDTO 화면에서 입력된 수정되기 위한 커뮤니티 입력된 값들
@@ -39,6 +42,9 @@ public interface IBoardService {
      * @param pDTO 삭제할 BoardSeq 값
      * */
     void deleteBoardInfo(BoardDTO pDTO) throws Exception;
+
+    // 작성글 조회
+    List<BoardDTO> getPostsByUserId(String userId) throws Exception;
 
     /* 회원 탈퇴 */
     void deleteUserInfo(UserInfoDTO pDTO) throws Exception;

@@ -23,6 +23,8 @@ public class FileDTO {
 
     private String fileUrl; // 저장된 이미지 파일 url
 
+    private Integer boardSeq; // boardSeq 필드 추가
+
     @Builder
     public FileDTO(String originalName, String saveName, String  fileSize) {
         this.orgFileName = originalName;

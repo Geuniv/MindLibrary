@@ -1,5 +1,6 @@
 package kopo.poly.controller;
 
+import kopo.poly.dto.BoardDTO;
 import kopo.poly.dto.FileDTO;
 import kopo.poly.dto.MsgDTO;
 import kopo.poly.dto.UserInfoDTO;
@@ -74,6 +75,11 @@ public class ProfileController {
         model.addAttribute("rDTO", rDTO);
 
         log.info("회원정보 조회 rDTO.toString() : " + rDTO.toString());
+
+        List<BoardDTO> userPosts = boardService.getPostsByUserId(userId);
+        model.addAttribute("userPosts", userPosts);
+
+        log.info("userPosts : " + userPosts);
 
         log.info(this.getClass().getName() + "마이페이지 조회 컨트롤러 종료!");
 

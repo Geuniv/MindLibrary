@@ -6,16 +6,26 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
-
         $(document).ready(function () {
-
             $("#btnModify").on("click", function () {
                 location.href = "/user/profileModify";
+            });
+
+            $(document).ready(function () {
+
+                $("#btnModify").on("click", function () {
+                    location.href = "/user/profileModify";
+
+                })
 
             })
 
-        })
-
+            $("#togglePosts").on("click", function () {
+                $("#postsList").slideToggle();
+                const toggleText = $("#togglePosts").text() === "작성글 목록 보기" ? "작성글 목록 숨기기" : "작성글 목록 보기";
+                $("#togglePosts").text(toggleText);
+            });
+        });
     </script>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -29,12 +39,7 @@
             display: block;
             max-width: 680px;
             width: 80%;
-            /*margin: 120px auto;*/
-        }
-
-        .container_find {
-            text-align: right;
-            max-width: 640px;
+            margin: 0 auto;
         }
 
         h1 {
@@ -42,267 +47,60 @@
             font-size: 48px;
             letter-spacing: -3px;
             text-align: center;
-            margin: 120px 0 80px 0;
-            padding: 120px;
+            margin: 40px 0;
             transition: .2s linear;
         }
-
-        .links {
-            list-style-type: none;
-            /*margin-left: 23%;*/
-            /*margin-right: 23%;*/
-
-            li {
-                display: inline-block;
-                margin: 0 20px 0 0;
-                transition: .2s linear;
-
-                &:nth-child(2) {
-                    opacity: .6;
-
-                    &:hover {
-                        opacity: 1;
-                    }
-                }
-
-                &:nth-child(3) {
-                    opacity: .6;
-                    float: right;
-
-                    &:hover {
-                        opacity: 1;
-                    }
-                }
-
-                a {
-                    text-decoration: none;
-                    color: #0f132a;
-                    font-weight: bolder;
-                    text-align: center;
-                    cursor: pointer;
-                }
-            }
-        }
-
 
         form {
             width: 100%;
             max-width: 680px;
             margin: 40px auto 10px;
-
-            .input__block {
-                margin: 20px auto;
-                display: block;
-                position: relative;
-
-                &.first-input__block {
-                    &::before {
-                        content: "";
-                        position: absolute;
-                        top: -15px;
-                        left: 50px;
-                        display: block;
-                        width: 0;
-                        height: 0;
-                        background: transparent;
-                        border-left: 15px solid transparent;
-                        border-right: 15px solid transparent;
-                        /*border-bottom: 15px solid rgba(15, 19, 42, .1);*/
-                        transition: .2s linear;
-                    }
-                }
-
-                &.signup-input__block {
-                    &::before {
-                        content: "";
-                        position: absolute;
-                        top: -15px;
-                        left: 150px;
-                        display: block;
-                        width: 0;
-                        height: 0;
-                        background: transparent;
-                        border-left: 15px solid transparent;
-                        border-right: 15px solid transparent;
-                        /*border-bottom: 15px solid rgba(15, 19, 42, .1);*/
-                        transition: .2s linear;
-                    }
-                }
-
-                input {
-                    display: block;
-                    width: 90%;
-                    max-width: 680px;
-                    height: 50px;
-                    margin: 0 auto;
-                    border-radius: 8px;
-                    border: none;
-                    background: rgba(15, 19, 42, .1);
-                    color: rgba(15, 19, 42, .3);
-                    padding: 0 0 0 15px;
-                    font-size: 14px;
-                    font-family: 'Montserrat', sans-serif;
-
-                    &:focus,
-                    &:active {
-                        outline: none;
-                        border: none;
-                        color: rgba(15, 19, 42, 1);
-                    }
-
-                    &.repeat__password {
-                        opacity: 0;
-                        display: none;
-                        transition: .2s linear;
-                    }
-                }
-            }
-
-            .signin__btn {
-                background: #0b0b0b;
-                color: white;
-                display: block;
-                width: 92.5%;
-                max-width: 680px;
-                height: 50px;
-                border-radius: 8px;
-                margin: 0 auto;
-                border: none;
-                cursor: pointer;
-                font-size: 14px;
-                font-family: 'Montserrat', sans-serif;
-                box-shadow: 0 15px 30px rgba(80, 80, 80, .36);
-                transition: .2s linear;
-
-                &:hover {
-                    box-shadow: 0 0 0 rgba(80, 80, 80, .0);
-                }
-            }
         }
 
-        .separator {
-            display: block;
-            margin: 30px auto 10px;
-            text-align: center;
-            height: 40px;
-            position: relative;
-            background: transparent;
-            color: rgba(15, 19, 42, .4);
-            font-size: 13px;
-            width: 90%;
-            max-width: 680px;
-
-            &::before {
-                content: "";
-                position: absolute;
-                top: 8px;
-                left: 0;
-                background: rgba(15, 19, 42, .2);
-                height: 1px;
-                width: 45%;
-            }
-
-            &::after {
-                content: "";
-                position: absolute;
-                top: 8px;
-                right: 0;
-                background: rgba(15, 19, 42, .2);
-                height: 1px;
-                width: 45%;
-            }
-        }
-
-        .google__btn,
-        .github__btn {
-            display: block;
-            width: 90%;
-            max-width: 680px;
+        .input__block {
             margin: 20px auto;
+            display: block;
+            position: relative;
+        }
+
+        .input__block input {
+            display: block;
+            width: 90%;
+            max-width: 680px;
             height: 50px;
+            margin: 0 auto;
+            border-radius: 8px;
+            border: none;
+            background: rgba(15, 19, 42, .1);
+            color: rgba(15, 19, 42, .3);
+            padding: 0 0 0 15px;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            outline: none;
+            border: none;
+            color: rgba(15, 19, 42, 1);
+            transition: .2s linear;
+        }
+
+        .signin__btn {
+            background: #0b0b0b;
+            color: white;
+            display: block;
+            width: 92.5%;
+            max-width: 680px;
+            height: 50px;
+            border-radius: 8px;
+            margin: 0 auto;
+            border: none;
             cursor: pointer;
             font-size: 14px;
             font-family: 'Montserrat', sans-serif;
-            border-radius: 8px;
-            border: none;
-            line-height: 40px;
-
-            &.google__btn {
-                background: #5b90f0;
-                color: white;
-                box-shadow: 0 15px 30px rgba(91, 144, 240, .36);
-                transition: .2s linear;
-
-                .fa {
-                    font-size: 20px;
-                    padding: 0 5px 0 0;
-                }
-
-                &:hover {
-                    box-shadow: 0 0 0 rgba(91, 144, 240, .0);
-                }
-            }
-
-            &.github__btn {
-                background: #25282d;
-                color: white;
-                box-shadow: 0 15px 30px rgba(37, 40, 45, .36);
-                transition: .2s linear;
-
-                .fa {
-                    font-size: 20px;
-                    padding: 0 5px 0 0;
-                }
-
-                &:hover {
-                    box-shadow: 0 0 0 rgba(37, 40, 45, .0);
-                }
-            }
+            box-shadow: 0 15px 30px rgba(80, 80, 80, .36);
+            transition: .2s linear;
         }
 
-        footer {
-            p {
-                text-align: center;
-
-                .fa {
-                    color: #e91e63;
-                }
-
-                a {
-                    text-decoration: none;
-                    font-size: 17px;
-                    margin: 0 5px;
-
-                    .fa-facebook {
-                        color: #3b5998;
-                    }
-
-                    .fa-twitter {
-                        color: #1da1f2;
-                    }
-
-                    .fa-instagram {
-                        color: #f77737;
-                    }
-
-                    .fa-linkedin {
-                        color: #0077b5;
-                    }
-
-                    .fa-behance {
-                        color: #1769ff;
-                    }
-                }
-
-            }
-        }
-
-        .a_ {
-            text-decoration: none;
-            color: #0f132a;
-            font-weight: bolder;
-            text-align: center;
-            cursor: pointer;
+        .signin__btn:hover {
+            box-shadow: 0 0 0 rgba(80, 80, 80, .0);
         }
 
         /* 둥근 네모 영역 스타일 */
@@ -319,36 +117,95 @@
             margin-bottom: 10%;
         }
 
+
         /* 이미지 스타일 */
         .profile-picture img {
             width: 100%;
             height: 100%;
             object-fit: cover; /* 이미지 비율 유지 및 잘라내기 */
         }
+
+        .separator {
+            display: block;
+            margin: 30px auto 10px;
+            text-align: center;
+            height: 40px;
+            position: relative;
+            background: transparent;
+            color: rgba(15, 19, 42, .4);
+            font-size: 13px;
+            width: 90%;
+            max-width: 680px;
+        }
+
+        .separator::before, .separator::after {
+            content: "";
+            position: absolute;
+            top: 8px;
+            background: rgba(15, 19, 42, .2);
+            height: 1px;
+            width: 45%;
+        }
+
+        .separator::before {
+            left: 0;
+        }
+
+        .separator::after {
+            right: 0;
+        }
+
+        .toggle-btn {
+            cursor: pointer;
+            color: #0b0b0b;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .posts-list {
+            display: none;
+        }
+
+        .posts-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .posts-list li {
+            margin-bottom: 20px;
+        }
+
+        .posts-list a {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e91e63;
+            text-decoration: none;
+        }
+
+        .posts-list p {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
 
 <!-- ======= Header ======= -->
-<th:block th:replace="top"></th:block>
+<th:block th:replace="~{top}"></th:block>
 <!-- End Header -->
 
 <div class="container">
     <!-- Heading -->
-    <h1>회원 정보</h1>
+    <h1>회원정보</h1>
 
-    <!-- Form -->
-    <form id="f" action="" method="post">
-
-        <div class="row d-flex no-gutters">
-            <div class="profile-picture">
-
-                <div th:if="${rList != null and not #lists.isEmpty(rList)}">
-                    <div th:each="dto : ${rList}">
-                        <img th:if="${dto.fileUrl != null}" th:src="${dto.fileUrl}" width="100%" alt="Image">
-                        <img th:if="${dto.fileUrl == null}" src="/img/profile.png" width="100%" alt="Default Image">
-                        <br><br>
-                    </div>
+    <form id="contact" th:object="${rDTO}" method="post">
+        <!-- Email input -->
+        <div class="profile-picture">
+            <div th:if="${rList != null and not #lists.isEmpty(rList)}">
+                <div th:each="dto : ${rList}">
+                    <img th:if="${dto.fileUrl != null}" th:src="${dto.fileUrl}" width="100%" alt="Image">
+                    <img th:if="${dto.fileUrl == null}" src="/img/profile.png" width="100%" alt="Default Image">
+                    <br><br>
                 </div>
             </div>
         </div>
@@ -357,56 +214,29 @@
             <!-- email input -->
             <div class="first-input input__block first-input__block">
                 <h5>아이디 | [[${rDTO.userId}]]</h5>
-                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
             </div>
             <div class="first-input input__block first-input__block">
                 <h5>이메일 | [[${rDTO.userEmail}]]</h5>
-                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
             </div>
             <div class="first-input input__block first-input__block">
                 <h5>이름 | [[${rDTO.userName}]]</h5>
-                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
             </div>
             <div class="first-input input__block first-input__block">
                 <h5>닉네임 | [[${rDTO.userNickname}]]</h5>
-                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
             </div>
             <div class="first-input input__block first-input__block">
                 <h5>나이 | [[${rDTO.userAge}]]</h5>
-                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
             </div>
             <div class="first-input input__block first-input__block">
                 <h5>성별 | [[${rDTO.userGender}]]</h5>
-                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
             </div>
             <div class="first-input input__block first-input__block">
                 <h5>관심사 | [[${rDTO.userInterest}]]</h5>
-                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
             </div>
             <div class="first-input input__block first-input__block">
                 <h5>가입일 | [[${rDTO.memberSince}]]</h5>
-                <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
             </div>
         </div>
-
-        <!-- password input -->
-        <!--        <div class="input__block">-->
-        <!--            <input type="password" placeholder="Password" class="input" id="userPassword" th:name="userPassword"    />-->
-        <!--        </div>-->
-        <!-- repeat password input -->
-        <!--        <div class="input__block">-->
-        <!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password"    />-->
-        <!--        </div>-->
-        <!--        <div class="input__block">-->
-        <!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password" th:name="userPassword2"    />-->
-        <!--        </div>-->
-
-
-        <!--        <div class="container_find">-->
-        <!--            <a href="/user/findUserId" class="a_">아이디 찾기</a>-->
-        <!--            <br/>-->
-        <!--            <a href="/user/findPassword" class="a_">비밀번호 찾기</a>-->
-        <!--        </div>-->
 
         <br/>
 
@@ -419,25 +249,31 @@
         <br/><br/>
     </form>
     <!-- separator -->
-    <div class="separator">
-        <!--        <p>OR</p>-->
+    <div class="separator"></div>
+
+    <!-- 작성글 목록 -->
+    <div class="container">
+        <div class="toggle-btn" id="togglePosts">작성글 목록 보기</div>
+        <div id="postsList" class="posts-list">
+            <div th:if="${userPosts != null and not #lists.isEmpty(userPosts)}">
+                <ul>
+                    <li th:each="post : ${userPosts}">
+                        <a th:href="@{/board/boardInfo(bSeq=${post.boardSeq})}">[[${post.boardTitle}]]</a>
+                        <p>[[${post.boardContent}]]</p>
+                        <p>작성일: [[${post.boardRegDt}]]</p>
+                    </li>
+                </ul>
+            </div>
+            <div th:if="${userPosts == null or #lists.isEmpty(userPosts)}">
+                <p>작성한 글이 없습니다.</p>
+            </div>
+        </div>
     </div>
-    <!--    &lt;!&ndash; google button &ndash;&gt;-->
-    <!--    <button class="google__btn">-->
-    <!--        <i class="fa fa-google"></i>-->
-    <!--        Sign in with Google-->
-    <!--    </button>-->
-    <!--    &lt;!&ndash; google button &ndash;&gt;-->
-    <!--    <button class="github__btn">-->
-    <!--        <i class="fa fa-github"></i>-->
-    <!--        Sign in with GitHub-->
-    <!--    </button>-->
-</div>
 </div>
 
-<!-- ======= Header ======= -->
-<th:block th:replace="footer"></th:block>
-<!-- End Header -->
+<!-- ======= Footer ======= -->
+<th:block th:replace="~{footer}"></th:block>
+<!-- End Footer -->
 
 </body>
 </html>

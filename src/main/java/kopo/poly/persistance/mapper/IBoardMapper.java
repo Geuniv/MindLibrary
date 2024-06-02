@@ -25,8 +25,14 @@ public interface IBoardMapper {
     // 커뮤니티 글 수정
     void updateBoardInfo(BoardDTO pDTO) throws Exception;
 
+    // 작성글 조회
+    List<BoardDTO> getPostsByUserId(String userId) throws Exception;
+
     // 커뮤니티 글 삭제
     void deleteBoardInfo(BoardDTO pDTO) throws Exception;
+
+    /* 커뮤니티 순번 가져오기 */
+//    BoardDTO getNextBoardSeq() throws Exception;
 
     /* 회원 탈퇴 */
     void deleteUserInfo(UserInfoDTO pDTO) throws Exception;
