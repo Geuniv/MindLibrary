@@ -32,7 +32,7 @@ $(document).ready(function() {
     }
 
     var currentPage2 = 1;
-    const itemsPerPage2 = 20;
+    const itemsPerPage2 = 10;
     const xPos = 126.84233877714716; // 병원 기준 위치 경도
     const yPos = 37.54982267371823; // 병원 기준 위치 위도
     var markers = []; // 마커를 저장할 배열
@@ -85,8 +85,8 @@ $(document).ready(function() {
                 for (let i = startIndex; i < endIndex && i < uniqueDataList.length; i++) {
                     const data = uniqueDataList[i];
                     const $row = $("<div class=\"divTableRow\">" +
-                        "<div class=\"divTableCell\">" + data.yadmNm + "</div>" + /* 이름 */
-                        "<div class=\"divTableCell\">" + data.addr + "</div>" + /* 주소 */
+                        "<div class=\"divTableCell\">" + data.yadmNm + "</div>" +
+                        "<div class=\"divTableCell\">" + data.addr + "</div>" +
                         "</div>");
 
                     // 클릭 이벤트 핸들러 추가
