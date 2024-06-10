@@ -32,17 +32,14 @@ $(document).ready(function() {
     }
 
     var currentPage2 = 1;
-    const itemsPerPage2 = 10;
+    const itemsPerPage2 = 20;
     const xPos = 126.84233877714716; // 병원 기준 위치 경도
     const yPos = 37.54982267371823; // 병원 기준 위치 위도
     var markers = []; // 마커를 저장할 배열
 
     $("#btnHospital").on("click", function () {
         currentPage2 = 1; // 페이지를 다시 1로 설정
-        $("#parkData").empty(); // park 리스트 지우기
-        $("#cultureData").empty(); // culture 리스트 지우기
-        $("#sidebarContent").removeClass("hidden").addClass("expanded"); // 사이드바 확장
-        $("#map").addClass("expanded"); // 지도를 좁힘
+        $("#sidebarContent").removeClass("hidden"); // 사이드바 표시
         $(".sidebar-btn").removeClass("active"); // 모든 버튼의 active 클래스 제거
         $(this).addClass("active"); // 클릭된 버튼에 active 클래스 추가
         $(".divTableBody").hide(); // 모든 리스트 숨기기
@@ -101,7 +98,7 @@ $(document).ready(function() {
 
                     $("#hospitalData").append($row);
 
-                    const position = new kakao.maps.LatLng(data.xPos, data.yPos);
+                    const position = new kakao.maps.LatLng(data.yPos, data.xPos);
                     positions.push({
                         content: '<div>' + data.yadmNm + '</div>',
                         latlng: position
@@ -155,5 +152,10 @@ $(document).ready(function() {
         return function () {
             infowindow.close();
         };
+    }
+
+    function updatePagination(totalPage) {
+        // 페이지네이션 로직 추가
+        // 예를 들어, 페이지 번호를 표시하고 클릭 이벤트를 추가하는 방식
     }
 });

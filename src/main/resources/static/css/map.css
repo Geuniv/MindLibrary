@@ -1,0 +1,48 @@
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+#main-content {
+    flex: 1;
+    display: flex;
+    position: relative;
+}
+#map {
+    width: 100%;
+    height: calc(100vh - 200px); /* 지도의 높이를 조절합니다. (100vh - 헤더 높이 - 푸터 높이) */
+    z-index: 1;
+}
+#sidebar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 40%;
+    background-color: #f7f7f7;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+}
+#btnHospital {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+#sidebarContent {
+    padding: 20px;
+    flex-grow: 1;
+}
+.divTableBody .divTableRow {
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+}
+.divTableBody .divTableRow:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}

@@ -1,65 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title> 병원 위치 정보</title>
-    <link rel="stylesheet" href="/css/list.css"/>
+    <title>병원 위치 정보</title>
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/map.css">
 
-    <link rel="stylesheet" href="/css/animate.css">
-
-    <link rel="stylesheet" href="/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="/css/owl.theme.default.min.css">
-    <link rel="stylesheet" href="/css/magnific-popup.css">
-
-
-    <link rel="stylesheet" href="/css/bootstrap-datepicker.css">
-    <link rel="stylesheet" href="/css/jquery.timepicker.css">
-
-    <link rel="stylesheet" href="/css/flaticon.css">
-    <link rel="stylesheet" href="/css/style.css">
+<!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">-->
+<!--    <link rel="stylesheet" href="/css/animate.css">-->
+<!--    <link rel="stylesheet" href="/css/owl.carousel.min.css">-->
+<!--    <link rel="stylesheet" href="/css/owl.theme.default.min.css">-->
+<!--    <link rel="stylesheet" href="/css/magnific-popup.css">-->
+<!--    <link rel="stylesheet" href="/css/bootstrap-datepicker.css">-->
+<!--    <link rel="stylesheet" href="/css/jquery.timepicker.css">-->
+<!--    <link rel="stylesheet" href="/css/flaticon.css">-->
+<!--    <link rel="stylesheet" href="/css/style.css">-->
 
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript"
-            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=17eb0d935074d4f4616fc2a3964d562e&libraries=services"></script>
-    <script type="text/javascript">
-        var map;
-
-        function initializeMap() {
-            var mapContainer = document.getElementById('map'); // 지도를 표시할 div
-            var mapOption = {
-                center: new kakao.maps.LatLng(37.54982267371823, 126.84233877714716), // 지도의 중심좌표
-                level: 8 // 지도의 확대 레벨
-            };
-            map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
-        }
-
-        $(document).ready(function () {
-            initializeMap();
-        });
-    </script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=17eb0d935074d4f4616fc2a3964d562e&libraries=services"></script>
 </head>
 <body>
-
 <!-- ======= Header ======= -->
-<th:block th:replace="~{top}"></th:block>
+<div th:replace="~{top}"></div>
 <!-- End Header -->
 
+<div id="main-content">
+    <div id="map"></div>
     <div id="sidebar">
-        <button id="btnHospital" class="sidebar-btn" type="button">병원</button>
-    </div>
-    <div id="sidebarContent" class="hidden">
-        <div class="sidebar-content">
+        <button id="btnHospital" type="button">병원</button>
+        <div id="sidebarContent" class="hidden">
             <div id="hospitalData" class="divTableBody"></div>
         </div>
     </div>
-    <div id="map" style="height: 100%"></div>
-    <form id="f"></form>
+</div>
 
-<!--&lt;!&ndash; ======= Header ======= &ndash;&gt;-->
-<!--<th:block th:replace="~{footer}"></th:block>-->
-<!--&lt;!&ndash; End Header &ndash;&gt;-->
+<form id="f"></form>
+
+<!-- ======= Footer ======= -->
+<div th:replace="~{footer}"></div>
+<!-- End Footer -->
 
 <script type="text/javascript" src="/js/hospital.js"></script>
 </body>
