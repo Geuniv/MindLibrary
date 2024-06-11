@@ -26,6 +26,9 @@ public class MapController {
 
     private final IHospitalService hospitalService;
 
+    /**
+     * 지도 기본 페이지 ( 2024.06.09 )
+     */
     @GetMapping(value = "map")
     public String map() throws Exception {
 
@@ -35,9 +38,9 @@ public class MapController {
 
         return "map/map";
     }
-    
+
     /**
-     * 수집된 병원 리스트 가져오기
+     * 수집된 병원 리스트 가져오기 ( 2024.06.09 )
      */
     @PostMapping(value = "/v1/getHospitalInfo")
     public ResponseEntity getHospitalInfo(HttpServletRequest request, @RequestParam(defaultValue = "1") int page,

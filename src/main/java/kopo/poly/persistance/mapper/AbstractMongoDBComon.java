@@ -10,10 +10,14 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 public abstract class AbstractMongoDBComon {
 
     /**
+     * MongoDB 공통 함수 ( 2024.06.08 )
+     */
+
+    /**
      * 컬렉션 생성
      *
      * @param mongodb 접속된 MongoDB
-     * @param colNm 생성할 컬렉션명
+     * @param colNm   생성할 컬렉션명
      * @return 생성결과
      */
     protected boolean createCollection(MongoTemplate mongodb, String colNm) {
@@ -35,8 +39,8 @@ public abstract class AbstractMongoDBComon {
      * 인덱스 컬럼이 여러 개일 때 컬렉션 생성
      *
      * @param mongodb 접속된 MongoDB
-     * @param colNm 생성할 컬렉션명
-     * @param index 생성할 인덱스
+     * @param colNm   생성할 컬렉션명
+     * @param index   생성할 인덱스
      * @return 생성결과
      */
     protected boolean createCollection(MongoTemplate mongodb, String colNm, String[] index) {
@@ -74,9 +78,9 @@ public abstract class AbstractMongoDBComon {
      * 인덱스 컬럼이 한 개일때 컬렉션 생성
      *
      * @param mongodb 접속된 MongoDB
-     * @param colNm 생성할 컬렉션명
-     * @parma index 생성할 인덱스
+     * @param colNm   생성할 컬렉션명
      * @return 생성결과
+     * @parma index 생성할 인덱스
      */
     protected boolean createCollection(MongoTemplate mongodb, String colNm, String index) {
 
@@ -89,7 +93,7 @@ public abstract class AbstractMongoDBComon {
      * 컬렉션 삭제
      *
      * @param mongodb 접속된 MongoDB
-     * @param colNm 생성할 컬렉션명
+     * @param colNm   생성할 컬렉션명
      * @return 삭제결과
      */
     protected boolean dropCollection(MongoTemplate mongodb, String colNm) {

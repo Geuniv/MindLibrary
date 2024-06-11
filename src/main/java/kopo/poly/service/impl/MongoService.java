@@ -14,6 +14,9 @@ public class MongoService implements IMongoService {
 
     private final IMongoMapper mongoMapper;
 
+    /**
+     * 간단한 데이터 저장 ( 2024.06.10 )
+     */
     @Override
     public int mongoTest(MongoDTO pDTO) throws Exception {
 

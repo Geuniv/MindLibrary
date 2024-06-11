@@ -20,6 +20,9 @@ public class MongoMapper extends AbstractMongoDBComon implements IMongoMapper {
 
     private final MongoTemplate mongodb;
 
+    /**
+     * 2024.06.08
+     */
     @Override
     public int insertData(MongoDTO pDTO, String colNm) throws Exception {
 

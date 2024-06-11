@@ -30,7 +30,10 @@ public class HospitalMapper extends AbstractMongoDBComon implements IHospitalMap
     // MongoDB와의 상호작용을 위한 MongoTemplate 객체
     private final MongoTemplate mongodb;
 
-    // 병원 정보 가져오기
+    /**
+     * 지도에 표시하고 리스트업 해주기 위해
+     * 병원 정보 가져오기 ( 지도 ) - ( 2024.06.10 )
+     */
     @Override
     public List<HospitalDTO> getHospitalInfo(String colNm, int page, int itemsPerPage, HospitalDTO pDTO) throws Exception {
         log.info(this.getClass().getName() + ".mapper 병원지도 정보 가져오기 시작 !");
@@ -152,7 +155,9 @@ public class HospitalMapper extends AbstractMongoDBComon implements IHospitalMap
         return rList;
     }
 
-    // 병원 정보 삽입
+    /**
+     * 공공데이터포털 API ( XML ) 호출 후 파싱해서 MongoDB 컬렉션에 병원 정보 저장 ( 2024.06.08 )
+     */
     @Override
     public int insertHospital(List<HospitalDTO> pList, String colNm) throws Exception {
         log.info(this.getClass().getName() + ".mapper 병원 정보 API 저장 시작 !");
@@ -179,7 +184,8 @@ public class HospitalMapper extends AbstractMongoDBComon implements IHospitalMap
         return res;
     }
 
-    // 컬렉션 삭제 (스케줄링에 따른)
+    /**
+     * 스케쥴링에 따른 컬렉션 삭제 ( 2024.06.09 )*/
     @Override
     public int deleteHospital(String colNm) throws Exception {
         log.info(this.getClass().getName() + ".mapper 병원 정보 삭제 시작 !");

@@ -28,7 +28,7 @@ public class HospitalController {
     private final IHospitalService hospitalService;
 
     /**
-     * 병원정보 리스트 저장하기
+     * 병원정보 리스트 저장하기 ( 2024.06.09 )
      */
     @ResponseBody
     @GetMapping(value = "collectHospital")

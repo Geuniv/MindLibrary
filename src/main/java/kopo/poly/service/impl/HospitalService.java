@@ -32,7 +32,7 @@ public class HospitalService implements IHospitalService {
     private String key;
 
     /**
-     * 병원 지도에 표시하기 위한 정보 가져오기
+     * 병원 정보 가져오기 ( 지도 ) - ( 2024.06.08 )
      */
     @Override
     public List<HospitalDTO> getHospitalInfo(int page, int itemsPerPage, HospitalDTO pDTO) throws Exception {
@@ -53,7 +53,7 @@ public class HospitalService implements IHospitalService {
     }
 
     /**
-     * 병원 정보 API 호출하여 파싱 ( XML )
+     * 공공데이터포털 API ( XML ) 호출 후 파싱해서 MongoDB 컬렉션에 병원 정보 저장 ( 2024.06.08 )
      */
     @Override
     public int collectHospital() throws Exception {
@@ -191,7 +191,7 @@ public class HospitalService implements IHospitalService {
 
 
     /**
-     * 스케줄링에 따른 컬렉션 삭제
+     * 스케쥴링에 따라 값 삭제 ( 2024.06.10 )
      */
     @Override
     public int dropHospital() throws Exception {

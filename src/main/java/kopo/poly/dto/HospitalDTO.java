@@ -8,6 +8,10 @@ import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public record HospitalDTO(
 
+        /**
+         * 병원 정보 파라미터 값들 ( 2024.06.07 )
+         */
+
         String addr, // 주소
 
         String telno, // 전화번호
@@ -17,7 +21,7 @@ public record HospitalDTO(
         String estbDd, // 개설일자
 
         String postNo, //우편번호
-        
+
         String sidoCd, //시도 코드
 
         String sgguCd, // 시군구 코드
@@ -43,5 +47,5 @@ public record HospitalDTO(
         GeoJsonPoint location, // 위도, 경도 묶은 거
 
         Double range // 반경
-){
+) {
 }
