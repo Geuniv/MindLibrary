@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>책 검색</title>
+    <link rel="stylesheet" href="/css/table.css">
+</head>
+<body>
+<form action="/book/getBookResult" method="get" class="mx-auto" style="width: 80%;">
+    <div class="form-group">
+        <label class="form-label mt-4">책 제목</label>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="bookTitle" name="title" required>
+        </div>
+        <div id="data"></div>
+        <button type="submit" class="btn btn-primary">검색</button>
+    </div>
+</form>
+</body>
+</html>

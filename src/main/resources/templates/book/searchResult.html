@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>책 검색 결과</title>
+    <link rel="stylesheet" href="/css/table.css">
+</head>
+<body>
+<div class="container">
+    <h2>검색 결과</h2>
+    <div>
+        <h3>검색된 책 목록:</h3>
+        <ul>
+            <th:block th:each="item : ${book.items}">
+                <li>
+                    <img th:src="${item.image}" alt="책 이미지" style="width: 100px; height: 150px;"/>
+                    <p>제목: <span th:text="${item.title}"></span></p>
+                    <p>저자: <span th:text="${item.author}"></span></p>
+                    <p>출판사: <span th:text="${item.publisher}"></span></p>
+                    <p>출판일: <span th:text="${item.pubdate}"></span></p>
+                    <p>설명: <span th:text="${item.description}"></span></p>
+                    <p>더 보기: <a th:href="${item.link}" target="_blank">링크</a></p>
+                </li>
+            </th:block>
+        </ul>
+    </div>
+</div>
+</body>
+</html>
