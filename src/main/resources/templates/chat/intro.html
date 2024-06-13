@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>채팅방 목록</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/animate.css">
+    <link rel="stylesheet" href="/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/css/magnific-popup.css">
+    <link rel="stylesheet" href="/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="/css/jquery.timepicker.css">
+    <link rel="stylesheet" href="/css/flaticon.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/intro.css"/>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .sidebar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .room-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .room-list .room {
+            background-color: #FFFFFF;
+
+            max-width: 650px;
+            margin-left: 20%;
+            margin-bottom: 10px;
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            color: white;
+            border: #0b0b0b solid 1px;
+        }
+
+        .room-list .room .room-desc {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0b0b0b;
+        }
+
+        .no-rooms {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .botton {
+            height: 50px;
+            width: 50%;
+            border-radius: 5px;
+            background: black;
+            color: white;
+            margin-left: 25%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .botton:hover {
+            color: black;
+            background-color: transparent;
+            border-color: black;
+        }
+
+        @media (max-width: 780px) {
+            .botton {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                margin-top: 0px;
+                margin-left: 0px;
+            }
+        }
+
+        /* 모달 스타일 */
+        #roomModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #modalContent {
+            background-color: #fefefe;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .modal-body {
+            margin-bottom: 15px;
+        }
+
+        .modal-body label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .modal-body input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal-footer {
+            text-align: right;
+        }
+
+        .modal-footer button {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-footer button:hover {
+            background-color: #555;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .site-btn {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff;
+            letter-spacing: 2px;
+            background: #0b0b0b;
+            border: none;
+            padding: 14px 42px 13px;
+            display: inline-block;
+            border-radius: 2px;
+        }
+    </style>
+    <script type="text/javascript">
+
+        /*<![CDATA[*/
+        var roomName = /*[[${roomName}]]*/ '';
+        var nickname = /*[[${nickname}]]*/ '';
+
+        console.log("roomName : " + roomName);
+        console.log("nickname : " + nickname);
+
+        $(document).ready(function () {
+            getRoomList(); // 전체 채팅방 리스트 가져오기
+            setInterval(getRoomList, 5000); // 5초마다 채팅방 리스트 갱신
+
+            function getRoomList() {
+                $.ajax({
+                    url: "/chat/roomList", // 채팅방 정보 가져올 URL
+                    type: "post", // 전송방식
+                    dataType: "JSON", // 전달받을 데이터 타입
+                    success: function (json) {
+                        $("#roomList").empty();
+                        if (json.length === 0) {
+                            $("#roomList").append('<div class="no-rooms">채팅방이 존재하지 않습니다</div>');
+                        } else {
+                            for (let i = 0; i < json.length; i++) {
+                                $("#roomList").append(
+                                    `<li class="room" data-room="${json[i]}">
+                                        <div class="room-desc">${json[i]}</div>
+                                    </li>`
+                                );
+                            }
+                        }
+
+                        // 채팅방 클릭 이벤트 추가
+                        $(".room").click(function () {
+                            let roomName = $(this).data("room");
+                            window.location.href = "/chat/chatroom?roomName=" + roomName;
+                        });
+                    }
+                })
+            }
+
+            // 모달 열기
+            $("#openModal").click(function () {
+                $("#roomModal").css("display", "flex");
+            });
+
+            // 모달 닫기
+            $(".close").click(function () {
+                $("#roomModal").css("display", "none");
+            });
+
+            // 채팅방 생성
+            $("#createRoom").click(function () {
+                let roomName = $("#newRoomName").val();
+                $.ajax({
+                    url: "/chat/createRoom", // 채팅방 생성 URL
+                    type: "post",
+                    data: {roomName: roomName},
+                    success: function () {
+                        alert("채팅방이 생성되었습니다.");
+                        window.location.href = "/chat/chatroom?roomName=" + roomName; // 생성 후 바로 이동
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="~{top}"></th:block>
+<!-- End Header -->
+
+<!-- END nav -->
+<section class="hero-wrap hero-wrap-2" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row no-gutters slider-text align-items-end">
+            <div class="col-md-9 ftco-animate pb-5">
+<!--                <p class="breadcrumbs mb-2"><span class="mr-2"><a href="/index">Home <i-->
+<!--                        class="ion-ios-arrow-forward"></i></a></span> <span>채팅 <i-->
+<!--                        class="ion-ios-arrow-forward"></i></span></p>-->
+                <h4 class="mb-0 bread" style="margin-left: 10%;">채팅</h4>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="ftco-section bg-light">
+    <div class="container">
+        <div class="row d-flex">
+            <div class="col-md-12 ftco-animate">
+                <div class="blog-entry align-self-stretch">
+
+                    <div class="text p-4">
+                        <div class="meta mb-2">
+                            <ul id="roomList" class="room-list"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <button id=openModal class="site-btn" type="button" style="margin-left: 45%;">채팅방 생성</button>
+    </div>
+    <br/>
+</section>
+<!--<button id="openModal" class="create-room-btn">채팅방 생성</button>-->
+
+<!-- 모달 창 -->
+<div id="roomModal">
+    <div id="modalContent">
+        <div class="modal-header">
+<!--            <h2>채팅방 만들기</h2>-->
+            <label for="newRoomName">채팅방 이름을 입력해주세요 !</label>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+<!--            <label for="newRoomName">채팅방 이름을 입력해주세요 !</label>-->
+            <input type="text" id="newRoomName">
+        </div>
+        <div class="modal-footer">
+            <button id="createRoom">생성하기</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ======= Header ======= -->
+<th:block th:replace="~{footer}"></th:block>
+<!-- End Header -->
+
+
+<!-- loader -->
+<div id="ftco-loader" class="show fullscreen">
+    <svg class="circular" width="48px" height="48px">
+        <circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/>
+        <circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10"
+                stroke="#F96D00"/>
+    </svg>
+</div>
+
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery-migrate-3.0.1.min.js"></script>
+<script src="/js/popper.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/jquery.easing.1.3.js"></script>
+<script src="/js/jquery.waypoints.min.js"></script>
+<script src="/js/jquery.stellar.min.js"></script>
+<script src="/js/jquery.animateNumber.min.js"></script>
+<script src="/js/bootstrap-datepicker.js"></script>
+<script src="/js/jquery.timepicker.min.js"></script>
+<script src="/js/owl.carousel.min.js"></script>
+<script src="/js/jquery.magnific-popup.min.js"></script>
+<script src="/js/scrollax.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+<script src="/js/google-map.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

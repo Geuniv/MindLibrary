@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${roomName + ' 채팅방 입장'}"></title>
+  <link rel="stylesheet" href="/css/table.css"/>
+  <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 25%;
+      background-color: #fdf4e3;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+    .sidebar .logo {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .sidebar .room-name {
+      background-color: #c6623f;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    .sidebar .user-list {
+      list-style-type: none;
+      padding: 0;
+    }
+    .sidebar .user-list li {
+      background-color: white;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: #fff;
+    }
+    .chat-header {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chat-header .room-title {
+      font-size: 20px;
+    }
+    .chat-header .exit-button {
+          background-color: #c40000;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      position: relative;
+    }
+    .chat-messages .message {
+      margin-bottom: 20px;
+      display: flex;
+    }
+    .chat-messages .message.sent .message-content {
+      background-color: #0b0b0b;
+      color: white;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+    .chat-messages .message.received .message-content {
+      background-color: #f1f1f1;
+      color: black;
+    }
+    .chat-messages .message-content {
+      max-width: 60%;
+      padding: 10px;
+      border-radius: 10px;
+      position: relative;
+    }
+    .chat-messages .message-content::after {
+      content: "";
+      position: absolute;
+      border: 10px solid transparent;
+      border-top-color: #0b0b0b;
+    }
+    .chat-messages .message.sent .message-content::after {
+      right: 0;
+      bottom: 0;
+      transform: translateX(50%);
+    }
+    .chat-messages .message.received .message-content::after {
+      left: 0;
+      bottom: 0;
+      transform: translateX(-50%);
+      border-top-color: #f1f1f1;
+    }
+    .chat-messages .admin-message {
+      text-align: center;
+      width: 90%;
+      /*background-color: #ffeb3b;*/
+      color: #333;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    .chat-input {
+      display: flex;
+      padding: 10px;
+      background-color: #f4f4f4;
+      border-top: 1px solid #ddd;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    .chat-input button {
+      background-color: #333;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+  <script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    let data = {};
+    let ws;
+    var roomName = /*[[${roomName}]]*/ '';
+    var nickname = /*[[${nickname}]]*/ '';
+
+    console.log("roomName : " + roomName);
+    console.log("nickname : " + nickname);
+
+    $(document).ready(function () {
+      if (ws !== undefined && ws.readyState !== WebSocket.CLOSED) {
+        console.log("WebSocket is already opened.");
+        return;
+      }
+
+      ws = new WebSocket("ws://" + location.host + "/ws/" + roomName + "/" + nickname);
+
+      ws.onopen = function (event) {
+        if (event.data === undefined)
+          return;
+
+        console.log(event.data);
+      };
+
+      ws.onmessage = function (msg) {
+        let data = JSON.parse(msg.data);
+
+        let messageClass = data.name === nickname ? 'sent' : 'received';
+        let messageContent = `
+          <div class="message ${messageClass}">
+            <div class="message-content">
+              <span><b>[${data.name}]</b></span>
+              <span>${data.msg}</span>
+              <span style="font-size: 0.8em; color: darkgray;">${data.date}</span>
+            </div>
+          </div>
+        `;
+        if (data.name === "관리자") {
+          messageContent = `
+            <div class="admin-message">
+              ${data.msg} <br/>
+              <span style="font-size: 0.8em; color: gray;">${data.date}</span>
+            </div>
+          `;
+        }
+        $("#chat").append(messageContent);
+      };
+
+      $("#btnSend").on("click", function () {
+        data.name = nickname;
+        data.msg = $("#msg").val();
+
+        let chatMsg = JSON.stringify(data);
+
+        ws.send(chatMsg);
+
+        $("#msg").val("");
+      });
+
+      // 퇴장 버튼 클릭 이벤트
+      $("#btnExit").on("click", function () {
+        if (confirm("정말로 퇴장하시겠습니까?")) {
+          // 퇴장 메시지 전송
+          sendExitMessage();
+          ws.close();
+          window.location.href = "/chat/intro";
+        }
+      });
+
+      // 브라우저 창 닫기 또는 새로고침 시 WebSocket 연결 닫기
+      window.onbeforeunload = function () {
+        sendExitMessage();
+        ws.close();
+      };
+
+      function sendExitMessage() {
+        let exitMsg = {
+          name: "관리자",
+          msg: nickname + "님이 채팅방을 퇴장하셨습니다.",
+          date: new Date().toLocaleString()
+        };
+        ws.send(JSON.stringify(exitMsg));
+      }
+    });
+    /*]]>*/
+  </script>
+</head>
+<body>
+
+<!--&lt;!&ndash; ======= Header ======= &ndash;&gt;-->
+<!--<th:block th:replace="~{top}"></th:block>-->
+<!--&lt;!&ndash; End Header &ndash;&gt;-->
+
+<div class="container">
+<!--  <div class="sidebar">-->
+<!--    <div class="logo">마음도서관</div>-->
+<!--    <div class="room-name" th:text="${roomName}"></div>-->
+<!--    <ul class="user-list">-->
+<!--      <li th:each="user : ${userList}" th:text="${user}"></li>-->
+<!--    </ul>-->
+<!--  </div>-->
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="room-title" th:text="${roomName}"></div>
+      <button id="btnExit" class="exit-button">나가기</button>
+    </div>
+    <div class="chat-messages" id="chat"></div>
+    <div class="chat-input">
+      <input type="text" id="msg" placeholder="메시지를 입력해주세요"/>
+      <button id="btnSend">전송</button>
+    </div>
+  </div>
+</div>
+
+<!--&lt;!&ndash; ======= Header ======= &ndash;&gt;-->
+<!--<th:block th:replace="~{footer}"></th:block>-->
+<!--&lt;!&ndash; End Header &ndash;&gt;-->
+
+</body>
+</html>
