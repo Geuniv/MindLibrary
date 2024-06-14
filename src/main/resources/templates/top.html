@@ -31,6 +31,21 @@
 
 </style>
 
+<script>
+    /* 네비바 전환 효과 페이지 옮겨도 고정되게 하는 jQuery */
+    $(document).ready(function() {
+        var currentPath = window.location.pathname;
+
+        $('ul li a').each(function() {
+            var $this = $(this);
+            // URL이 일치하는지 확인
+            if ($this.attr('href') === currentPath) {
+                $('ul li').removeClass('active');
+                $this.parent().addClass('active');
+            }
+        });
+    });
+</script>
 <script th:inline="javascript">
     /*<![CDATA[*/
 
@@ -53,29 +68,29 @@
         }
     });
 
-    // HTML로딩이 완료되고, 실행됨
-    $(document).ready(function () {
-
-        // // 로그아웃
-        // $("#btnUserLogout").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
-        //     location.href = "/bootstrap/index";
-        // })
-
-        // // 회원가입
-        // $("#btnUserReg").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
-        //     location.href = "/user/userRegForm";
-        // })
-        //
-        // // 아이디 찾기
-        // $("#btnFindUserId").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
-        //     location.href = "/user/findUserId";
-        // })
-        //
-        // // 비밀번호 찾기
-        // $("#btnFindPassword").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
-        //     location.href = "/user/findPassword";
-        // })
-    })
+    // // HTML로딩이 완료되고, 실행됨
+    // $(document).ready(function () {
+    //
+    //     // // 로그아웃
+    //     // $("#btnUserLogout").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+    //     //     location.href = "/bootstrap/index";
+    //     // })
+    //
+    //     // // 회원가입
+    //     // $("#btnUserReg").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+    //     //     location.href = "/user/userRegForm";
+    //     // })
+    //     //
+    //     // // 아이디 찾기
+    //     // $("#btnFindUserId").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+    //     //     location.href = "/user/findUserId";
+    //     // })
+    //     //
+    //     // // 비밀번호 찾기
+    //     // $("#btnFindPassword").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+    //     //     location.href = "/user/findPassword";
+    //     // })
+    // })
 
     /*]]>*/
 </script>
@@ -122,28 +137,28 @@
     <script type="text/javascript">
 
         // 로그아웃 로직
-        document.getElementById("btnUserLogout").addEventListener("click", function (event) {
-            if (confirm("로그아웃 하시겠습니까?")) {
-
-                $.ajax({
-                    url: "/user/logout",
-                    type: "post",
-                    dataType: "JSON",
-                    success: function (json) {
-
-                        if (json.result === 1) {
-                            alert(json.msg);
-                            window.location.href = "/index"; // 로그아웃 페이지로 이동
-                        } else {
-                            alert(json.msg);
-                        }
+        document.addEventListener("DOMContentLoaded", function() {
+            var logoutButton = document.getElementById("btnUserLogout");
+            if (logoutButton) {
+                logoutButton.addEventListener("click", function (event) {
+                    if (confirm("로그아웃 하시겠습니까?")) {
+                        $.ajax({
+                            url: "/user/logout",
+                            type: "post",
+                            dataType: "JSON",
+                            success: function (json) {
+                                if (json.result === 1) {
+                                    alert(json.msg);
+                                    window.location.href = "/index"; // 로그아웃 페이지로 이동
+                                } else {
+                                    alert(json.msg);
+                                }
+                            }
+                        });
+                    } else {
+                        event.preventDefault(); // 기본 동작인 링크 이동을 취소
                     }
-                })
-
-
-            } else {
-
-                event.preventDefault(); // 기본 동작인 링크 이동을 취소
+                });
             }
         });
     </script>
@@ -166,6 +181,7 @@
                                 <li class="active"><a href="/index">Home</a></li>
                                 <li><a href="/check/mindCheck">감정체크</a></li>
                                 <li><a href="/challenge/challengeList">마음쓰기</a></li>
+                                <li><a href="/test/testReg">자가진단</a></li>
                                 <li><a href="/board/boardList">게시판</a></li>
 <!--                                <li><a href="./pages.html">Pages</a>-->
 <!--                                    <ul class="dropdown">-->
@@ -177,7 +193,7 @@
 <!--                                </li>-->
                                 <li><a href="/chat/intro">채팅</a></li>
 <!--                                <li><a href="/chat/intro">비대면 상담</a></li>-->
-                                <li><a href="./contact.html">지도</a></li>
+                                <li><a href="/map/map">지도</a></li>
                             </ul>
                         </nav>
                         <div class="nav-right search-switch">
@@ -198,6 +214,7 @@
 
 <!-- Js Plugins -->
 <script src="/js/jquery-3.3.1.min.js"></script>
+<script src="/js/jquery-3.6.0.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/jquery.magnific-popup.min.js"></script>
 <script src="/js/jquery.nice-select.min.js"></script>
