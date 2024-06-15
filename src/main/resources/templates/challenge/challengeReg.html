@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>챌린지 생성하기</title>
+    <link rel="stylesheet" href="/css/table.css"/>
+    <link rel="stylesheet" href="/css/nice-select.css"/>
+    <!-- jQuery 포함 -->
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-nice-select.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        // html 로딩이 완료되고 , 실행됨
+        $(document).ready(function () {
+            // Nice Select 적용
+            $('select').niceSelect();
+
+            // 버튼 클릭됐을 때 , 발생되는 이벤트 생성함(onclick 이벤트와 동일)
+            $("#btnSend").on("click", function () {
+                doSubmit(); // 챌린지 생성하기 실행
+            });
+        });
+
+        // 커뮤니티 저장하기
+        function doSubmit() {
+            let f = document.getElementById("f"); // form 태그
+
+            if (f.challengeDivision.value === "") {
+                alert("구분을 선택하시기 바랍니다.");
+                f.challengeDivision.focus();
+                return;
+            }
+            if (f.challengeComment.value === "") {
+                alert("설명을 입력하시기 바랍니다.");
+                f.challengeComment.focus();
+                return;
+            }
+            if (f.challengeStartDate.value === "") {
+                alert("시작일을 선택하시기 바랍니다.");
+                f.challengeStartDate.focus();
+                return;
+            }
+            if (f.challengeEndDate.value === "") {
+                alert("종료일을 선택하시기 바랍니다.");
+                f.challengeEndDate.focus();
+                return;
+            }
+
+            // Ajax 호출해서 챌린지 등록하기
+            $.ajax({
+                url: "/challenge/challengeInsert",
+                type: "post", // 전송방식은 Post
+                dataType: "JSON", // 전송 결과는 Json으로 받기
+                data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                success: function (json) { // /challengeInsert 호출이 성공했다면..
+                    alert(json.msg); // 메시지 띄우기
+                    location.href = "/challenge/challengeList"; // 챌린지 리스트 이동
+                }
+            });
+        }
+
+        /*]]>*/
+    </script>
+    <style>
+        .custom-select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="~{top}"></th:block>
+<!-- End Header -->
+
+<!-- Blog Details Section Begin -->
+<section class="blog-details-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="blog-details-text">
+                    <div class="bd-title">
+                        <div class="leave-comment">
+                            <h4>챌린지 생성하기</h4>
+                            <form id="f" name="f" action="#" class="comment-form">
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <select id="challengeDivision" name="challengeDivision" class="custom-select">
+                                            <option value="">구분 선택</option>
+                                            <option value="책">책</option>
+                                            <option value="영화">영화</option>
+                                        </select>
+                                        <textarea name="challengeComment" id="challengeComment" placeholder="설명" style="height: 200px;"></textarea>
+                                        <input type="date" id="challengeStartDate" name="challengeStartDate"/>
+                                        <input type="date" id="challengeEndDate" name="challengeEndDate"/>
+                                        <button id="btnSend" type="button" class="site-btn">등록</button>
+                                        <button class="site-btn" type="reset">다시 작성</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Blog Details Section End -->
+<br/>
+
+</body>
+
+<!-- ======= Footer ======= -->
+<th:block th:replace="~{footer}"></th:block>
+<!-- End Footer -->
+
+</html>

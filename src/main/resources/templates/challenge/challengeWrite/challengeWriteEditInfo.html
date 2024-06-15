@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마음쓰기 수정하기</title>
+    <link rel="stylesheet" href="/css/table.css"/>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        const cSeq = /*[[${rDTO.challengeSeq}]]*/ ''; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
+        const cwSeq = /*[[${rDTO.challengeWriteSeq}]]*/ ''; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
+
+        // html 로딩이 완료되고 , 실행됨
+        $(document).ready(function () {
+            // 버튼 클릭됐을 때 , 발생되는 이벤트 생성함(onclick 이벤트와 동일)
+            $("#btnSend").on("click", function () {
+                doSubmit(); // 커뮤니티 수정하기 실행
+            })
+        })
+
+        function calBytes(str) {
+            let tcount = 0;
+            let tmpStr = String(str);
+            let strCnt = tmpStr.length;
+            let onechar;
+            for (let i = 0; i < strCnt; i++) {
+                onechar = tmpStr.charAt(i);
+                if (escape(onechar).length > 4) {
+                    tcount += 2;
+                } else {
+                    tcount += 1;
+                }
+            }
+            return tcount;
+        }
+
+        // 커뮤니티 수정하기
+        function doSubmit() {
+
+            let f = document.getElementById("f"); // form 태그
+
+            if (f.challengeWriteTitle.value === "") {
+                alert("제목을 입력하시기 바랍니다.");
+                f.challengeWriteTitle.focus();
+                return;
+            }
+            if (calBytes(f.challengeWriteTitle.value) > 200) {
+                alert("최대 200Bytes까지 입력 가능합니다.");
+                f.challengeWriteTitle.focus();
+                return;
+            }
+            if (f.challengeWriteContent.value === "") {
+                alert("내용을 입력하시기 바랍니다.");
+                f.challengeWriteContent.focus();
+                return;
+            }
+            if (calBytes(f.challengeWriteContent.value) > 4000) {
+                alert("최대 4000Bytes까지 입력 가능합니다.");
+                f.challengeWriteContent.focus();
+                return;
+            }
+            // Ajax 호출해서 글 등록하기
+            $.ajax({
+                    url: "/challenge/challengeWrite/challengeWriteUpdate",
+                    type: "post", // 전송방식은 Post
+                    contentType: "application/json", // JSON 형식으로 전송
+                    dataType: "json", // 전송 결과는 JSON으로 받기
+                    data: JSON.stringify({
+                        challengeSeq: cSeq,
+                        challengeWriteSeq: cwSeq,
+                        challengeWriteTitle: f.challengeWriteTitle.value,
+                        challengeWriteContent: f.challengeWriteContent.value
+                    }),
+                    success: function (json) { // /challenge/challengeWrite/challengeWriteUpdate 호출이 성공했다.면..
+                        alert(json.msg); // 메시지 띄우기
+                        location.href = "/challenge/challengeWrite/challengeWriteList?cSeq=" + cSeq; // 커뮤니티 리스트 이동
+                    },
+                    error: function (xhr, status, error) {
+                        alert("수정에 실패했습니다. 다시 시도해주세요.");
+                        console.error("Error: " + error);
+                    }
+                }
+            );
+        }
+
+        /*]]>*/
+    </script>
+
+    <style>
+        .btn_ {
+            border: none;
+            background: #0e1d34;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn_:hover {
+            background: rgb(0, 3, 255);
+            background: linear-gradient(0deg, rgba(0, 3, 255, 1) 0%, rgba(2, 125, 251, 1) 100%);
+        }
+
+        .find-btn {
+            text-align: center;
+        }
+
+        .write-container {
+            max-width: 1300px;
+            margin: 20px auto;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .write-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .write-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            width: calc(100% - 22px); /* 조정된 부분 */
+            box-sizing: border-box; /* 너비 계산에 padding과 border 포함 */
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 500px;
+            resize: none; /*textarea 모서리 사이즈 조절 없앰*/
+        }
+
+        .contents_box {
+            position: relative;
+            max-width: 1440px;
+            margin: 0 auto;
+            min-height: 500px;
+            padding: 1px 10px 0 10px;
+        }
+
+        .site-btn {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff;
+            letter-spacing: 2px;
+            background: #0b0b0b;
+            border: none;
+            padding: 14px 42px 13px;
+            display: inline-block;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="~{top}"></th:block>
+<!-- End Header -->
+
+<!-- Blog Details Section Begin -->
+<section class="blog-details-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="blog-details-text">
+                    <div class="bd-title">
+                        <div class="leave-comment">
+                            <h4>마음쓰기 수정하기</h4>
+                            <form id="f" name="f" class="comment-form">
+                                <input type="hidden" name="cSeq" th:value="${rDTO.challengeSeq}"/>
+                                <input type="hidden" name="cwSeq" th:value="${rDTO.challengeWriteSeq}"/>
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <input type="text" id="challengeWriteTitle" name="challengeWriteTitle" placeholder="제목" maxlength="200" th:value="${rDTO.challengeWriteTitle}"/>
+                                        <textarea name="challengeWriteContent" id="challengeWriteContent" placeholder="내용" style="height: 500px;">[[${rDTO.challengeWriteContent}]]</textarea>
+                                        <button id="btnSend" type="button" class="site-btn">수정하기</button>
+                                        <button class="site-btn" type="reset">다시 작성</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Blog Details Section End -->
+<br/>
+
+</body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="~{footer}"></th:block>
+<!-- End Header -->
+
+</html>

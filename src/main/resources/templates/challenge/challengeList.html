@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>챌린지 리스트</title>
+    <link rel="stylesheet" href="/css/table.css"/>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
+        const cSeq = /*[[${pDTO.challengeSeq}]]*/ '';
+
+        // 세션 값이 null인 경우 공백 문자열로 변경
+        const userId = ssUserId !== null ? ssUserId : '';
+
+        $(document).ready(function () {
+            if (userId === "" || userId === undefined) {
+                alert("로그인 후 이용 가능합니다.");
+                location.href = "/index";
+            }
+
+            // 챌린지 생성
+            $("#btnCreate").on("click", function () {
+                if (userId === "" || userId === undefined) {
+                    alert("로그인 후 이용 가능합니다.");
+                } else {
+                    location.href = "/challenge/challengeReg";
+                }
+            });
+
+            // 삭제 버튼 이벤트 핸들러 등록
+            $(".btnDelete").on("click", function () {
+                const challengeSeq = $(this).closest(".table-row").find("div[name='cSeq']").text();
+                doDelete(challengeSeq); // 커뮤니티 삭제하기 실행
+            });
+        });
+
+        // 삭제하기
+        function doDelete(challengeSeq) {
+            if (ssUserId === userId) {
+                if (confirm("작성한 글을 삭제하시겠습니까?")) {
+
+                    // Ajax 호출해서 글 삭제하기
+                    $.ajax({
+                            url: "/challenge/challengeDelete",
+                            type: "post", // 전송방식은 Post
+                            dataType: "JSON", // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                            data: JSON.stringify({ cSeq: challengeSeq }),
+                            contentType: "application/json",
+                            success: function (json) { // /community/communityDelete 호출이 성공한다면...
+                                alert(json.msg); // 메시지 띄우기
+                                location.href = "/challenge/challengeList"; // 커뮤니티 리스트로 이동
+                            },
+                            error: function (xhr, status, error) {
+                                alert("삭제에 실패했습니다. 다시 시도해주세요.");
+                                console.error("Error: " + error);
+                            }
+                        }
+                    )
+                }
+            } else if (ssUserId === "") {
+                alert("로그인 하시길 바랍니다.");
+            } else {
+                alert("본인이 작성한 글만 삭제 가능합니다.");
+            }
+        }
+
+        // 상세보기 이동
+        function doDetail(seq) {
+            location.href = "/challenge/challengeWrite/challengeWriteList?cSeq=" + seq;
+        }
+
+        /*]]>*/
+    </script>
+
+    <style>
+        /* 커뮤니티 리스트 css */
+        .community-table {
+            max-width: 1300px;
+            margin: 20px auto;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0e1d34;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .table-header div {
+            flex: 1;
+        }
+
+        .table-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+
+        .table-row div {
+            flex: 1;
+        }
+
+        .table-row:hover {
+            background-color: #f9f9f9;
+        }
+
+        .write-button {
+            display: block;
+            margin: 20px auto;
+            padding: 8px 15px;
+            background-color: #0e1d34;
+            width: 20vw;
+            min-width: 100px;
+            max-width: 200px;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            overflow: hidden;
+        }
+
+        .write-button:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .page-link {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 5px;
+            background-color: #0e1d34;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .page-link:hover {
+            background-color: #091621;
+            transform: scale(1.05);
+        }
+
+        .btn_ {
+            border: none;
+            background: #0b0b0b;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn_:hover {
+            background: rgb(0, 3, 255);
+            background: linear-gradient(0deg, rgba(0, 3, 255, 1) 0%, rgba(2, 125, 251, 1) 100%);
+        }
+
+        .find-btn {
+            margin-top: 1px;
+            text-align: center;
+        }
+
+        .room-pagination {
+            overflow: auto;
+        }
+
+        .block-27 ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .block-27 ul li {
+            display: inline;
+            margin-right: 5px;
+        }
+
+        .block-27 ul li a {
+            display: inline-block;
+            padding: 5px 10px;
+            text-decoration: none;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .block-27 ul li a:hover {
+            background-color: #0b0b0b;
+            color: white;
+        }
+
+        .block-27 ul li.active a {
+            background-color: #0b0b0b;
+            color: #fff;
+        }
+
+        .site-btn {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff;
+            letter-spacing: 2px;
+            background: #0b0b0b;
+            border: none;
+            padding: 14px 42px 13px;
+            display: inline-block;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="~{top}"></th:block>
+<!-- End Header -->
+
+<main id="main">
+    <section class="COMMUNITY">
+        <div class="community-table">
+            <div class="table-header">
+                <div>순번</div>
+                <div>구분</div>
+                <div>설명</div>
+                <!--                <div>등록자</div>-->
+                <div>등록일</div>
+                <div>시작일</div>
+                <div>종료일</div>
+            </div>
+
+            <div class="table-row" th:each="dto:${rList}">
+                <div class="table-row">
+                    <div name="cSeq" id="cSeq" th:text="${dto.challengeSeq}"></div>
+                    <div th:attr="onclick='doDetail(\'' + ${dto.challengeSeq} + '\')'" th:text="${dto.challengeDivision}"></div>
+                    <div th:text="${dto.challengeComment}"></div>
+                    <!--                    <div th:text="${dto.userNickname}"></div>-->
+                    <div th:text="${dto.challengeRegDt}"></div>
+                    <div th:text="${dto.challengeStartDate}"></div>
+                    <div th:text="${dto.challengeEndDate}"></div>
+                    <button class="btnDelete" type="button">삭제</button>
+                </div>
+            </div>
+        </div>
+        <div class="find-btn">
+            <br><br>
+            <button class="site-btn" id="btnCreate" type="button">생성하기</button>
+        </div>
+    </section>
+    <br/>
+</main><!-- End #main -->
+
+<!-- ======= Footer ======= -->
+<th:block th:replace="~{footer}"></th:block>
+<!-- End Footer -->
+</body>
+</html>

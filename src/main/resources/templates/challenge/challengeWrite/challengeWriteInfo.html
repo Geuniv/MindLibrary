@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마음쓰기 상세보기</title>
+    <link rel="stylesheet" href="/css/table.css"/>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
+        const userId = /*[[${rDTO.userId}]]*/ ''; // 공지사항 게시글 작성자 아이디
+        const cSeq = /*[[${rDTO.challengeSeq}]]*/ ''; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
+        const cwSeq = /*[[${rDTO.challengeWriteSeq}]]*/ ''; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
+
+        $(document).ready(function () {
+            // 버튼 클릭했을 때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
+            // $("#btnCmt").on("click", function () {
+            //     doComment(); // 댓글 작성 실행
+            // })
+
+            // // 본인 계정이 아닌 사용자에게 버튼 숨김
+            // $(".btnCmtDelete").each(function () {
+            //     var commentUserId = $(this).prevAll(".commentUserId").val(); // 추가: 댓글의 userId 가져오기
+            //
+            //     // 숨김 처리
+            //     $(this).hide();
+            //
+            //     // 본인 계정과 댓글 userId 비교
+            //     if (ssUserId === commentUserId) {
+            //         // 본인 계정이라면 표시
+            //         $(this).show();
+            //     }
+            // });
+
+            $("#btnEdit").on("click", function () {
+                doEdit(); // 커뮤니티 수정하기 실행
+            })
+            $("#btnDelete").on("click", function () {
+                doDelete(); // 커뮤니티 삭제하기 실행
+            })
+            $("#btnList").on("click", function () {
+                location.href = "/challenge/challengeWrite/challengeWriteList?cSeq=" + cSeq; // 커뮤니티 리스트 이동
+            })
+
+            // 글자 길이 바이트 단위로 체크하기(바이트값 전달)
+            function calBytes(str) {
+                let tcount = 0;
+                let tmpStr = String(str);
+                let strCnt = tmpStr.length;
+                let onechar;
+                for (let i = 0; i < strCnt; i++) {
+                    onechar = tmpStr.charAt(i);
+                    if (escape(onechar).length > 4) {
+                        tcount += 2;
+                    } else {
+                        tcount += 1;
+                    }
+                }
+                return tcount;
+            }
+
+            // 수정하기
+            function doEdit() {
+                if (ssUserId === userId) {
+                    location.href = "/challenge/challengeWrite/challengeWriteEditInfo?cSeq=" + cSeq + "&cwSeq=" + cwSeq;
+                } else if (ssUserId === "") {
+                    alert("로그인 하시길 바랍니다.");
+                } else {
+                    alert("본인이 작성한 글만 수정 가능합니다.");
+                }
+            }
+
+            // 삭제하기
+            function doDelete() {
+                if (ssUserId === userId) {
+                    if (confirm("작성한 글을 삭제하시겠습니까?")) {
+
+                        // Ajax 호출해서 글 삭제하기
+                        $.ajax({
+                            url: "/challenge/challengeWrite/challengeWriteDelete", // 절대 경로로 변경
+                            type: "post", // 전송방식은 Post
+                            dataType: "json", // 전송 결과는 JSON으로 받기
+                            data: JSON.stringify({challengeWriteSeq: cwSeq}),
+                            contentType: "application/json", // JSON 형식으로 전송
+                            success: function (json) { // /challenge/challengeWrite/challengeWriteDelete 호출이 성공한다면...
+                                alert(json.msg); // 메시지 띄우기
+                                location.href = "/challenge/challengeWrite/challengeWriteList?cSeq=" + cSeq; // 커뮤니티 리스트로 이동
+                            },
+                            error: function (xhr, status, error) {
+                                alert("삭제에 실패했습니다. 다시 시도해주세요.");
+                                console.error("Error: " + error);
+                            }
+                        });
+                    }
+                } else if (ssUserId === "") {
+                    alert("로그인 하시길 바랍니다.");
+                } else {
+                    alert("본인이 작성한 글만 삭제 가능합니다.");
+                }
+            }
+        });
+
+        /*]]>*/
+    </script>
+    <style>
+        .site-btn {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff;
+            letter-spacing: 2px;
+            background: #0b0b0b;
+            border: none;
+            padding: 14px 42px 13px;
+            display: inline-block;
+            border-radius: 2px;
+        }
+
+        .dropdown {
+            margin-top: 5%;
+            position: absolute;
+            margin-left: 98%;
+            top: 0;
+            right: 0;
+        }
+
+        /*.sc-text .btnCmtEdit,*/
+        /*.sc-text .btnCmtDelete,*/
+        /*.sc-text .dropbtn {*/
+        /*    display: none;*/
+        /*}*/
+
+        .dropbtn {
+            border: 0px;
+            background-color: #FFFFFF;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #0b0b0b;
+            min-width: 70px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            border-radius: 4px;
+        }
+
+        .dropdown-content button {
+            color: #f9f9f9;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            background-color: #0b0b0b; /* 통일된 배경색 */
+            border: none; /* 버튼에 보더 없앰 */
+            border-radius: 4px; /* 버튼에 둥근 모서리 추가 */
+            cursor: pointer;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #707079; /* hover 시 배경색 변경 */
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown:hover .dropbtn {
+            background-color: #707079;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="~{top}"></th:block>
+<!-- End Header -->
+
+<!-- Blog Details Hero Section Begin -->
+<!--data-setbg="/img/blog/blog-details/black.jpg"-->
+<section class="blog-details-hero set-bg" style="background: #0b0b0b;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="bd-hero-text">
+                    <!--                        <span>Travel Trip & Camping</span>-->
+                    <h2>[[${rDTO.challengeWriteTitle}]]</h2>
+                    <ul>
+                        <li class="b-time"><i class="icon_clock_alt"></i>[[${rDTO.challengeWriteRegDt}]]</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Blog Details Hero End -->
+
+<!-- Blog Details Section Begin -->
+<section class="blog-details-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="blog-details-text">
+                    <div class="bd-title">
+                        <div class="imageArea" style="width: 100%; padding-bottom: 10px;">
+                                    <img th:src="${rDTO.challengeWriteBookimage}" style="width: 20%; height: 20%;"><br><br>
+                            </div>
+                        </div>
+                        <p style="font-weight: bold;">
+                            읽은 책 : [[${rDTO.challengeWriteBooktitle}]]
+                        </p>
+                        <hr/>
+                        <br/>
+                        <p>
+                            [[${rDTO.challengeWriteContent}]]
+                        </p>
+                        <!--                            <p>Thinking about overseas adventure travel? Have you put any thought into the best places-->
+                        <!--                                to go when it comes to overseas adventure travel? Nepal is one of the most popular-->
+                        <!--                                places of all, when you visit this magical country you will have the best adventures-->
+                        <!--                                right there at your doorstep. Only overseas adventure travel in Nepal will give you-->
+                        <!--                                these kinds of opportunities so if this is not on your list of possible places to visit-->
+                        <!--                                yet then now is the time to put it on there!</p>-->
+                        <!--                            <p>In Nepal your overseas adventure travel is going to be fascinating. You will get to see-->
+                        <!--                                the Himalayan Mountains and experience all that the rich Nepalese culture has to offer.-->
+                        <!--                                They are an amazing people who have managed to hang on to their own culture and beliefs-->
+                        <!--                                longer than most other countries. When overseas adventure travel takes you to Nepal you-->
+                        <!--                                will have the chance to see all of the fantastic and one of a kind lakes and forests and-->
+                        <!--                                you can even spend days or weeks camping out in their forests with a specialized guide.-->
+                        <!--                                And the waterfalls in Nepal are to die for, you will never see anything more gorgeous in-->
+                        <!--                                your life as their waterfalls! This should be at the top of your overseas adventure-->
+                        <!--                                travel destination list for sure!</p>-->
+                    </div>
+                    <!--                        <div class="bd-pic">-->
+                    <!--                            <div class="bp-item">-->
+                    <!--                                <img src="img/blog/blog-details/blog-details-1.jpg" alt="">-->
+                    <!--                            </div>-->
+                    <!--                            <div class="bp-item">-->
+                    <!--                                <img src="img/blog/blog-details/blog-details-2.jpg" alt="">-->
+                    <!--                            </div>-->
+                    <!--                            <div class="bp-item">-->
+                    <!--                                <img src="img/blog/blog-details/blog-details-3.jpg" alt="">-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="bd-more-text">-->
+                    <!--                            <div class="bm-item">-->
+                    <!--                                <h4>If you live in New York City</h4>-->
+                    <!--                                <p>You know all about the traffic there. Getting places is often next to impossible,-->
+                    <!--                                    even with the gazillion yellow cabs. If you’re like me you often look with envy at-->
+                    <!--                                    those shiny limousines with their unformed drivers and wish you could sit in one.-->
+                    <!--                                    Well, you can. New York limo service is more affordable than you think, whether it’s-->
+                    <!--                                    for Newark airport transportation, LaGuardia airport transportation, or to drive-->
+                    <!--                                    wherever you wish to go.</p>-->
+                    <!--                            </div>-->
+                    <!--                            <div class="bm-item">-->
+                    <!--                                <h4>Every time I hail a cab in New York City</h4>-->
+                    <!--                                <p>I hope I’ll be lucky enough to get one that’s halfway decent and that the driver-->
+                    <!--                                    actually speaks English. I have spent many anxious moments wondering if I ever get-->
+                    <!--                                    to my destination. Or whether I’d get ripped off. Even if all goes well, I can’t say-->
+                    <!--                                    I can remember many rides in New York cabs that were very pleasant. And given how-->
+                    <!--                                    much they cost by now, going with a limo makes ever more sense.</p>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <div class="tag-share">
+                        <!--                        <div class="tags">-->
+                        <!--                            <a href="#">Travel Trip</a>-->
+                        <!--                            <a href="#">Camping</a>-->
+                        <!--                            <a href="#">Event</a>-->
+                        <!--                        </div>-->
+                        <!--                        <div class="social-share">-->
+                        <!--                            <span>Share:</span>-->
+                        <!--                            <a href="#"><i class="fa fa-facebook"></i></a>-->
+                        <!--                            <a href="#"><i class="fa fa-twitter"></i></a>-->
+                        <!--                            <a href="#"><i class="fa fa-tripadvisor"></i></a>-->
+                        <!--                            <a href="#"><i class="fa fa-instagram"></i></a>-->
+                        <!--                            <a href="#"><i class="fa fa-youtube-play"></i></a>-->
+                        <!--                        </div>-->
+                        <!--                    </div>-->
+                        <div class="col-lg-12 text-center">
+                            <button id="btnEdit" type="button" class="site-btn">수정하기</button>
+                            <button id="btnDelete" type="button" class="site-btn">삭제하기</button>
+                            <button id="btnList" type="button" class="site-btn">목록</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Blog Details Section End -->
+<br/>
+
+</main><!-- End #main -->
+</body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="~{footer}"></th:block>
+<!-- End Header -->
+
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마음쓰기</title>
+    <link rel="stylesheet" href="/css/table.css"/>
+    <link rel="stylesheet" href="/css/nice-select.css"/>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-nice-select.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        $(document).ready(function () {
+            $("#btnSend").on("click", function () {
+                doSubmit();
+            });
+
+            $("#challengeWriteBooktitle").on("input", function () {
+                searchBook($(this).val());
+            });
+
+            // Enter key event handler
+            $("#challengeWriteBooktitle").on("keypress", function (event) {
+                if (event.keyCode === 13) { // Enter key code
+                    event.preventDefault(); // Prevent form submission
+                    searchBook($(this).val());
+                }
+            });
+
+            // 책 선택 시 자동으로 바인딩
+            $("#bookResults").on("change", function () {
+                setBookInfo();
+            });
+        });
+
+        function searchBook(query) {
+            console.log("searchBook called with query: " + query); // 디버깅 로그 추가
+
+            if (query.length < 2) {
+                $("#bookResults").empty();
+                return;
+            }
+
+            $.ajax({
+                url: "/book/getBook",
+                type: "post",
+                data: { title: query },
+                success: function (data) {
+                    console.log("API response:", data); // 디버깅 로그 추가
+
+                    let results = $("#bookResults");
+                    results.empty();
+                    if (data && data.items && data.items.length > 0) {
+                        data.items.forEach(item => {
+                            results.append(`<option value="${item.title}" data-link="${item.link}" data-image="${item.image}" data-author="${item.author}" data-discount="${item.discount}" data-publisher="${item.publisher}" data-pubdate="${item.pubdate}" data-isbn="${item.isbn}" data-description="${item.description}">${item.title} - ${item.author}</option>`);
+                        });
+                    }
+                },
+                error: function (error) {
+                    console.error("API call failed:", error); // 에러 로그 추가
+                }
+            });
+        }
+
+        function setBookInfo() {
+            // 책 제목과 이미지를 설정합니다.
+            let selectedBook = $("#bookResults option:selected");
+            if (selectedBook.length > 0) {
+                $("#challengeWriteBooktitle").val(selectedBook.val());
+                $("#challengeBookImage").attr("src", selectedBook.data("image")); // 이미지 태그
+                $("#challengeWriteBookimage").val(selectedBook.data("image")); // hidden input
+                $("#challengeWriteBookLink").val(selectedBook.data("link"));
+                $("#challengeWriteBookAuthor").val(selectedBook.data("author"));
+                $("#challengeWriteBookDiscount").val(selectedBook.data("discount"));
+                $("#challengeWriteBookPublisher").val(selectedBook.data("publisher"));
+                $("#challengeWriteBookPubdate").val(selectedBook.data("pubdate"));
+                $("#challengeWriteBookIsbn").val(selectedBook.data("isbn"));
+                $("#challengeWriteBookDescription").val(selectedBook.data("description"));
+
+                console.log("Selected book image URL: ", selectedBook.data("image")); // 디버깅 로그 추가
+            }
+        }
+
+        function doSubmit() {
+            let f = document.getElementById("f");
+
+            if (f.challengeWriteTitle.value === "") {
+                alert("제목을 선택하시기 바랍니다.");
+                f.challengeWriteTitle.focus();
+                return;
+            }
+            if (f.challengeWriteContent.value === "") {
+                alert("내용을 입력하시기 바랍니다.");
+                f.challengeWriteContent.focus();
+                return;
+            }
+
+            // Ajax 호출해서 챌린지 등록하기
+            $.ajax({
+                url: "/challenge/challengeWrite/challengeWriteInsert",
+                type: "post",
+                dataType: "JSON",
+                data: $("#f").serialize(),
+                success: function (json) {
+                    alert(json.msg);
+                    location.href = "/challenge/challengeWrite/challengeWriteList?cSeq=" + f.challengeSeq.value;
+                },
+                error: function (error) {
+                    console.error("Submission failed:", error); // 에러 로그 추가
+                }
+            });
+        }
+
+        /*]]>*/
+    </script>
+
+    <style>
+        .custom-select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="~{top}"></th:block>
+<!-- End Header -->
+
+<section class="blog-details-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="blog-details-text">
+                    <div class="bd-title">
+                        <div class="leave-comment">
+                            <h4>챌린지 생성하기</h4>
+                            <form id="f" name="f" action="#" class="comment-form">
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <!-- hidden input to store challengeSeq -->
+                                        <input type="hidden" id="challengeSeq" name="challengeSeq" th:value="${pDTO.challengeSeq}"/>
+                                        <input type="text" id="challengeWriteTitle" name="challengeWriteTitle" placeholder="제목" maxlength="500"/>
+                                        <textarea name="challengeWriteContent" id="challengeWriteContent" placeholder="내용" style="height: 500px;"></textarea>
+
+                                        <!-- 책 제목 검색 및 선택 -->
+                                        <input type="text" id="challengeWriteBooktitle" name="challengeWriteBooktitle" placeholder="책 제목 검색"/>
+                                        <img id="challengeBookImage" name="challengeBookImage" alt="책 이미지" style="display: block; margin: 20px auto; max-width: 100%; height: auto;"/>
+                                        <select id="bookResults" size="5" class="custom-select"></select>
+
+                                        <!-- 숨겨진 필드: 선택한 책 정보 -->
+                                        <input type="hidden" id="challengeWriteBookimage" name="challengeWriteBookimage"/>
+                                        <input type="hidden" id="challengeWriteBookLink" name="challengeWriteBookLink"/>
+                                        <input type="hidden" id="challengeWriteBookAuthor" name="challengeWriteBookAuthor"/>
+                                        <input type="hidden" id="challengeWriteBookDiscount" name="challengeWriteBookDiscount"/>
+                                        <input type="hidden" id="challengeWriteBookPublisher" name="challengeWriteBookPublisher"/>
+                                        <input type="hidden" id="challengeWriteBookPubdate" name="challengeWriteBookPubdate"/>
+                                        <input type="hidden" id="challengeWriteBookIsbn" name="challengeWriteBookIsbn"/>
+                                        <input type="hidden" id="challengeWriteBookDescription" name="challengeWriteBookDescription"/>
+
+                                        <button id="btnSend" type="button" class="site-btn">등록</button>
+                                        <button class="site-btn" type="reset">다시 작성</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<br/>
+
+</body>
+
+<!-- ======= Footer ======= -->
+<th:block th:replace="~{footer}"></th:block>
+<!-- End Footer -->
+
+</html>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="kopo.poly.persistance.mapper.IChallengeWriteMapper">
+
+    <!--2024.05.27 마음쓰기 리스트 쿼리-->
+    <select id="getChallengeWriteList" parameterType="ChallengeWriteDTO">
+        SELECT C.CHALLENGE_SEQ, C.CHALLENGE_WRITE_SEQ, C.CHALLENGE_WRITE_TITLE,
+               C.USER_ID, C.CHALLENGE_WRITE_CONTENT, C.CHALLENGE_WRITE_BOOKTITLE,
+               U.USER_NICKNAME, C.CHALLENGE_WRITE_REG_DT
+        FROM MIND_CHALLENGE_WRITE C
+                 JOIN USER_INFO U ON C.USER_ID = U.USER_ID
+        WHERE C.CHALLENGE_SEQ = #{challengeSeq}
+        ORDER BY C.CHALLENGE_WRITE_REG_DT DESC;
+    </select>
+
+
+    <!--2024.05.27 마음쓰기 등록 쿼리-->
+    <insert id="insertChallengeWriteInfo" parameterType="ChallengeWriteDTO">
+        INSERT INTO MIND_CHALLENGE_WRITE (CHALLENGE_WRITE_SEQ,CHALLENGE_WRITE_TITLE, USER_ID,
+                                          CHALLENGE_WRITE_CONTENT, CHALLENGE_WRITE_BOOKTITLE, CHALLENGE_WRITE_BOOKIMAGE,
+                                          CHALLENGE_WRITE_REG_DT, CHALLENGE_SEQ)
+        VALUES (
+
+                   (SELECT IFNULL(MAX(A.CHALLENGE_WRITE_SEQ),0)+1 FROM MIND_CHALLENGE_WRITE A WHERE A.CHALLENGE_SEQ = #{challengeSeq}),
+                   #{challengeWriteTitle}, #{userId}, #{challengeWriteContent}, #{challengeWriteBooktitle}, #{challengeWriteBookimage}, NOW(), #{challengeSeq}
+
+               );
+    </insert>
+
+    <!-- 게시판 상세보기 쿼리 -->
+    <select id="getChallengeWriteInfo" resultType="ChallengeWriteDTO">
+        SELECT CHALLENGE_SEQ, CHALLENGE_WRITE_SEQ, CHALLENGE_WRITE_TITLE, USER_ID,
+               CHALLENGE_WRITE_CONTENT, CHALLENGE_WRITE_BOOKTITLE, CHALLENGE_WRITE_BOOKIMAGE,
+               CHALLENGE_WRITE_REG_DT,
+               DATE_FORMAT(CHALLENGE_WRITE_REG_DT, '%y-%m-%d') AS CHALLENGE_WRITE_REG_DT
+        FROM MIND_CHALLENGE_WRITE
+        WHERE CHALLENGE_SEQ = #{challengeSeq} AND CHALLENGE_WRITE_SEQ = #{challengeWriteSeq}
+    </select>
+
+    <!-- 커뮤니티 수정 쿼리 -->
+        <update id="updateChallengeWriteInfo" parameterType="ChallengeWriteDTO">
+            UPDATE MIND_CHALLENGE_WRITE SET
+                                           CHALLENGE_WRITE_TITLE = #{challengeWriteTitle},
+                                           CHALLENGE_WRITE_CONTENT = #{challengeWriteContent}
+            WHERE
+                CHALLENGE_WRITE_SEQ = #{challengeWriteSeq}
+        </update>
+
+    <!--2024.05.27 마음쓰기 삭제 쿼리-->
+    <delete id="deleteChallengeWriteInfo" parameterType="ChallengeWriteDTO">
+        DELETE FROM MIND_CHALLENGE_WRITE
+        WHERE CHALLENGE_WRITE_SEQ = #{challengeWriteSeq}
+    </delete>
+</mapper>
