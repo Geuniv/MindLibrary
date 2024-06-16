@@ -58,10 +58,10 @@ public class HospitalMapper extends AbstractMongoDBComon implements IHospitalMap
         projection.append("sgguCd", "$sgguCd"); // 시군구 코드
         projection.append("emdongNm", "$emdongNm"); // 읍면동명
         projection.append("yadmNm", "$yadmNm"); // 병원명(UTF-8 인코딩 필요)
-        projection.append("zipCd", "$zipCd"); // 분류코드
+//        projection.append("zipCd", "$zipCd"); // 분류코드
         projection.append("clCd", "$clCd"); // 종별코드
         projection.append("clCdNm", "$clCdNm"); // 종별코드명
-        projection.append("dgsbjtCd", "$dgsbjtCd"); // 진료과목코드
+//        projection.append("dgsbjtCd", "$dgsbjtCd"); // 진료과목코드
         projection.append("xPos", "$xPos"); // x좌표(소수점 15)
         projection.append("yPos", "$yPos"); // y좌표(소수점 15)
         projection.append("radius", "$radius"); // 단위 : 미터(m)
@@ -117,10 +117,10 @@ public class HospitalMapper extends AbstractMongoDBComon implements IHospitalMap
                 String sgguCd = CmmUtil.nvl(doc.getString("sgguCd"));
                 String emdongNm = CmmUtil.nvl(doc.getString("emdongNm"));
                 String yadmNm = CmmUtil.nvl(doc.getString("yadmNm"));
-                String zipCd = CmmUtil.nvl(doc.getString("zipCd"));
+//                String zipCd = CmmUtil.nvl(doc.getString("zipCd"));
                 String clCd = CmmUtil.nvl(doc.getString("clCd"));
                 String clCdNm = CmmUtil.nvl(doc.getString("clCdNm"));
-                String dgsbjtCd = CmmUtil.nvl(doc.getString("dgsbjtCd"));
+//                String dgsbjtCd = CmmUtil.nvl(doc.getString("dgsbjtCd"));
                 String xPos = CmmUtil.nvl(doc.getString("xPos"));
                 String yPos = CmmUtil.nvl(doc.getString("yPos"));
                 String radius = CmmUtil.nvl(doc.getString("radius"));
@@ -135,10 +135,10 @@ public class HospitalMapper extends AbstractMongoDBComon implements IHospitalMap
                         .sgguCd(sgguCd)
                         .emdongNm(emdongNm)
                         .yadmNm(yadmNm)
-                        .zipCd(zipCd)
+//                        .zipCd(zipCd)
                         .clCd(clCd)
                         .clCdNm(clCdNm)
-                        .dgsbjtCd(dgsbjtCd)
+//                        .dgsbjtCd(dgsbjtCd)
                         .xPos(xPos)
                         .yPos(yPos)
                         .radius(radius)

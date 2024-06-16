@@ -30,13 +30,13 @@ public record HospitalDTO(
 
         String yadmNm, // 병원명(UTF-8 인코딩 필요)
 
-        String zipCd, //  분류코드
+//        String zipCd, //  분류코드
 
         String clCd, // 종별코드
 
         String clCdNm, // 종별코드명
 
-        String dgsbjtCd, // 진료과목코드
+//        String dgsbjtCd, // 진료과목코드
 
         String xPos, // x좌표(소수점 15)
 
