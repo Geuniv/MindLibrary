@@ -59,14 +59,13 @@ public class BoardService implements IBoardService {
 
     @Transactional
     @Override
-    public void insertBoardInfo(BoardDTO pDTO) throws Exception {
+    public int insertBoardInfo(BoardDTO pDTO) throws Exception {
 
         log.info(this.getClass().getName() + ".insertBoardInfo Start!!");
 
-        boardMapper.insertBoardInfo(pDTO);
-
         log.info(this.getClass().getName() + ".insertBoardInfo End!!");
 
+        return boardMapper.insertBoardInfo(pDTO);
     }
 
     @Override
@@ -74,17 +73,15 @@ public class BoardService implements IBoardService {
         return boardMapper.getPostsByUserId(userId);
     }
 
-//    /* 커뮤니티 순번 가져오기 */
-//    @Override
-//    public String getNextBoardSeq() throws Exception {
-//
-//        log.info(".service 커뮤니티 순번 가져오기 실행");
-//
-//        BoardDTO pDTO = boardMapper.getNextBoardSeq();
-//
-//        return pDTO.boardSeq();
-//
-//    }
+    /* 커뮤니티 순번 가져오기 */
+    @Override
+    public String getNextBoardSeq() throws Exception {
+        log.info(".service 커뮤니티 순번 가져오기 실행");
+
+        int nextSeq = boardMapper.getNextBoardSeq();
+
+        return String.valueOf(nextSeq);
+    }
 
     @Transactional
     @Override

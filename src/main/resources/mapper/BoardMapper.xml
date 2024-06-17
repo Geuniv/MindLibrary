@@ -40,11 +40,22 @@
     </insert>
 
 <!--    &lt;!&ndash; 커뮤니티 순번 가져오기 &ndash;&gt;-->
-<!--    <select id="getNextBoardSeq" resultType="BoardDTO">-->
-<!--        SELECT-->
-<!--            IFNULL(MAX(BOARD_SEQ), 0) + 1 as BOARD_SEQ-->
-<!--        FROM MIND_BOARD A-->
+<!--    <select id="getCommunitySeq" parameterType="CommunityDTO" resultType="CommunityDTO">-->
+<!--        SELECT COMMUNITY_SEQ-->
+<!--        FROM COMMUNITY-->
+<!--        WHERE TITLE = #{title}-->
+<!--          AND NOTICE_YN = #{noticeYn}-->
+<!--          AND CONTENTS = #{contents}-->
+<!--          AND USER_ID = #{userId}-->
 <!--    </select>-->
+
+    <!-- 게시글 순번 가져오기 -->
+    <select id="getNextBoardSeq" resultType="int">
+        SELECT
+            IFNULL(MAX(BOARD_SEQ), 0) + 1 as boardSeq
+        FROM MIND_BOARD A
+    </select>
+
 
     <!-- 게시판 상세보기 쿼리 -->
     <select id="getBoardInfo" resultMap="boardResult">

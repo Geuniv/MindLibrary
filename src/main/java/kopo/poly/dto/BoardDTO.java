@@ -9,28 +9,30 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public record BoardDTO(
 
-        String boardSeq,
+        String boardSeq, // 기본키, 순번
 
-        String userId,
+        String userId, // 유저 아이디
 
-        String userNickname,
+        String userNickname, // 닉네임
 
-        String notification,
+        String notification, // 공지글 여부
 
-        String boardTitle,
+        String boardTitle, // 제목
 
-        String boardContent,
+        String boardContent, // 내용
 
-        String boardViews,
+        String boardViews, // 조회수
 
-        String boardLike,
+        String boardLike, // 좋아요
 
-        String boardRegId,
+        String boardRegId, // 작성자
 
-        String boardRegDt,
+        String boardRegDt, // 작성일
 
-        String boardChgId,
+        String boardChgId, // 수정자
 
-        String boardChgDt
+        String boardChgDt,// 수정일
+
+        String fileName // 파일 게시글 수정창에서 삭제하기 위한 파라미터
 ) {
 }

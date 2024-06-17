@@ -26,10 +26,10 @@ public interface IBoardService {
      * 커뮤니티 등록
      * @param pDTO 화면에서 입력된 커뮤니티 입력된 값들
      */
-    void insertBoardInfo(BoardDTO pDTO) throws Exception;
+    int insertBoardInfo(BoardDTO pDTO) throws Exception;
 
     /* 커뮤니티 순번 가져오기 */
-//    String getNextBoardSeq() throws Exception;
+    String getNextBoardSeq() throws Exception;
 
     /**
      * 커뮤니티 수정

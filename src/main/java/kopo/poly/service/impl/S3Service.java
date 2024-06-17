@@ -42,7 +42,7 @@ public class S3Service implements IS3Service {
         log.info(this.getClass().getName() + ".uploadFile 서비스 시작!");
 
         String uploadFilePath = FileUtil.mkdirForData();
-        String uploadFileName = DateUtil.getDateTime("yyyyMMddHHmmss") + ext;
+        String uploadFileName = DateUtil.getDateTime("yyyyMMddHHmmssSSS") + "_" + mf.getOriginalFilename(); // 고유한 파일 이름 생성
         String uploadFileUrl = "";
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -67,20 +67,17 @@ public class S3Service implements IS3Service {
                     new PutObjectRequest(bucketName, keyName, inputStream, objectMetadata).
                             withCannedAcl(CannedAccessControlList.PublicRead));  // 공개권한 부여
 
-
             // S3에 업로드한 폴더 및 파일 URL
             uploadFileUrl = amazonS3Client.getUrl(bucketName, keyName).toString();
 
         } catch (IOException e) {
             e.printStackTrace();
             log.error("Filed upload failed", e);
-
         }
 
         return FileDTO.builder()
                 .fileUrl(uploadFileUrl)
                 .fileName(uploadFileName)
                 .build();
-
     }
 }

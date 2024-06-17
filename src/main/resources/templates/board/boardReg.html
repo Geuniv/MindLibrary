@@ -8,17 +8,100 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
+
+        // 세션 값이 null인 경우 공백 문자열로 변경
+
+        const userId = ssUserId !== null ? ssUserId : '';
+        // html 로딩이 완료되고 , 실행됨
+
         let arr = []; // 이미지 배열 선언
 
-        // html 로딩이 완료되고 , 실행됨
         $(document).ready(function () {
-            // 버튼 클릭됐을 때 , 발생되는 이벤트 생성함(onclick 이벤트와 동일)
-            $("#btnSend").on("click", function () {
-                doSubmit(); // 커뮤니티 등록하기 실행
-            })
-        })
 
-        // 글자 길이 바이트 단위로 체크하기(바이트값 전달)
+            if (userId === "" || userId == null || userId === undefined) {
+                alert("로그인 후 이용 가능합니다.");
+                location.href = "/index";
+            }
+
+            $("#btnSend").on("click", function () {
+                doSubmit();
+            });
+
+            $("input[type='file']").change(function(e){
+                var files = e.target.files;
+                arr = Array.prototype.slice.call(files);
+
+                for(var i=0;i<files.length;i++){
+                    if(!checkExtension(files[i].name,files[i].size)){
+                        return false;
+                    }
+                }
+
+                preview(arr);
+            });
+        });
+
+        function checkExtension(fileName, fileSize) {
+            var regex = new RegExp("(.*?)\.(exe|sh|zip|alz)$");
+            var maxSize = 20971520; // 20MB
+
+            if (fileSize >= maxSize) {
+                alert('파일 사이즈 초과');
+                $("input[type='file']").val("");
+                return false;
+            }
+
+            if (regex.test(fileName)) {
+                alert('업로드 불가능한 파일이 있습니다.');
+                $("input[type='file']").val("");
+                return false;
+            }
+            return true;
+        }
+
+        function preview(arr) {
+            $("#preview").empty(); // 미리보기 영역 초기화
+            arr.forEach(function (f) {
+                let fileName = f.name;
+                if (fileName.length > 10) {
+                    fileName = fileName.substring(0, 4) + "...";
+                }
+
+                let str = '<div style="display: inline-flex; padding: 10px;"><li>';
+                str += '<span>' + fileName + '</span>&nbsp';
+
+                if (f.type.match('image.*')) {
+                    let reader = new FileReader();
+                    reader.onload = function (e) {
+                        let newStr = str;
+                        newStr += '<button type="button" class="btn btn-danger btn-sm delBtn" style="margin-bottom: 2px;" onclick="removeImage(this)" value="' + f.name + '">x</button><br>';
+                        newStr += '<img src="' + e.target.result + '" title="' + f.name + '" width=100 height=100 />';
+                        newStr += '</li></div>';
+                        $("#preview").append(newStr);
+                    }
+                    reader.readAsDataURL(f);
+                } else {
+                    str += '<button type="button" class="btn btn-danger btn-sm delBtn" style="margin-bottom: 2px;" onclick="removeImage(this)" value="' + f.name + '">x</button><br>';
+                    str += '<img src="/resources/img/fileImg.png" title="' + f.name + '" width=100 height=100 />';
+                    str += '</li></div>';
+                    $("#preview").append(str);
+                }
+            });
+        }
+
+        function removeImage(button) {
+            let fileName = $(button).val();
+
+            arr = arr.filter(function(file) {
+                return file.name !== fileName;
+            });
+
+            console.log(arr); // 파일 목록 확인
+
+            $(button).closest('div').remove(); // 부모 div를 삭제하도록 수정
+        }
+
         function calBytes(str) {
             let tcount = 0;
             let tmpStr = String(str);
@@ -35,10 +118,8 @@
             return tcount;
         }
 
-        // 커뮤니티 저장하기
         function doSubmit() {
-
-            let f = document.getElementById("f"); // form 태그
+            let f = document.getElementById("f");
 
             if (f.boardTitle.value === "") {
                 alert("제목을 입력하시기 바랍니다.");
@@ -60,18 +141,28 @@
                 f.boardContent.focus();
                 return;
             }
-            // Ajax 호출해서 글 등록하기
+
+            let formData = new FormData();
+            formData.append('boardTitle', f.boardTitle.value);
+            formData.append('boardContent', f.boardContent.value);
+            arr.forEach(function(file) {
+                const uniqueFileName = Date.now() + '_' + file.name; // 고유한 파일 이름 생성
+                formData.append('file', file, uniqueFileName);
+            });
+
             $.ajax({
-                    url: "/board/boardInsert",
-                    type: "post", // 전송방식은 Post
-                    dataType: "JSON", // 전송 결과는 Json으로 받기
-                    data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
-                    success: function (json) { // /community/communityInsert 호출이 성공했다면..
-                        alert(json.msg); // 메시지 띄우기
-                        location.href = "/board/boardList"; // 커뮤니티 리스트 이동
+                url: "/board/boardInsert",
+                type: "post",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (json) {
+                    alert(json.msg);
+                    if (json.result === 1) {
+                        location.href = "/board/boardList";
                     }
                 }
-            )
+            });
         }
 
         /*]]>*/
@@ -106,12 +197,17 @@
                     <div class="bd-title">
                         <div class="leave-comment">
                             <h4>게시글 작성하기</h4>
-                            <form id="f" name="f" action="#" class="comment-form">
+                            <form id="f" name="f" action="#" class="comment-form" enctype="multipart/form-data" autocomplete="off">
                                 <div class="row">
                                     <div class="col-lg-12 text-center">
                                         <input type="text" id="boardTitle" name="boardTitle" placeholder="제목" maxlength="500"/>
                                         <textarea name="boardContent" id="boardContent" placeholder="내용" style="height: 500px;"></textarea>
 
+                                        <!-- 파일 -->
+                                        <div class="card-body ">
+                                            <input class="form-control" type="file" id="file" multiple name="file" accept=".jpeg, .jpg, .gif, .png">
+                                            <div id="preview"></div>
+                                        </div>
                                         <button id="btnSend" type="button" class="site-btn">글작성</button>
                                         <button class="site-btn" type="reset">다시 작성</button>
                                     </div>

@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--JAVA와 연결할 Mapper 파일 설정-->
-<mapper namespace="kopo.poly.persistance.mapper.IFileMapper">
-
-    <!-- 프로필 이미지 저장 -->
-    <insert id="insertFile" parameterType="FileDTO">
-        INSERT INTO FILE
-            (USER_ID, FILE_PATH, FILE_NAME, ORG_FILE_NAME, FILE_SIZE, FILE_URL)
-        VALUES (#{userId}, #{filePath}, #{fileName}, #{orgFileName}, #{fileSize}, #{fileUrl})
-    </insert>
+<mapper namespace="kopo.poly.persistance.mapper.IFileBoardMapper">
 
     <!-- 게시글 이미지 저장 -->
     <insert id="insertBoardFile" parameterType="FileDTO">
-        INSERT INTO FILE(
+        INSERT INTO FILE_BOARD(
             BOARD_SEQ, FILE_NAME, FILE_PATH, ORG_FILE_NAME, FILE_SIZE, FILE_URL, USER_ID
         )
         VALUES (
@@ -20,54 +13,32 @@
                )
     </insert>
 
-    <!-- 프로필 경로 가져오기 -->
-    <select id="getFile" parameterType="UserInfoDTO" resultType="FileDTO">
-        SELECT USER_ID, FILE_PATH, FILE_NAME, ORG_FILE_NAME, FILE_URL
-        FROM FILE
-        WHERE USER_ID = #{userId}
-    </select>
-
     <!-- 게시글 경로 가져오기 -->
     <select id="getBoardFile" parameterType="BoardDTO" resultType="FileDTO">
         SELECT FILE_PATH, ORG_FILE_NAME, FILE_NAME, FILE_URL
-        FROM FILE
+        FROM FILE_BOARD
         where BOARD_SEQ = #{boardSeq}
     </select>
 
     <!-- 게시글 장수 가져오기 -->
     <select id="getCountPage" resultType="FileDTO" parameterType="BoardDTO">
         SELECT COUNT(*) as PAGE
-        FROM FILE
+        FROM FILE_BOARD
         where BOARD_SEQ = #{boardSeq}
     </select>
 
-    <!-- 프로필 이미지 수정  -->
-    <update id="updateFile" parameterType="UserInfoDTO">
-        UPDATE FILE SET
-                        FILE_PATH = #{filePath},
-                        FILE_NAME = #{fileName},
-                        ORG_FILE_NAME = #{orgFileName}
-        WHERE USER_ID = #{userId}
-    </update>
-
     <!-- 게시글 이미지 수정  -->
     <update id="updateBoardFile" parameterType="BoardDTO">
-        UPDATE FILE SET
+        UPDATE FILE_BOARD SET
                         FILE_PATH = #{filePath},
                         FILE_NAME = #{fileName},
                         ORG_FILE_NAME = #{orgFileName}
         WHERE BOARD_SEQ = #{boardSeq}
     </update>
-
-    <!-- 프로필 이미지 삭제  -->
-    <delete id="deleteFile" parameterType="UserInfoDTO">
-        DELETE FROM FILE
-        WHERE USER_ID = #{userId}
-    </delete>
 
     <!-- 게시글 이미지 삭제  -->
     <delete id="deleteBoardFile" parameterType="BoardDTO">
-        DELETE FROM FILE
-        WHERE BOARD_SEQ = #{boardSeq}
+        DELETE FROM FILE_BOARD
+        WHERE BOARD_SEQ = #{boardSeq} AND FILE_NAME = #{fileName}
     </delete>
 </mapper>

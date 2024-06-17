@@ -2,23 +2,108 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>공지사항 수정하기</title>
+    <title>게시판 수정하기</title>
     <link rel="stylesheet" href="/css/table.css"/>
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
 
-        // const ssUserId = [[${session.SS_USER_ID}]]; // Controller에서 받은 세션에 저장된 값
-        // const userId = [[${rDTO.userId}]]; // 공지사항 게시글 작성자 아이디
-        // const bSeq = [[${rDTO.boardSeq}]]; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
 
-        // html 로딩이 완료되고 , 실행됨
+        // 세션 값이 null인 경우 공백 문자열로 변경
+        const userId = ssUserId !== null ? ssUserId : '';
+
+        let arr = [];
+        let removedImages = [];
+
         $(document).ready(function () {
-            // 버튼 클릭됐을 때 , 발생되는 이벤트 생성함(onclick 이벤트와 동일)
+
+            if (userId === "" || userId == null || userId === undefined) {
+                alert("로그인 후 이용 가능합니다.");
+                location.href = "/index";
+            }
+
             $("#btnSend").on("click", function () {
-                doSubmit(); // 커뮤니티 수정하기 실행
-            })
-        })
+                doSubmit();
+            });
+
+            $("input[type='file']").change(function(e){
+                var files = e.target.files;
+                arr = Array.prototype.slice.call(files);
+
+                for(var i=0;i<files.length;i++){
+                    if(!checkExtension(files[i].name, files[i].size)){
+                        return false;
+                    }
+                }
+
+                preview(arr);
+            });
+
+            // 기존 이미지 삭제 버튼 클릭 이벤트
+            $(".existingDelBtn").on("click", function() {
+                removeExistingImage($(this));
+            });
+        });
+
+        function checkExtension(fileName, fileSize) {
+            var regex = new RegExp("(.*?)\.(exe|sh|zip|alz)$");
+            var maxSize = 20971520; // 20MB
+
+            if (fileSize >= maxSize) {
+                alert('파일 사이즈 초과');
+                $("input[type='file']").val("");
+                return false;
+            }
+
+            if (regex.test(fileName)) {
+                alert('업로드 불가능한 파일이 있습니다.');
+                $("input[type='file']").val("");
+                return false;
+            }
+            return true;
+        }
+
+        function preview(files) {
+            $("#preview").empty(); // 미리보기 영역 초기화
+            files.forEach(function (f, index) {
+                let fileName = f.name;
+                if (fileName.length > 10) {
+                    fileName = fileName.substring(0, 4) + "...";
+                }
+
+                let str = '<div style="display: inline-flex; padding: 10px;"><li>';
+                str += '<span>' + fileName + '</span>&nbsp';
+
+                if (f.type.match('image.*')) {
+                    let reader = new FileReader();
+                    reader.onload = function (e) {
+                        let newStr = str;
+                        newStr += '<button type="button" class="btn btn-danger btn-sm delBtn" style="margin-bottom: 2px;" onclick="removeImage(' + index + ')" value="' + f.name + '">x</button><br>';
+                        newStr += '<img src="' + e.target.result + '" title="' + f.name + '" width=100 height=100 />';
+                        newStr += '</li></div>';
+                        $("#preview").append(newStr);
+                    }
+                    reader.readAsDataURL(f);
+                } else {
+                    str += '<button type="button" class="btn btn-danger btn-sm delBtn" style="margin-bottom: 2px;" onclick="removeImage(' + index + ')" value="' + f.name + '">x</button><br>';
+                    str += '<img src="/resources/img/fileImg.png" title="' + f.name + '" width=100 height=100 />';
+                    str += '</li></div>';
+                    $("#preview").append(str);
+                }
+            });
+        }
+
+        function removeImage(index) {
+            arr.splice(index, 1);
+            preview(arr); // 미리보기 영역 갱신
+        }
+
+        function removeExistingImage(button) {
+            let fileName = button.attr('data-file-name');
+            removedImages.push(fileName);
+            button.closest('div').remove();
+        }
 
         function calBytes(str) {
             let tcount = 0;
@@ -36,10 +121,8 @@
             return tcount;
         }
 
-        // 커뮤니티 수정하기
         function doSubmit() {
-
-            let f = document.getElementById("f"); // form 태그
+            let f = document.getElementById("f");
 
             if (f.boardTitle.value === "") {
                 alert("제목을 입력하시기 바랍니다.");
@@ -61,28 +144,46 @@
                 f.boardContent.focus();
                 return;
             }
-            // Ajax 호출해서 글 등록하기
+
+            let formData = new FormData();
+            formData.append('boardTitle', f.boardTitle.value);
+            formData.append('boardContent', f.boardContent.value);
+            formData.append('boardSeq', f.boardSeq.value);
+
+            arr.forEach(function(file) {
+                const uniqueFileName = Date.now() + '_' + file.name; // 고유한 파일 이름 생성
+                formData.append('file', file, uniqueFileName);
+            });
+
+            removedImages.forEach(function(fileName) {
+                formData.append('removedImages', fileName);
+            });
+
             $.ajax({
-                    url: "/board/boardUpdate",
-                    type: "post", // 전송방식은 Post
-                    dataType: "JSON", // 전송 결과는 JSON으로 받기
-                    data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
-                    success: function (json) { // /community/communityUpdate 호출이 성공했다.면..
-                        alert(json.msg); // 메시지 띄우기
-                        location.href = "/board/boardList"; // 커뮤니티 리스트 이동
+                url: "/board/boardUpdate",
+                type: "post",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (json) {
+                    if (json.result === 1) {
+                        alert(json.msg);
+                        location.href = "/board/boardInfo?bSeq=" + f.boardSeq.value;
+                    } else {
+                        alert(json.msg);
                     }
                 }
-            )
+            });
         }
 
         /*]]>*/
     </script>
 
+
     <style>
         .btn_ {
             border: none;
             background: #0e1d34;
-            /*background: linear-gradient(0deg, rgba(6, 14, 131, 1) 0%, rgba(12, 25, 180, 1) 100%);*/
             color: white;
             margin-top: 10px;
         }
@@ -96,7 +197,6 @@
             text-align: center;
         }
 
-        /*작성하기 css*/
         .write-container {
             max-width: 1300px;
             margin: 20px auto;
@@ -132,14 +232,14 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 14px;
-            width: calc(100% - 22px); /* 조정된 부분 */
-            box-sizing: border-box; /* 너비 계산에 padding과 border 포함 */
+            width: calc(100% - 22px);
+            box-sizing: border-box;
         }
 
         .form-group textarea {
             resize: vertical;
             min-height: 500px;
-            resize: none; /*textarea 모서리 사이즈 조절 없앰*/
+            resize: none;
         }
 
         .contents_box {
@@ -185,6 +285,22 @@
                                     <div class="col-lg-12 text-center">
                                         <input type="text" id="boardTitle" name="boardTitle" placeholder="제목" maxlength="200" th:value="${rDTO.boardTitle}"/>
                                         <textarea name="boardContent" id="boardContent" placeholder="내용" style="height: 500px;">[[${rDTO.boardContent}]]</textarea>
+
+                                        <div class="imageArea" style="width: 100%; padding-bottom: 10px;">
+                                            <div th:if="${fList != null and not #lists.isEmpty(fList)}">
+                                                <div th:each="dto : ${fList}">
+                                                    <div style="display: inline-flex; padding: 10px;">
+                                                        <li>
+                                                            <button type="button" class="btn btn-danger btn-sm existingDelBtn" style="margin-bottom: 2px;" th:data-file-name="${dto.fileName}">x</button><br>
+                                                            <img th:src="${dto.fileUrl}" width="100" height="100">
+                                                        </li>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <input type="file" id="fileUpload" name="fileUpload" multiple="multiple"/>
+                                        <div id="preview"></div>
 
                                         <button id="btnSend" type="button" class="site-btn">수정하기</button>
                                         <button class="site-btn" type="reset">다시 작성</button>

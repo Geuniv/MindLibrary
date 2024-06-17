@@ -14,7 +14,7 @@ public interface IBoardMapper {
     List<Map<String, Object>> getBoardList() throws Exception; // 게시판 목록 조회
 
     // 커뮤니티 글 등록
-    void insertBoardInfo(BoardDTO pDTO) throws Exception;
+    int insertBoardInfo(BoardDTO pDTO) throws Exception;
 
     // 커뮤니티 상세보기
     Map<String, Object> getBoardInfo(BoardDTO pDTO) throws Exception; // 게시글 정보 조회
@@ -32,7 +32,7 @@ public interface IBoardMapper {
     void deleteBoardInfo(BoardDTO pDTO) throws Exception;
 
     /* 커뮤니티 순번 가져오기 */
-//    BoardDTO getNextBoardSeq() throws Exception;
+    int getNextBoardSeq() throws Exception;
 
     /* 회원 탈퇴 */
     void deleteUserInfo(UserInfoDTO pDTO) throws Exception;

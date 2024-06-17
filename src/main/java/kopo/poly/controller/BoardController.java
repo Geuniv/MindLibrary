@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import kopo.poly.dto.*;
 import kopo.poly.service.*;
 import kopo.poly.util.CmmUtil;
+import kopo.poly.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -30,9 +31,11 @@ public class BoardController {
 
     private final IFileService fileService;
 
+    private final IFileBoardService fileBoardService;
+
     private final IS3Service s3Service;
 
-    private final IProfileService profileService;
+//    private final IProfileService profileService;
 
     private final ILikeService likeService;
 
@@ -40,7 +43,7 @@ public class BoardController {
     @GetMapping(value = "boardList")
     public String boardList(HttpSession session, ModelMap model, @RequestParam(defaultValue = "1") int page) throws Exception {
 
-        log.info(this.getClass().getName() + ".boardList Start!");
+        log.info(this.getClass().getName() + ".controller 게시글 리스트 시작 !");
 
         String ssUserId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
 
@@ -98,7 +101,7 @@ public class BoardController {
 
         log.info(rList.toString());
 
-        log.info(this.getClass().getName() + ".boardList End!");
+        log.info(this.getClass().getName() + ".controller 게시글 리스트 끝 !");
 
         // 함수 처리가 끝나고 보여줄 html 파일명
         return "board/boardList";
@@ -108,9 +111,9 @@ public class BoardController {
     @GetMapping(value = "boardReg")
     public String boardReg(){
 
-        log.info(this.getClass().getName() + ".boardReg Start!");
+        log.info(this.getClass().getName() + ".controller 게시글 작성 시작 !");
 
-        log.info(this.getClass().getName() + ".boardReg End!");
+        log.info(this.getClass().getName() + ".controller 게시글 작성 끝 !");
 
         return "board/boardReg";
     }
@@ -119,53 +122,95 @@ public class BoardController {
     @ResponseBody
     @PostMapping(value = "boardInsert")
     public MsgDTO boardInsert(HttpServletRequest request, HttpSession session,
-                              @RequestParam(value = "file", required = false) List<MultipartFile> files) {
+                              @RequestParam(value = "file", required = false) List<MultipartFile> files) throws Exception {
 
-        log.info(this.getClass().getName() + ".boardInsert Start!");
+        log.info(this.getClass().getName() + ".controller 게시글 저장 시작 !");
 
-        String msg = ""; // 메시지 내용
-        MsgDTO dto = null; // 결과 메시지 구조
+        MsgDTO msgDTO = null;
+        String msg = "";
+        int res = 0;
+
+        BoardDTO pDTO = null;
 
         try {
-            // 로그인된 사용자 아이디 가져오기
-            String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
+            String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID")); // 아이디
             String boardTitle = CmmUtil.nvl(request.getParameter("boardTitle")); // 제목
             String boardContent = CmmUtil.nvl(request.getParameter("boardContent")); // 내용
-
 
             log.info("ss_user_id : " + userId);
             log.info("boardTitle : " + boardTitle);
             log.info("boardContent : " + boardContent);
 
-            // 데이터 저장하기 위해 DTO에 저장하기
-            BoardDTO pDTO = BoardDTO.builder().userId(userId).boardTitle(boardTitle).boardContent(boardContent).build();
+            String nextBoardSeq = boardService.getNextBoardSeq();
 
-            // 게시글 등록하기 위한 비즈니스 로직 호출
-            boardService.insertBoardInfo(pDTO);
+            pDTO = BoardDTO.builder()
+                    .boardSeq(nextBoardSeq)
+                    .userId(userId)
+                    .boardTitle(boardTitle)
+                    .boardContent(boardContent)
+                    .build();
 
-            // 저장이 완료되면 사용자에게 보여줄 메시지
+            res = boardService.insertBoardInfo(pDTO);
+
+            if (files != null) {
+                String saveFilePath = FileUtil.mkdirForData();      // 웹서버에 저장할 파일 경로 생성
+                String boardSeq = pDTO.boardSeq();
+
+                log.info("boardSeq : " + boardSeq);
+
+                for (MultipartFile mf : files) {
+                    log.info("mf : " + mf);
+
+                    String orgFileName = mf.getOriginalFilename();      // 파일의 원본 명
+                    String fileSize = String.valueOf(mf.getSize());     // 파일 크기
+                    String ext = orgFileName.substring(orgFileName.lastIndexOf(".") + 1).toLowerCase();  // 확장자
+
+                    // 이미지 파일만 실행되도록 함
+                    if (ext.equals("jpeg") || ext.equals("jpg") || ext.equals("gif") || ext.equals("png")) {
+                        log.info("boardSeq : " + boardSeq);
+                        log.info("orgFileName : " + orgFileName);
+                        log.info("fileSize : " + fileSize);
+                        log.info("ext : " + ext);
+                        log.info("saveFilePath : " + saveFilePath);
+
+                        FileDTO fileDTO = new FileDTO();
+                        fileDTO.setOrgFileName(orgFileName);
+                        fileDTO.setFilePath(saveFilePath);
+                        fileDTO.setFileSize(fileSize);
+                        fileDTO.setBoardSeq(Integer.valueOf(boardSeq));
+                        fileDTO.setUserId(userId); // userId 설정
+
+                        FileDTO rDTO = s3Service.uploadFile(mf, ext);
+                        fileDTO.setFileUrl(rDTO.getFileUrl());
+                        fileDTO.setFileName(rDTO.getFileName());
+
+                        log.info("sageFileUrl : " + rDTO.getFileUrl());
+
+                        fileBoardService.insertBoardFile(fileDTO);
+                    }
+                }
+            }
+
             msg = "등록되었습니다.";
 
         } catch (Exception e) {
-
-            // 저장이 실패되면 사용자에게 보여줄 메시지
             msg = "실패하였습니다. : " + e.getMessage();
             log.info(e.toString());
             e.printStackTrace();
         } finally {
-            // 결과 메시지 전달하기
-            dto = MsgDTO.builder().msg(msg).build();
-
-            log.info(this.getClass().getName() + ".boardInsert End!");
+            msgDTO = MsgDTO.builder().msg(msg).result(res).build();
+            log.info(".controller 커뮤니티 글 등록 종료");
         }
-        return dto;
+
+        return msgDTO;
     }
+
 
     /** 게시판 상세보기 */
     @GetMapping(value = "boardInfo")
     public String boardInfo(HttpSession session, HttpServletRequest request, ModelMap model) throws Exception {
 
-        log.info(this.getClass().getName() + ".boardInfo Start!");
+        log.info(this.getClass().getName() + ".controller 게시글 상세보기 시작 !");
 
         String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
 
@@ -181,6 +226,17 @@ public class BoardController {
 
         // 공지사항 상세정보 가져오기
         BoardDTO rDTO = Optional.ofNullable(boardService.getBoardInfo(pDTO, true)).orElseGet(() -> BoardDTO.builder().build());
+
+        // 이미지 장수 가져오기
+        FileDTO fDTO = fileBoardService.getCountPage(pDTO);
+
+        // 이미지 가져오기
+        List<FileDTO> fList = Optional.ofNullable(fileBoardService.getBoardFile(pDTO)).orElseGet(ArrayList::new);
+        log.info("fList size: " + fList.size());
+        for (FileDTO fileDTO : fList) {
+            log.info("FileDTO: " + fileDTO.getFileUrl());
+        }
+        model.addAttribute("fList", fList);
 
         CommentDTO cDTO = new CommentDTO();
         cDTO.setBoardSeq(bSeq);
@@ -208,7 +264,7 @@ public class BoardController {
         int likeCnt = likeService.getLikeCount(lDTO);
 
         model.addAttribute("likeCnt", likeCnt);
-        
+
         // 좋아요 끝
 
 //        UserInfoDTO uDTO = new UserInfoDTO();
@@ -229,17 +285,17 @@ public class BoardController {
 //
 //        // 이미지 가져오기 종료
 
-        log.info(this.getClass().getName() + ".boardInfo End!");
+        log.info(this.getClass().getName() + ".controller 게시글 상세보기 끝 !");
 
         // 함수 처리가 끝나고 보여줄 html 파일명
         return "board/boardInfo";
     }
 
-    /** 게시판 수정을 위한 페이지*/
+    /** 게시판 수정을 위한 페이지 */
     @GetMapping(value = "boardEditInfo")
-    public String boardEditInfo(HttpServletRequest request, ModelMap modelMap, HttpSession session) throws Exception {
+    public String boardEditInfo(HttpServletRequest request, ModelMap model, HttpSession session) throws Exception {
 
-        log.info(this.getClass().getName() + ".boardEditInfo Start!");
+        log.info(this.getClass().getName() + ".controller 게시글 수정 상세보기 시작 !");
 
         String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
 
@@ -253,10 +309,21 @@ public class BoardController {
 
         BoardDTO rDTO = Optional.ofNullable(boardService.getBoardInfo(pDTO, false)).orElseGet(() -> BoardDTO.builder().build());
 
-        // 조회된 리스트 결과값 넣어주기
-        modelMap.addAttribute("rDTO", rDTO);
+        // 이미지 장수 가져오기
+        FileDTO fDTO = fileBoardService.getCountPage(pDTO);
 
-        log.info(this.getClass().getName() + ".boardEditInfo End!");
+        // 이미지 가져오기
+        List<FileDTO> fList = Optional.ofNullable(fileBoardService.getBoardFile(pDTO)).orElseGet(ArrayList::new);
+        log.info("fList size: " + fList.size());
+        for (FileDTO fileDTO : fList) {
+            log.info("FileDTO: " + fileDTO.getFileUrl());
+        }
+        model.addAttribute("fList", fList);
+
+        // 조회된 리스트 결과값 넣어주기
+        model.addAttribute("rDTO", rDTO);
+
+        log.info(this.getClass().getName() + ".controller 게시글 수정 상세보기 끝 !");
 
         // 함수 처리가 끝나고 보여줄 html 파일명
         return "board/boardEditInfo";
@@ -265,12 +332,14 @@ public class BoardController {
     /** 게시판 글 수정 */
     @ResponseBody
     @PostMapping(value = "boardUpdate")
-    public MsgDTO boardUpdate(HttpSession session, HttpServletRequest request) {
+    public MsgDTO boardUpdate(HttpSession session, HttpServletRequest request,
+                              @RequestParam(value = "file", required = false) List<MultipartFile> files,
+                              @RequestParam(value = "removedImages", required = false) List<String> removedImages) throws Exception {
 
-        log.info(this.getClass().getName() + ".boardUpdate Start!");
+        log.info(this.getClass().getName() + ".controller 게시글 수정하기 시작 !");
 
         String msg = ""; // 메시지 내용
-        MsgDTO dto = null; // 결과 메시지 구조
+        int res = 0;
 
         try {
             String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID")); // 아이디
@@ -296,26 +365,74 @@ public class BoardController {
             // 게시글 수정하기 DB
             boardService.updateBoardInfo(pDTO);
 
+            if (removedImages != null && !removedImages.isEmpty()) {
+                for (String fileName : removedImages) {
+                    // BoardDTO를 사용하여 파일 삭제
+                    BoardDTO delDTO = BoardDTO.builder().boardSeq(boardSeq).fileName(fileName).build();
+                    fileBoardService.deleteBoardFile(delDTO);
+                }
+            }
+
+            if (files != null && !files.isEmpty()) {
+                String saveFilePath = FileUtil.mkdirForData(); // 웹서버에 저장할 파일 경로 생성
+
+                log.info("boardSeq : " + boardSeq);
+
+                for (MultipartFile mf : files) {
+                    log.info("mf : " + mf);
+
+                    String orgFileName = mf.getOriginalFilename(); // 파일의 원본 명
+                    String fileSize = String.valueOf(mf.getSize()); // 파일 크기
+                    String ext = orgFileName.substring(orgFileName.lastIndexOf(".") + 1, // 확장자
+                            orgFileName.length()).toLowerCase();
+
+                    // 이미지 파일만 실행되도록 함
+                    if (ext.equals("jpeg") || ext.equals("jpg") || ext.equals("gif") || ext.equals("png")) {
+                        log.info("boardSeq : " + boardSeq);
+                        log.info("orgFileName : " + orgFileName);
+                        log.info("fileSize : " + fileSize);
+                        log.info("ext : " + ext);
+                        log.info("saveFilePath : " + saveFilePath);
+
+                        FileDTO fileDTO = new FileDTO();
+                        fileDTO.setOrgFileName(orgFileName);
+                        fileDTO.setFilePath(saveFilePath);
+                        fileDTO.setFileSize(fileSize);
+                        fileDTO.setBoardSeq(Integer.valueOf(boardSeq)); // Integer 타입으로 변경
+                        fileDTO.setUserId(userId);
+
+                        FileDTO rDTO = s3Service.uploadFile(mf, ext);
+                        fileDTO.setFileUrl(rDTO.getFileUrl());
+                        fileDTO.setFileName(rDTO.getFileName());
+
+                        log.info("saveFileUrl : " + rDTO.getFileUrl());
+
+                        fileBoardService.insertBoardFile(fileDTO);
+                    }
+                }
+            }
+
             msg = "수정되었습니다.";
+            res = 1;
+
         } catch (Exception e) {
-            msg = "실패하였습니다. : " + e.getMessage();
+            msg = "실패하였습니다.";
             log.info(e.toString());
             e.printStackTrace();
-        } finally {
-            // 결과 메시지 전달하기
-            dto = MsgDTO.builder().msg(msg).build();
 
-            log.info(this.getClass().getName() + ".boardUpdate End!");
+        } finally {
+            MsgDTO dto = MsgDTO.builder().msg(msg).result(res).build();
+            log.info(this.getClass().getName() + ".controller 게시글 수정하기 끝 !");
+            return dto;
         }
-        return dto;
     }
 
     /** 커뮤니티 글 삭제 */
     @ResponseBody
     @PostMapping(value = "boardDelete")
-    public MsgDTO boardDelete(HttpServletRequest request) {
+    public MsgDTO boardDelete(HttpServletRequest request) throws Exception {
 
-        log.info(this.getClass().getName() + ".boardDelete Start!");
+        log.info(this.getClass().getName() + ".controller 게시글 삭제하기 시작 !");
 
         String msg = ""; // 메시지 내용
         MsgDTO dto = null; // 결과 메시지 구조
@@ -330,6 +447,9 @@ public class BoardController {
             // 게시글 삭제하기 DB
             boardService.deleteBoardInfo(pDTO);
 
+            // 파일 삭제하기 DB
+//            fileBoardService.deleteBoardFile(pDTO);
+
             msg = "삭제되었습니다.";
 
         } catch (Exception e) {
@@ -341,7 +461,7 @@ public class BoardController {
             //결과 메시지 전달하기
             dto = MsgDTO.builder().msg(msg).build();
 
-            log.info(this.getClass().getName() + ".boardDelete End!");
+            log.info(this.getClass().getName() + ".controller 게시글 삭제하기 끝 !");
         }
         return dto;
 

@@ -13,6 +13,8 @@ public class FileDTO {
 
     private String userId; // 유저 아이디
 
+    private Integer boardSeq; // boardSeq 필드 추가
+
     private String fileName; // 저장된 이미지 파일 이름
 
     private String filePath; // 저장된 이미지 파일의 파일 저장 경로
@@ -23,7 +25,7 @@ public class FileDTO {
 
     private String fileUrl; // 저장된 이미지 파일 url
 
-    private Integer boardSeq; // boardSeq 필드 추가
+    private int page;               // 이미지 장수
 
     @Builder
     public FileDTO(String originalName, String saveName, String  fileSize) {

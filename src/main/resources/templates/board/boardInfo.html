@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>게시판 글보기</title>
+    <title>게시판 상세보기</title>
     <link rel="stylesheet" href="/css/table.css"/>
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
     <script th:inline="javascript">
@@ -13,34 +13,17 @@
         const bSeq = /*[[${rDTO.boardSeq}]]*/ ''; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
 
         $(document).ready(function () {
-            // 버튼 클릭했을 때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
             $("#btnCmt").on("click", function () {
                 doComment(); // 댓글 작성 실행
-            })
-
-            // // 본인 계정이 아닌 사용자에게 버튼 숨김
-            // $(".btnCmtDelete").each(function () {
-            //     var commentUserId = $(this).prevAll(".commentUserId").val(); // 추가: 댓글의 userId 가져오기
-            //
-            //     // 숨김 처리
-            //     $(this).hide();
-            //
-            //     // 본인 계정과 댓글 userId 비교
-            //     if (ssUserId === commentUserId) {
-            //         // 본인 계정이라면 표시
-            //         $(this).show();
-            //     }
-            // });
+            });
 
             $(".btnCmtDelete").on("click", function () {
-                // 현재 클릭된 버튼의 부모 요소인 .comment에서 commentSeq와 commentUserId를 찾음
                 var commentSeq = $(this).closest('.comment-option').find(".commentSeq").val();
                 var commentUserId = $(this).closest('.comment-option').find(".commentUserId").val();
                 console.log(commentSeq, commentUserId);
 
                 if (ssUserId === commentUserId) {
                     if (confirm("작성한 댓글을 삭제하시겠습니까?")) {
-                        // Ajax 호출해서 댓글 삭제하기
                         $.ajax({
                             url: "/comment/commentDelete",
                             type: "post",
@@ -61,19 +44,18 @@
 
             $("#btnEdit").on("click", function () {
                 doEdit(); // 커뮤니티 수정하기 실행
-            })
+            });
             $("#btnDelete").on("click", function () {
                 doDelete(); // 커뮤니티 삭제하기 실행
-            })
+            });
             $("#btnList").on("click", function () {
                 location.href = "/board/boardList"; // 커뮤니티 리스트 이동
-            })
+            });
             $("#btnLike").on("click", function () {
                 doLike(); // 좋아요
-            })
-        })
+            });
+        });
 
-        // 글자 길이 바이트 단위로 체크하기(바이트값 전달)
         function calBytes(str) {
             let tcount = 0;
             let tmpStr = String(str);
@@ -90,34 +72,27 @@
             return tcount;
         }
 
-        //좋아요
         function doLike() {
             if (ssUserId === "") {
                 alert("로그인 하시길 바랍니다.");
             } else {
                 $.ajax({
                     url: "/like/boardLike",
-                    type: "post", // 전송방식은 Post
-                    dataType: "JSON", // 전송 결과는 JSON으로 받기
-                    data: {
-                        "bSeq": bSeq
-                    }, // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
-                    success: function (json) { // /notice/noticeUpdate 호출이 성공했다면..
-
-                        if (json.result === 1) { // 로그인 성공
-                            alert(json.msg); // 메시지 띄우기
+                    type: "post",
+                    dataType: "JSON",
+                    data: {"bSeq": bSeq},
+                    success: function (json) {
+                        if (json.result === 1) {
+                            alert(json.msg);
                             location.reload()
-
-                        } else { // 로그인 실패
-                            alert(json.msg); // 메시지 띄우기
+                        } else {
+                            alert(json.msg);
                         }
-
                     }
                 })
             }
         }
 
-        // 수정하기
         function doEdit() {
             if (ssUserId === userId) {
                 location.href = "/board/boardEditInfo?bSeq=" + bSeq;
@@ -128,24 +103,19 @@
             }
         }
 
-        // 삭제하기
         function doDelete() {
             if (ssUserId === userId) {
                 if (confirm("작성한 글을 삭제하시겠습니까?")) {
-
-                    // Ajax 호출해서 글 삭제하기
                     $.ajax({
-                            url: "/board/boardDelete",
-                            type: "post", // 전송방식은 Post
-                            dataType: "JSON", // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
-                            data: {"bSeq": bSeq},
-                            success:
-                                function (json) { // /community/communityDelete 호출이 성공한다면...
-                                    alert(json.msg); // 메시지 띄우기
-                                    location.href = "/board/boardList"; // 커뮤니티 리스트로 이동
-                                }
+                        url: "/board/boardDelete",
+                        type: "post",
+                        dataType: "JSON",
+                        data: {"bSeq": bSeq},
+                        success: function (json) {
+                            alert(json.msg);
+                            location.href = "/board/boardList";
                         }
-                    )
+                    })
                 }
             } else if (ssUserId === "") {
                 alert("로그인 하시길 바랍니다.");
@@ -154,9 +124,8 @@
             }
         }
 
-        // 댓글 저장하기
         function doComment() {
-            let f = document.getElementById("f"); // form 태그
+            let f = document.getElementById("f");
             if (f.commentContents.value === "") {
                 alert("내용을 입력하시기 바랍니다.");
                 f.commentContents.focus();
@@ -173,21 +142,17 @@
                 return;
             }
 
-
-            // Ajax 호출해서 글 등록하기
             $.ajax({
-                    url: "/comment/commentInsert",
-                    type: "post", // 전송방식은 Post
-                    dataType: "JSON", // 전송 결과는 Json으로 받기
-                    data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
-                    success: function (json) { // /comment/commentInsert 호출이 성공했다면..
-                        alert(json.msg); // 메시지 띄우기
-                        location.href = "/board/boardInfo?bSeq=" + bSeq; // 커뮤니티 리스트 이동
-
-                        doOutput();
-                    }
+                url: "/comment/commentInsert",
+                type: "post",
+                dataType: "JSON",
+                data: $("#f").serialize(),
+                success: function (json) {
+                    alert(json.msg);
+                    location.href = "/board/boardInfo?bSeq=" + bSeq;
+                    doOutput();
                 }
-            )
+            })
         }
 
         function doOutput() {
@@ -198,65 +163,10 @@
                 data: $("#f").serialize(),
                 success: function (json) {
                     alert(json.msg);
-                    location.href = "/board/boardInfo?bSeq=" + bSeq; // 커뮤니티 리스트 이동
+                    location.href = "/board/boardInfo?bSeq=" + bSeq;
                 }
             })
-
         }
-
-
-        // // 답글 저장하기
-        // function doReComment(commentSeq) {
-        //     let f = document.getElementById("f"); // form 태그
-        //     console.log(document.getElementById("recommentContent").value);
-        //     console.log(commentSeq)
-        //
-        //     if (f.recommentContent[0].value === "") {
-        //         alert("내용을 입력하시기 바랍니다.");
-        //         f.recommentContent.focus();
-        //         return;
-        //     }
-        //     if (calBytes(f.recommentContent[0].value) > 4000) {
-        //         alert("최대 4000Bytes까지 입력 가능합니다.");
-        //         f.recommentContent.focus();
-        //         return;
-        //     }
-        //
-        //     if (ssUserId === null) {
-        //         alert("로그인 후에 댓글을 등록할 수 있습니다.");
-        //         return;
-        //     }
-        //
-        //
-        //     // Ajax 호출해서 글 등록하기
-        //     $.ajax({
-        //             url: "/comment/recommentInsert",
-        //             type: "post", // 전송방식은 Post
-        //             dataType: "JSON", // 전송 결과는 Json으로 받기
-        //             data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
-        //             success: function (json) { // /comment/commentInsert 호출이 성공했다면..
-        //                 alert(json.msg); // 메시지 띄우기
-        //                 location.href = "/community/communityInfo?nSeq=" + nSeq; // 커뮤니티 리스트 이동
-        //
-        //                 doReOutput();
-        //             }
-        //         }
-        //     )
-        // }
-        //
-        // function doReOutput() {
-        //     $.ajax({
-        //         url: "/comment/commentList",
-        //         type: "get",
-        //         dataType: "JSON",
-        //         data: $("#f").serialize(),
-        //         success: function (json) {
-        //             alert(json.msg);
-        //             location.href = "/community/communityInfo?nSeq=" + nSeq; // 커뮤니티 리스트 이동
-        //         }
-        //     })
-        //
-        // }
 
         /*]]>*/
     </script>
@@ -282,12 +192,6 @@
             right: 0;
         }
 
-        /*.sc-text .btnCmtEdit,*/
-        /*.sc-text .btnCmtDelete,*/
-        /*.sc-text .dropbtn {*/
-        /*    display: none;*/
-        /*}*/
-
         .dropbtn {
             border: 0px;
             background-color: #FFFFFF;
@@ -308,14 +212,14 @@
             padding: 12px 16px;
             text-decoration: none;
             display: block;
-            background-color: #0b0b0b; /* 통일된 배경색 */
-            border: none; /* 버튼에 보더 없앰 */
-            border-radius: 4px; /* 버튼에 둥근 모서리 추가 */
+            background-color: #0b0b0b;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
         }
 
         .dropdown-content button:hover {
-            background-color: #707079; /* hover 시 배경색 변경 */
+            background-color: #707079;
         }
 
         .dropdown:hover .dropdown-content {
@@ -334,13 +238,11 @@
 <!-- End Header -->
 
 <!-- Blog Details Hero Section Begin -->
-<!--data-setbg="/img/blog/blog-details/black.jpg"-->
 <section class="blog-details-hero set-bg" style="background: #0b0b0b;">
     <div class="container">
         <div class="row">
             <div class="col-lg-10 offset-lg-1">
                 <div class="bd-hero-text">
-                    <!--                        <span>Travel Trip & Camping</span>-->
                     <h2>[[${rDTO.boardTitle}]]</h2>
                     <ul>
                         <li class="b-time"><i class="icon_clock_alt"></i>[[${rDTO.boardRegDt}]]</li>
@@ -360,55 +262,15 @@
             <div class="col-lg-10 offset-lg-1">
                 <div class="blog-details-text">
                     <div class="bd-title">
-                        <p>
-                            [[${rDTO.boardContent}]]
-                        </p>
-                        <!--                            <p>Thinking about overseas adventure travel? Have you put any thought into the best places-->
-                        <!--                                to go when it comes to overseas adventure travel? Nepal is one of the most popular-->
-                        <!--                                places of all, when you visit this magical country you will have the best adventures-->
-                        <!--                                right there at your doorstep. Only overseas adventure travel in Nepal will give you-->
-                        <!--                                these kinds of opportunities so if this is not on your list of possible places to visit-->
-                        <!--                                yet then now is the time to put it on there!</p>-->
-                        <!--                            <p>In Nepal your overseas adventure travel is going to be fascinating. You will get to see-->
-                        <!--                                the Himalayan Mountains and experience all that the rich Nepalese culture has to offer.-->
-                        <!--                                They are an amazing people who have managed to hang on to their own culture and beliefs-->
-                        <!--                                longer than most other countries. When overseas adventure travel takes you to Nepal you-->
-                        <!--                                will have the chance to see all of the fantastic and one of a kind lakes and forests and-->
-                        <!--                                you can even spend days or weeks camping out in their forests with a specialized guide.-->
-                        <!--                                And the waterfalls in Nepal are to die for, you will never see anything more gorgeous in-->
-                        <!--                                your life as their waterfalls! This should be at the top of your overseas adventure-->
-                        <!--                                travel destination list for sure!</p>-->
+                        <div class="imageArea" style="width: 100%; padding-bottom: 10px;">
+                            <div th:if="${fList != null and not #lists.isEmpty(fList)}">
+                                <div th:each="fDto : ${fList}">
+                                    <img th:src="${fDto.fileUrl}" style="width: 50%; height: 50%;"><br><br>
+                                </div>
+                            </div>
+                        </div>
+                        <p>[[${rDTO.boardContent}]]</p>
                     </div>
-                    <!--                        <div class="bd-pic">-->
-                    <!--                            <div class="bp-item">-->
-                    <!--                                <img src="img/blog/blog-details/blog-details-1.jpg" alt="">-->
-                    <!--                            </div>-->
-                    <!--                            <div class="bp-item">-->
-                    <!--                                <img src="img/blog/blog-details/blog-details-2.jpg" alt="">-->
-                    <!--                            </div>-->
-                    <!--                            <div class="bp-item">-->
-                    <!--                                <img src="img/blog/blog-details/blog-details-3.jpg" alt="">-->
-                    <!--                            </div>-->
-                    <!--                        </div>-->
-                    <!--                        <div class="bd-more-text">-->
-                    <!--                            <div class="bm-item">-->
-                    <!--                                <h4>If you live in New York City</h4>-->
-                    <!--                                <p>You know all about the traffic there. Getting places is often next to impossible,-->
-                    <!--                                    even with the gazillion yellow cabs. If you’re like me you often look with envy at-->
-                    <!--                                    those shiny limousines with their unformed drivers and wish you could sit in one.-->
-                    <!--                                    Well, you can. New York limo service is more affordable than you think, whether it’s-->
-                    <!--                                    for Newark airport transportation, LaGuardia airport transportation, or to drive-->
-                    <!--                                    wherever you wish to go.</p>-->
-                    <!--                            </div>-->
-                    <!--                            <div class="bm-item">-->
-                    <!--                                <h4>Every time I hail a cab in New York City</h4>-->
-                    <!--                                <p>I hope I’ll be lucky enough to get one that’s halfway decent and that the driver-->
-                    <!--                                    actually speaks English. I have spent many anxious moments wondering if I ever get-->
-                    <!--                                    to my destination. Or whether I’d get ripped off. Even if all goes well, I can’t say-->
-                    <!--                                    I can remember many rides in New York cabs that were very pleasant. And given how-->
-                    <!--                                    much they cost by now, going with a limo makes ever more sense.</p>-->
-                    <!--                            </div>-->
-                    <!--                        </div>-->
                     <div class="tag-share">
                         <div class="tags">
                             <a href="#">Travel Trip</a>
@@ -425,7 +287,7 @@
                         </div>
                     </div>
                     <div class="col-lg-12 text-center">
-                    <button id="btnLike" type="button" class="site-btn" style="margin-bottom: 3%;">좋아요 | [[${likeCnt}]]</button>
+                        <button id="btnLike" type="button" class="site-btn" style="margin-bottom: 3%;">좋아요 | [[${likeCnt}]]</button>
                     </div>
                     <div class="col-lg-12 text-center">
                         <button id="btnEdit" type="button" class="site-btn">수정하기</button>
@@ -435,11 +297,7 @@
                     <div class="comment-option" th:each="dto : ${rList}">
                         <input type="hidden" class="commentSeq" th:value="${dto.commentSeq}">
                         <input type="hidden" class="commentUserId" th:value="${dto.userId}">
-<!--                        <h4>[[${dto.commentSeq}]]</h4>-->
                         <div class="single-comment-item first-comment">
-<!--                            <div class="sc-author">-->
-<!--&lt;!&ndash;                                <img src="img/blog/blog-details/avatar/avatar-1.jpg" alt="">&ndash;&gt;-->
-<!--                            </div>-->
                             <div class="dropdown">
                                 <button class="dropbtn">⋮</button>
                                 <div class="dropdown-content">
@@ -447,59 +305,21 @@
                                     <button class="btnCmtDelete" type="button">삭제</button>
                                 </div>
                             </div>
-<!--                            <div class="sc-author">-->
-<!--                                <div th:if="${fList != null and not #lists.isEmpty(fList)}">-->
-<!--                                    <div th:each="fDto : ${fList}">-->
-<!--                                        <img th:if="${fDto.fileUrl != null}" th:src="${fDto.fileUrl}" width="100%" alt="Image">-->
-<!--                                        <img th:if="${fDto.fileUrl == null}" src="/img/profile.png" width="100%" alt="Default Image">-->
-<!--                            </div>-->
                             <div class="sc-text">
                                 <span>[[${dto.commentRegDt}]]</span>
                                 <h5>[[${dto.userNickname}]]</h5>
                                 <p>[[${dto.commentContents}]]</p>
-<!--                                <a href="#" class="comment-btn">Like</a>-->
-<!--                                <a href="#" class="comment-btn">Reply</a>-->
                             </div>
                         </div>
-<!--                        <div class="single-comment-item reply-comment">-->
-<!--                            <div class="sc-author">-->
-<!--                                <img src="img/blog/blog-details/avatar/avatar-2.jpg" alt="">-->
-<!--                            </div>-->
-<!--                            <div class="sc-text">-->
-<!--                                <span>27 Aug 2019</span>-->
-<!--                                <h5>Brandon Kelley</h5>-->
-<!--                                <p>Neque porro qui squam est, qui dolorem ipsum quia dolor sit amet, consectetur,-->
-<!--                                    adipisci velit, sed quia non numquam eius modi tempora. incidunt ut labore et-->
-<!--                                    dolore magnam.</p>-->
-<!--                                <a href="#" class="comment-btn like-btn">Like</a>-->
-<!--                                <a href="#" class="comment-btn reply-btn">Reply</a>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="single-comment-item second-comment ">-->
-<!--                            <div class="sc-author">-->
-<!--                                <img src="img/blog/blog-details/avatar/avatar-3.jpg" alt="">-->
-<!--                            </div>-->
-<!--                            <div class="sc-text">-->
-<!--                                <span>27 Aug 2019</span>-->
-<!--                                <h5>Brandon Kelley</h5>-->
-<!--                                <p>Neque porro qui squam est, qui dolorem ipsum quia dolor sit amet, consectetur,-->
-<!--                                    adipisci velit, sed quia non numquam eius modi tempora. incidunt ut labore et-->
-<!--                                    dolore magnam.</p>-->
-<!--                                <a href="#" class="comment-btn">Like</a>-->
-<!--                                <a href="#" class="comment-btn">Reply</a>-->
-<!--                            </div>-->
-<!--                        </div>-->
                     </div>
                     <div class="leave-comment">
                         <label for="commentContents">댓글</label>
                         <form id="f" name="f" class="comment-form">
-                                <div class="col-lg-12 text-center">
-                                    <input type="hidden" name="boardSeq" th:value="${rDTO.boardSeq}">
-                                    <textarea id="commentContents" name="commentContents" rows="4" placeholder="댓글을 입력하세요"></textarea>
-
-<!--                                    <button type="submit" class="site-btn">Send Message</button>-->
-                                    <button class="btn" id="btnCmt" type="button" style="margin-top: 10px">작성</button>
-                                </div>
+                            <div class="col-lg-12 text-center">
+                                <input type="hidden" name="boardSeq" th:value="${rDTO.boardSeq}">
+                                <textarea id="commentContents" name="commentContents" rows="4" placeholder="댓글을 입력하세요"></textarea>
+                                <button class="btn" id="btnCmt" type="button" style="margin-top: 10px">작성</button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -509,12 +329,7 @@
 </section>
 <!-- Blog Details Section End -->
 <br/>
-
-</main><!-- End #main -->
+</main>
 </body>
-
-<!-- ======= Header ======= -->
 <th:block th:replace="~{footer}"></th:block>
-<!-- End Header -->
-
 </html>
