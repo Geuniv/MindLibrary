@@ -6,8 +6,19 @@
 
     <!-- 마이페이지 회원정보 조회 -->
     <select id="getProfile" parameterType="UserInfoDTO" resultType="UserInfoDTO">
-        SELECT USER_ID, USER_NAME, USER_EMAIL, USER_NICKNAME, USER_AGE, USER_GENDER, USER_INTEREST, MEMBER_SINCE
-        FROM USER_INFO
+        SELECT
+            U.USER_ID,
+            U.USER_NAME,
+            U.USER_EMAIL,
+            U.USER_NICKNAME,
+            U.USER_AGE,
+            U.USER_GENDER,
+            U.USER_INTEREST,
+            U.MEMBER_SINCE,
+            COALESCE((SELECT F.FILE_URL
+                      FROM FILE F
+                      WHERE U.USER_ID = F.USER_ID), '/img/profile.png') AS FILE_URL
+        FROM USER_INFO U
         WHERE USER_ID = #{userId}
     </select>
 

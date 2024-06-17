@@ -49,10 +49,10 @@ public class CommentController {
 //    }
 
 
-    /** 커뮤니티 글 등록 */
+    /** 댓글 등록 */
     @ResponseBody
     @PostMapping(value = "commentInsert")
-    public MsgDTO commentInsert(HttpServletRequest request, HttpSession session) {
+    public MsgDTO commentInsert(HttpServletRequest request, HttpSession session) throws Exception {
 
         log.info(this.getClass().getName() + ".commentInsert Start!");
 
@@ -102,7 +102,7 @@ public class CommentController {
     /**댓글 삭제*/
     @ResponseBody
     @PostMapping(value = "commentDelete")
-    public MsgDTO commentDelete(HttpServletRequest request, HttpSession session) {
+    public MsgDTO commentDelete(HttpServletRequest request, HttpSession session) throws Exception {
 
         log.info(this.getClass().getName() + ".commentDelete Start!");
 

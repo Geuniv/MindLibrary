@@ -3,8 +3,13 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>로그인하기</title>
+    <title>로그인</title>
     <!--    <link rel="stylesheet" href="/css/table.css"/>-->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dongle&display=swap" rel="stylesheet">
+
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
 
@@ -28,6 +33,11 @@
 
             // 로그인
             $("#btnLogin").on("click", function () {
+                doLogin();
+            });
+
+            // 로그인
+            function doLogin() {
                 let f = document.getElementById("f"); // form 태그
 
                 if (f.userId.value === "") {
@@ -44,84 +54,35 @@
 
                 // Ajax 호출해서 로그인하기
                 $.ajax({
-                        url: "/user/loginProc",
-                        type: "post", // 전송방식은 Post
-                        dataType: "JSON", // 전송 결과는 JSON으로 받기
-                        data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
-                        success: function (json) { // /notice/noticeUpdate 호출이 성공했다면..
+                    url: "/user/loginProc",
+                    type: "post", // 전송방식은 Post
+                    dataType: "JSON", // 전송 결과는 JSON으로 받기
+                    data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                    success: function (json) { // /notice/noticeUpdate 호출이 성공했다면..
 
-                            if (json.result === 1) { // 로그인 성공
-                                alert(json.msg); // 메시지 띄우기
-                                location.href = "/index"; // 로그인 성공 페이지 이동
+                        if (json.result === 1) { // 로그인 성공
+                            alert(json.msg); // 메시지 띄우기
+                            location.href = "/index"; // 로그인 성공 페이지 이동
 
-                            } else { // 로그인 실패
-                                alert(json.msg); // 메시지 띄우기
-                                $("#userId").focus(); // 아이디 입력 항목에 마우스 커서 이동
-                            }
-
+                        } else { // 로그인 실패
+                            alert(json.msg); // 메시지 띄우기
+                            $("#userId").focus(); // 아이디 입력 항목에 마우스 커서 이동
                         }
+
                     }
-                )
+                })
+            }
 
-            })
+            // 로그인 엔터키
+            $("#f").on("keypress", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault(); // 폼 제출 방지
+                    doLogin();
+                }
+            });
+        });
 
-            // // email 엔터키
-            // $("#authNumber").on("keypress", function (event) {
-            //     if (event.key === "Enter") {
-            //         event.preventDefault(); // 폼 제출 방지
-            //         $("#btnAuthNumber").click();
-            //     }
-            // });
-        })
-
-
-        // $(document).ready(function(){
-        //     let signup = $(".links").find("li").find("#signup") ;
-        //     let signin = $(".links").find("li").find("#signin") ;
-        //     let reset  = $(".links").find("li").find("#reset")  ;
-        //     let first_input = $("form").find(".first-input");
-        //     let hidden_input = $("form").find(".input__block").find("#repeat__password, #btnUserId")
-        //     let signin_btn  = $("form").find(".signin__btn");
-        //
-        //     //----------- sign up ---------------------
-        //     signup.on("click",function(e){
-        //         e.preventDefault();
-        //         $(this).parent().parent().siblings("h1").text("SIGN UP");
-        //         $(this).parent().css("opacity","1");
-        //         $(this).parent().siblings().css("opacity",".6");
-        //         first_input.removeClass("first-input__block").addClass("signup-input__block");
-        //         hidden_input.css({
-        //             "opacity" : "1",
-        //             "display" : "block"
-        //         });
-        //         signin_btn.text("Sign up");
-        //     });
-        //
-        //
-        //     //----------- sign in ---------------------
-        //     signin.on("click",function(e){
-        //         e.preventDefault();
-        //         $(this).parent().parent().siblings("h1").text("SIGN IN");
-        //         $(this).parent().css("opacity","1");
-        //         $(this).parent().siblings().css("opacity",".6");
-        //         first_input.addClass("first-input__block")
-        //             .removeClass("signup-input__block");
-        //         hidden_input.css({
-        //             "opacity" : "0",
-        //             "display" : "none"
-        //         });
-        //         signin_btn.text("Sign in");
-        //     });
-        //
-        //     //----------- reset ---------------------
-        //     reset.on("click",function(e){
-        //         e.preventDefault();
-        //         $(this).parent().parent().siblings("form")
-        //             .find(".input__block").find(".input").val("");
-        //     })
-        // });
     </script>
-    <!--    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js">-->
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
@@ -429,28 +390,28 @@
         <li>
             <a href="/user/userRegForm" id="signup">회원가입</a>
         </li>
-<!--        <li>-->
-<!--            <a href="#" id="reset">RESET</a>-->
-<!--        </li>-->
+        <!--        <li>-->
+        <!--            <a href="#" id="reset">RESET</a>-->
+        <!--        </li>-->
     </ul>
 
     <!-- Form -->
-    <form  id="f" action="" method="post">
+    <form id="f" action="" method="post">
         <!-- email input -->
         <div class="first-input input__block first-input__block">
-            <input type="text" placeholder="아이디" class="input" id="userId" th:name="userId"  />
+            <input type="text" placeholder="아이디" class="input" id="userId" th:name="userId"/>
         </div>
         <!-- password input -->
         <div class="input__block">
-            <input type="password" placeholder="비밀번호" class="input" id="userPassword" th:name="userPassword"    />
+            <input type="password" placeholder="비밀번호" class="input" id="userPassword" th:name="userPassword"/>
         </div>
         <!-- repeat password input -->
         <!--        <div class="input__block">-->
         <!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password"    />-->
         <!--        </div>-->
-<!--        <div class="input__block">-->
-<!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password" th:name="userPassword2"    />-->
-<!--        </div>-->
+        <!--        <div class="input__block">-->
+        <!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password" th:name="userPassword2"    />-->
+        <!--        </div>-->
 
 
         <div class="container_find">
@@ -468,9 +429,9 @@
         <br/><br/>
     </form>
     <!-- separator -->
-    <div class="separator">
-        <!--        <p>OR</p>-->
-    </div>
+<!--    <div class="separator">-->
+<!--        &lt;!&ndash;        <p>OR</p>&ndash;&gt;-->
+<!--    </div>-->
     <!--    &lt;!&ndash; google button &ndash;&gt;-->
     <!--    <button class="google__btn">-->
     <!--        <i class="fa fa-google"></i>-->

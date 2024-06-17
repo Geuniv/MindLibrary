@@ -3,32 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Profile</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>회원정보 수정</title>
 
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
-
-    <script type="text/javascript">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
 
         let arr = []; // 이미지 배열 선언
 
-        // HTML로딩이 완료되고, 실행됨
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
+
+        // 세션 값이 null인 경우 공백 문자열로 변경
+        const userId = ssUserId !== null ? ssUserId : '';
+
+        // 닉네임 중복체크여부 (중복 Y / 중복아님 : N)
+        let nicknameCheck = "N"; // 기본값을 "N"으로 설정
+
         $(document).ready(function () {
             let f = document.getElementById("f"); // form 태그
 
             var userInterests = "${rDTO.userInterest}".split(','); // 사용자의 관심사 목록 가져오기
             userInterests.forEach(function (interest) {
                 $('input[type="checkbox"][value="' + interest + '"]').prop('checked', true); // 체크된 상태로 설정
-            })
+            });
+
+            $("#btnNickname").on("click", function () {
+                nicknameExists(f);
+            });
 
             $("#btnModify").on("click", function () {
-                doFile()
-            })
+                doFile();
+            });
 
-            // 회원정보 수정하기
-            $("#btnDelete").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
-                doDelete()
-            })
+            $("#btnDelete").on("click", function () {
+                doDelete();
+            });
 
             $("input[type='file']").change(function (e) {
                 preview(e.target.files);
@@ -40,11 +49,19 @@
             });
 
             $("input[type='file']").change(function (e) {
+                if (!validateFiles(e.target.files)) {
+                    alert('이미지 파일만 업로드 가능합니다.');
+                    $(this).val('');
+                    return;
+                }
+                removePreviousImage();
+                preview(e.target.files);
+            });
 
+            $("input[type='file']").change(function (e) {
                 var files = e.target.files;
                 arr = Array.prototype.slice.call(files);
 
-                // 업로드 가능 파일인지 체크
                 for (var i = 0; i < files.length; i++) {
                     if (!!checkExtension(files[i].name, files[i].size)) {
                         return false;
@@ -52,9 +69,45 @@
                 }
                 preview(arr);
             });
-        })
+        });
 
-        // 파일 확인
+        function nicknameExists(f) {
+            if (f.userNickname.value === "") {
+                alert("닉네임를 입력하세요.");
+                f.userNickname.focus();
+                return;
+            }
+
+            $.ajax({
+                url: "/profile/getNicknameExists",
+                type: "post",
+                dataType: "JSON",
+                data: $("#f").serialize(),
+                success: function (json) {
+                    if (json.existsYn === "Y") {
+                        alert("이미 가입된 닉네임이 존재합니다.");
+                        f.userId.focus();
+                        nicknameCheck = "Y";
+                    } else {
+                        alert("사용 가능한 닉네임입니다.");
+                        nicknameCheck = "N";
+                    }
+                }
+            });
+        }
+
+        function validateFiles(files) {
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var imageType = /^image\/(jpeg|png|gif)$/;
+
+                if (!imageType.test(file.type)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         function checkExtension(fileName, fileSize) {
             var regex = new RegExp("(.*?)\.(exe|sh|zip|alz)$");
             var maxSize = 20971520; // 20MB
@@ -73,15 +126,12 @@
             return true;
         }
 
-        // 이전 이미지 삭제 함수
         function removePreviousImage() {
             $(".profile-picture").empty(); // 이전 이미지를 포함한 모든 요소 삭제
         }
 
-
-        // 이미지 미리보기 함수
         function preview(files) {
-            var preview = document.getElementsByClassName('profile-picture')[0]; // 프로필 사진을 감싸는 div
+            var preview = document.getElementsByClassName('profile-picture')[0];
             for (var i = 0; i < files.length; i++) {
                 var file = files[i];
                 var imageType = /^image\//;
@@ -107,7 +157,6 @@
             }
         }
 
-        // 이미지 삭제
         function removeImage(button) {
             let fileName = $(button).val();
 
@@ -115,26 +164,29 @@
                 return file.name !== fileName;
             });
 
-            console.log(arr); // 파일 목록 확인
+            console.log(arr);
 
-            $(button).closest('div').remove(); // 부모 div를 삭제하도록 수정
+            $(button).closest('div').remove();
         }
 
         function doFile() {
+            let f = document.getElementById("f");
 
-            let f = document.getElementById("f"); // form 태그
+            // 닉네임이 변경되었을 때만 중복체크를 확인
+            if (f.userNickname.value !== f.userNickname.defaultValue && nicknameCheck !== "N") {
+                alert("닉네임 중복 체크 및 중복되지 않은 닉네임으로 가입 바랍니다.");
+                f.userNickname.focus();
+                return;
+            }
 
             const interests = [];
             $("input[name='userInterest']:checked").each(function() {
                 interests.push($(this).val());
             });
 
-            // 닉네임 값 가져오기
-            let newNickname = $("#userNickname").val().trim(); // 입력된 닉네임 값, 앞뒤 공백 제거
+            let newNickname = $("#userNickname").val().trim();
 
-            // let formData = new FormData($("#f")[0]);
             let formData = new FormData();
-            // 닉네임이 비어있지 않은 경우에만 formData에 추가
             if (newNickname !== "") {
                 formData.append('userNickname', newNickname);
             } else {
@@ -142,51 +194,47 @@
             }
             formData.append('userInterest', interests);
 
-            // 이미지 파일들을 formData에 추가
             for (let i = 0; i < arr.length; i++) {
                 formData.append('file', arr[i]);
             }
 
             if (confirm("수정하시겠습니까?")) {
-
-                // Ajax 호출해서 회원정보 삭제하기
                 $.ajax({
-                        url: "/profile/profileModifyProc",
-                        type: "post",
-                        dataType: "JSON",
-                        data: formData, // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
-                        processData: false,  // 중요: processData를 false로 설정해야 폼 데이터가 자동으로 변환되지 않습니다.
-                        contentType: false,  // 중요: contentType을 false로 설정해야 멀티파트로 제대로 전송됩니다.
-                        success:
-                            function (json) {
-                                alert(json.msg);
-                                location.href = "/profile"; // 인덱스 페이지로 이동
-                            }
+                    url: "/profile/profileModifyProc",
+                    type: "post",
+                    dataType: "JSON",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (json) {
+                        alert(json.msg);
+                        location.href = "/profile";
                     }
-                )
+                });
             }
         }
 
-        // 회원 탈퇴
         function doDelete() {
-
             if (confirm("정말로 탈퇴하시겠습니까?")) {
-
-                // Ajax 호출해서 회원정보 삭제하기
                 $.ajax({
-                        url: "/profile/deleteUserInfo",
-                        type: "post",
-                        dataType: "JSON",
-                        success:
-                            function (json) {
-                                alert(json.msg);
-                                location.href = "/index"; // 인덱스 페이지로 이동
-                            }
+                    url: "/profile/deleteUserInfo",
+                    type: "post",
+                    dataType: "json",
+                    success: function (json) {
+                        if (json.msg === "탈퇴되었습니다.") {
+                            alert(json.msg);
+                            window.location.href = "/index";
+                        } else {
+                            alert("탈퇴에 실패했습니다: " + json.msg);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("에러가 발생했습니다: " + error);
                     }
-                )
+                });
             }
         }
-
+        /*]]>*/
     </script>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -200,12 +248,7 @@
             display: block;
             max-width: 680px;
             width: 80%;
-            /*margin: 120px auto;*/
-        }
-
-        .container_find {
-            text-align: right;
-            max-width: 640px;
+            margin: 0 auto;
         }
 
         h1 {
@@ -213,163 +256,90 @@
             font-size: 48px;
             letter-spacing: -3px;
             text-align: center;
-            margin: 120px 0 80px 0;
-            padding: 120px;
+            margin: 40px 0;
             transition: .2s linear;
         }
-
-        .links {
-            list-style-type: none;
-            /*margin-left: 23%;*/
-            /*margin-right: 23%;*/
-
-            li {
-                display: inline-block;
-                margin: 0 20px 0 0;
-                transition: .2s linear;
-
-                &:nth-child(2) {
-                    opacity: .6;
-
-                    &:hover {
-                        opacity: 1;
-                    }
-                }
-
-                &:nth-child(3) {
-                    opacity: .6;
-                    float: right;
-
-                    &:hover {
-                        opacity: 1;
-                    }
-                }
-
-                a {
-                    text-decoration: none;
-                    color: #0f132a;
-                    font-weight: bolder;
-                    text-align: center;
-                    cursor: pointer;
-                }
-            }
-        }
-
 
         form {
             width: 100%;
             max-width: 680px;
             margin: 40px auto 10px;
+        }
 
-            .input__block {
-                margin: 20px auto;
-                display: block;
-                position: relative;
+        .input__block {
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
 
-                &.first-input__block {
-                    &::before {
-                        content: "";
-                        position: absolute;
-                        top: -15px;
-                        left: 50px;
-                        display: block;
-                        width: 0;
-                        height: 0;
-                        background: transparent;
-                        border-left: 15px solid transparent;
-                        border-right: 15px solid transparent;
-                        /*border-bottom: 15px solid rgba(15, 19, 42, .1);*/
-                        transition: .2s linear;
-                    }
-                }
+        .input__block label {
+            width: 25%;
+            font-weight: bold;
+            font-size: 16px;
+        }
 
-                &.signup-input__block {
-                    &::before {
-                        content: "";
-                        position: absolute;
-                        top: -15px;
-                        left: 150px;
-                        display: block;
-                        width: 0;
-                        height: 0;
-                        background: transparent;
-                        border-left: 15px solid transparent;
-                        border-right: 15px solid transparent;
-                        /*border-bottom: 15px solid rgba(15, 19, 42, .1);*/
-                        transition: .2s linear;
-                    }
-                }
+        .input__block input {
+            width: 80%;
+            height: 50px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(15, 19, 42, .1);
+            color: rgba(15, 19, 42, .3);
+            padding: 0 15px;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+        }
 
-                input {
-                    display: block;
-                    width: 90%;
-                    max-width: 680px;
-                    height: 50px;
-                    margin: 0 auto;
-                    border-radius: 8px;
-                    border: none;
-                    background: rgba(15, 19, 42, .1);
-                    color: rgba(15, 19, 42, .3);
-                    padding: 0 0 0 15px;
-                    font-size: 14px;
-                    font-family: 'Montserrat', sans-serif;
+        .input__block button {
+            width: 15%;
+            height: 50px;
+            border-radius: 8px;
+            background: #000000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            margin-left: 10px;
+        }
 
-                    &:focus,
-                    &:active {
-                        outline: none;
-                        border: none;
-                        color: rgba(15, 19, 42, 1);
-                    }
+        .signin__btn {
+            background: #000000;
+            color: white;
+            display: block;
+            width: 100%;
+            height: 50px;
+            border-radius: 8px;
+            margin: 20px auto;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            box-shadow: 0 15px 30px rgba(80, 80, 80, .36);
+            transition: .2s linear;
+        }
 
-                    &.repeat__password {
-                        opacity: 0;
-                        display: none;
-                        transition: .2s linear;
-                    }
-                }
-            }
+        .signin__btn:hover {
+            box-shadow: 0 0 0 rgba(80, 80, 80, .0);
+        }
 
-            .signin__btn {
-                background: #0b0b0b;
-                color: white;
-                display: block;
-                width: 92.5%;
-                max-width: 680px;
-                height: 50px;
-                border-radius: 8px;
-                margin: 0 auto;
-                border: none;
-                cursor: pointer;
-                font-size: 14px;
-                font-family: 'Montserrat', sans-serif;
-                box-shadow: 0 15px 30px rgba(80, 80, 80, .36);
-                transition: .2s linear;
+        .profile-picture {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 10% auto;
+        }
 
-                &:hover {
-                    box-shadow: 0 0 0 rgba(80, 80, 80, .0);
-                }
-
-            }
-
-            .checkbox_btn {
-                width: 90%;
-                max-width: 680px;
-                height: 50px;
-                border-radius: 8px;
-                margin: 0 auto;
-                border: none;
-                cursor: pointer;
-                font-size: 14px;
-                display: flex; /* Flexbox 설정 */
-                align-items: center; /* 수직 가운데 정렬 */
-            !important; /* !important를 추가하여 강제로 스타일을 적용합니다. */
-            }
-
-            .checkbox_btn label {
-                flex: 1; /* 동일한 너비로 설정 */
-                text-align: center; /* 가운데 정렬 */
-            !important; /* !important를 추가하여 강제로 스타일을 적용합니다. */
-            }
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .separator {
@@ -383,140 +353,72 @@
             font-size: 13px;
             width: 90%;
             max-width: 680px;
-
-            &::before {
-                content: "";
-                position: absolute;
-                top: 8px;
-                left: 0;
-                background: rgba(15, 19, 42, .2);
-                height: 1px;
-                width: 45%;
-            }
-
-            &::after {
-                content: "";
-                position: absolute;
-                top: 8px;
-                right: 0;
-                background: rgba(15, 19, 42, .2);
-                height: 1px;
-                width: 45%;
-            }
         }
 
-        .google__btn,
-        .github__btn {
-            display: block;
-            width: 90%;
-            max-width: 680px;
-            margin: 20px auto;
-            height: 50px;
+        .separator::before, .separator::after {
+            content: "";
+            position: absolute;
+            top: 8px;
+            background: rgba(15, 19, 42, .2);
+            height: 1px;
+            width: 45%;
+        }
+
+        .separator::before {
+            left: 0;
+        }
+
+        .separator::after {
+            right: 0;
+        }
+
+        .toggle-btn {
             cursor: pointer;
-            font-size: 14px;
-            font-family: 'Montserrat', sans-serif;
-            border-radius: 8px;
-            border: none;
-            line-height: 40px;
-
-            &.google__btn {
-                background: #5b90f0;
-                color: white;
-                box-shadow: 0 15px 30px rgba(91, 144, 240, .36);
-                transition: .2s linear;
-
-                .fa {
-                    font-size: 20px;
-                    padding: 0 5px 0 0;
-                }
-
-                &:hover {
-                    box-shadow: 0 0 0 rgba(91, 144, 240, .0);
-                }
-            }
-
-            &.github__btn {
-                background: #25282d;
-                color: white;
-                box-shadow: 0 15px 30px rgba(37, 40, 45, .36);
-                transition: .2s linear;
-
-                .fa {
-                    font-size: 20px;
-                    padding: 0 5px 0 0;
-                }
-
-                &:hover {
-                    box-shadow: 0 0 0 rgba(37, 40, 45, .0);
-                }
-            }
-        }
-
-        footer {
-            p {
-                text-align: center;
-
-                .fa {
-                    color: #e91e63;
-                }
-
-                a {
-                    text-decoration: none;
-                    font-size: 17px;
-                    margin: 0 5px;
-
-                    .fa-facebook {
-                        color: #3b5998;
-                    }
-
-                    .fa-twitter {
-                        color: #1da1f2;
-                    }
-
-                    .fa-instagram {
-                        color: #f77737;
-                    }
-
-                    .fa-linkedin {
-                        color: #0077b5;
-                    }
-
-                    .fa-behance {
-                        color: #1769ff;
-                    }
-                }
-
-            }
-        }
-
-        .a_ {
-            text-decoration: none;
-            color: #0f132a;
-            font-weight: bolder;
+            color: #0b0b0b;
             text-align: center;
-            cursor: pointer;
+            margin: 20px 0;
+            font-size: 18px;
         }
 
-        /* 둥근 네모 영역 스타일 */
-        .profile-picture {
-            width: 200px; /* 원하는 사이즈로 설정 */
-            height: 200px; /* 원하는 사이즈로 설정 */
-            border-radius: 50%; /* 둥근 모서리 */
-            border: 2px solid #ccc; /* 기본 테두리 */
-            overflow: hidden; /* 넘치는 부분 잘라내기 */
+        .posts-list {
+            display: none;
+        }
+
+        .posts-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .posts-list li {
+            margin-bottom: 20px;
+        }
+
+        .posts-list a {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e91e63;
+            text-decoration: none;
+        }
+
+        .posts-list p {
+            margin: 5px 0;
+        }
+
+        .checkbox_btn {
             display: flex;
-            justify-content: center;
             align-items: center;
-            margin-left: 33%;
-            margin-bottom: 10%;
+            justify-content: space-around;
+            width: 100%;
         }
 
+        .checkbox_btn label {
+            flex: 1;
+            text-align: center;
+        }
 
-        /* 이미지 스타일 */
-        .profile-picture img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* 이미지 비율 유지 및 잘라내기 */
+        .checkbox_btn input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
         }
     </style>
 </head>
@@ -532,55 +434,59 @@
 
     <!-- Form -->
     <form id="f" action="" method="post">
-
         <div class="profile-picture">
-            <div th:if="${rList != null and not #lists.isEmpty(rList)}">
-                <div th:each="dto : ${rList}">
-                    <img th:if="${dto.fileUrl != null}" th:src="${dto.fileUrl}" width="100%" alt="Image">
-                    <img th:if="${dto.fileUrl == null}" src="/img/profile.png" width="100%" alt="Default Image">
-                    <br><br>
-                </div>
-            </div>
+            <img th:src="${rDTO.fileUrl}" width="100%" alt="Image">
+            <br><br>
             <div id="preview"></div>
         </div>
-        <input id="file-input" type="file" multiple style="margin-top: 0px; margin-left: 35%">
+        <input id="file-input" type="file" multiple style="margin: 0 auto; display: block;">
 
-        <!-- email input -->
-        <div class="first-input input__block first-input__block">
+        <!-- id input -->
+        <div class="input__block">
             <label class="label">아이디</label>
             <input type="text" class="input" id="userId" name="userId" th:placeholder="${rDTO.userId}" disabled=""
-                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important; "/>
+                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important;"/>
         </div>
-        <div class="first-input input__block first-input__block">
+
+        <!-- email input -->
+        <div class="input__block">
             <label class="label">이메일</label>
-            <input type="email" class="input" id="userEmail" name="userEmail" th:placeholder="${rDTO.userEmail}"
-                   disabled=""
-                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important; "/>
+            <input type="email" class="input" id="userEmail" name="userEmail" th:placeholder="${rDTO.userEmail}" disabled=""
+                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important;"/>
         </div>
-        <div class="first-input input__block first-input__block">
+
+        <!-- userName input -->
+        <div class="input__block">
             <label class="label">이름</label>
             <input type="text" class="input" id="userName" name="userName" th:placeholder="${rDTO.userName}" disabled=""
                    style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important;"/>
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
         </div>
-        <div class="first-input input__block first-input__block">
+
+        <!-- nickName input -->
+        <div class="input__block">
             <label class="label">닉네임</label>
             <input type="text" class="input" id="userNickname" name="userNickname" th:placeholder="${rDTO.userNickname}" th:value="${rDTO.userNickname}"
-                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1);;"/>
+                   style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1);"/>
+            <button id="btnNickname" type="button" class="button">중복체크</button>
         </div>
-        <div class="first-input input__block first-input__block">
+        <div id="nicknameError" class="error-message"></div>
+        <div id="nicknameCheckMessage" class="success-message"></div>
+
+        <!-- age input -->
+        <div class="input__block">
             <label class="label">생년월일</label>
             <input type="text" class="input" id="userAge" name="userAge" th:placeholder="${rDTO.userAge}" disabled=""
                    style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important;"/>
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
         </div>
-        <div class="first-input input__block first-input__block">
+
+        <!-- gender input -->
+        <div class="input__block">
             <label class="label">성별</label>
-            <input type="text" class="input" id="userGender" name="userGender" th:placeholder="${rDTO.userGender}"
-                   disabled=""
+            <input type="text" class="input" id="userGender" name="userGender" th:placeholder="${rDTO.userGender}" disabled=""
                    style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important;"/>
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
         </div>
+
+        <!--interest  input -->
         <div class="input__block">
             <label class="label">관심사</label>
             <input type="hidden" id="userInterest" name="userInterest" th:value="${rDTO.userInterest}"/>
@@ -595,64 +501,22 @@
                               th:checked="${#strings.contains(rDTO.userInterest, '노래')}"/> 노래</label>
             </div>
         </div>
-
-        <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
-        <div class="first-input input__block first-input__block">
+        <div class="input__block">
             <label class="label">가입일</label>
-            <input type="text" class="input" id="memberSince" name="memberSince" th:placeholder="${rDTO.memberSince}"
-                   disabled=""
+            <input type="text" class="input" id="memberSince" name="memberSince" th:placeholder="${rDTO.memberSince}" disabled=""
                    style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1); background-color: #F5F5F5 !important;"/>
-            <!--            <input type="text" placeholder="Id" class="input" id="userId" th:name="userId"  />-->
         </div>
 
-        <!-- password input -->
-        <!--        <div class="input__block">-->
-        <!--            <input type="password" placeholder="Password" class="input" id="userPassword" th:name="userPassword"    />-->
-        <!--        </div>-->
-        <!-- repeat password input -->
-        <!--        <div class="input__block">-->
-        <!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password"    />-->
-        <!--        </div>-->
-        <!--        <div class="input__block">-->
-        <!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password" th:name="userPassword2"    />-->
-        <!--        </div>-->
-
-
-        <!--        <div class="container_find">-->
-        <!--            <a href="/user/findUserId" class="a_">아이디 찾기</a>-->
-        <!--            <br/>-->
-        <!--            <a href="/user/findPassword" class="a_">비밀번호 찾기</a>-->
-        <!--        </div>-->
-
         <br/>
-
-        <!--        <a href="#">-->
-        <!-- sign in button -->
-        <button id="btnModify" type="button" class="signin__btn">
-            회원정보 수정
-        </button>
-        <!--        </a>-->
-        <br/>
-        <button id="btnDelete" class="signin__btn">회원 탈퇴</button>
+        <button id="btnModify" type="button" class="signin__btn">회원정보 수정</button>
+        <button id="btnDelete" type="button" class="signin__btn">회원 탈퇴</button>
         <br/><br/>
     </form>
-    <!-- separator -->
-    <div class="separator">
-        <!--        <p>OR</p>-->
-    </div>
-    <!--    &lt;!&ndash; google button &ndash;&gt;-->
-    <!--    <button class="google__btn">-->
-    <!--        <i class="fa fa-google"></i>-->
-    <!--        Sign in with Google-->
-    <!--    </button>-->
-    <!--    &lt;!&ndash; google button &ndash;&gt;-->
-    <!--    <button class="github__btn">-->
-    <!--        <i class="fa fa-github"></i>-->
-    <!--        Sign in with GitHub-->
-    <!--    </button>-->
+
+    <div class="separator"></div>
 </div>
 
-<!-- ======= Header ======= -->
+<!-- ======= Footer ======= -->
 <th:block th:replace="~{footer}"></th:block>
 <!-- End Header -->
 

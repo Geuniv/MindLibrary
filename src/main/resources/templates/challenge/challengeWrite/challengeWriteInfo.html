@@ -13,25 +13,15 @@
         const cSeq = /*[[${rDTO.challengeSeq}]]*/ ''; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
         const cwSeq = /*[[${rDTO.challengeWriteSeq}]]*/ ''; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
 
-        $(document).ready(function () {
-            // 버튼 클릭했을 때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
-            // $("#btnCmt").on("click", function () {
-            //     doComment(); // 댓글 작성 실행
-            // })
+        // 세션 값이 null인 경우 공백 문자열로 변경
+        const checkId = ssUserId !== null ? ssUserId : '';
 
-            // // 본인 계정이 아닌 사용자에게 버튼 숨김
-            // $(".btnCmtDelete").each(function () {
-            //     var commentUserId = $(this).prevAll(".commentUserId").val(); // 추가: 댓글의 userId 가져오기
-            //
-            //     // 숨김 처리
-            //     $(this).hide();
-            //
-            //     // 본인 계정과 댓글 userId 비교
-            //     if (ssUserId === commentUserId) {
-            //         // 본인 계정이라면 표시
-            //         $(this).show();
-            //     }
-            // });
+        $(document).ready(function () {
+
+            if (checkId === "" || checkId == null || checkId === undefined) {
+                alert("로그인 후 이용 가능합니다.");
+                location.href = "/index";
+            }
 
             $("#btnEdit").on("click", function () {
                 doEdit(); // 커뮤니티 수정하기 실행

@@ -55,7 +55,7 @@ public class ChatGPTController {
     /* 마음체크 메인 페이지
     * ( 2024.05.08 완 )
     */
-    @GetMapping(value = "/mindCheck")
+    @GetMapping(value = "mindCheck")
     public String mindCheck() throws Exception {
 
         log.info(this.getClass().getName() + ".mindCheck Start!");
@@ -69,7 +69,7 @@ public class ChatGPTController {
      * ( 2024.05.08 완 )
      */
     @ResponseBody
-    @PostMapping("/prompt")
+    @PostMapping("prompt")
     public String prompt(HttpServletRequest request, ModelMap model) throws Exception {
 
         log.info(this.getClass().getName() + ".prompt Start!");
@@ -110,7 +110,7 @@ public class ChatGPTController {
      */
     @ResponseBody
     @PostMapping(value = "insertCheckInfo")
-    public MsgDTO insertCheckInfo(HttpServletRequest request, HttpSession session) {
+    public MsgDTO insertCheckInfo(HttpServletRequest request, HttpSession session) throws Exception {
 
         log.info(this.getClass().getName() + ".insertCheckInfo Start!");
 

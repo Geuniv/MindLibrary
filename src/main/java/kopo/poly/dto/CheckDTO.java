@@ -24,4 +24,6 @@ public class CheckDTO {
 
     // GPT 답변
     private String userAnswer;
+
+    private String checkRegDt;
 }

@@ -125,7 +125,7 @@ public class ChallengeWriteController {
      */
     @GetMapping(value = "challengeWriteReg")
     public String challengeWriteReg(HttpServletRequest request, ModelMap modelMap, HttpSession
-                                     session){
+                                     session) throws Exception {
 
         log.info(this.getClass().getName() + ".challengeWriteReg ( 컨트롤러 ) Start !");
 
@@ -153,7 +153,7 @@ public class ChallengeWriteController {
      */
     @ResponseBody
     @PostMapping(value = "challengeWriteInsert")
-    public MsgDTO challengeWriteInsert(HttpServletRequest request, HttpSession session, ModelMap model) {
+    public MsgDTO challengeWriteInsert(HttpServletRequest request, HttpSession session, ModelMap model) throws Exception {
 
         log.info(this.getClass().getName() + ".challengeWriteInsert ( 컨트롤러 ) Start!");
 
@@ -269,7 +269,7 @@ public class ChallengeWriteController {
     /** 게시판 글 수정 */
     @ResponseBody
     @PostMapping("challengeWriteUpdate")
-    public MsgDTO challengeWriteUpdate(HttpSession session, @RequestBody ChallengeWriteDTO pDTO) {
+    public MsgDTO challengeWriteUpdate(HttpSession session, @RequestBody ChallengeWriteDTO pDTO) throws Exception {
 
         log.info(this.getClass().getName() + ".challengeWriteUpdate ( 컨트롤러 ) Start!");
 
@@ -309,7 +309,7 @@ public class ChallengeWriteController {
      */
     @ResponseBody
     @PostMapping(value = "challengeWriteDelete")
-    public MsgDTO challengeWriteDelete(@RequestBody ChallengeWriteDTO pDTO, HttpSession session) {
+    public MsgDTO challengeWriteDelete(@RequestBody ChallengeWriteDTO pDTO, HttpSession session) throws Exception {
 
         log.info(this.getClass().getName() + ".challengeWriteDelete ( 컨트롤러 ) Start!");
 

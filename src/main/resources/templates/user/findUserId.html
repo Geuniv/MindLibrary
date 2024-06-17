@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>아이디찾기</title>
+    <title>아이디 찾기</title>
     <link rel="stylesheet" href="/css/table.css"/>
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
@@ -29,9 +29,27 @@
                     f.userEmail.focus();
                     return;
                 }
-                f.method = "post"; // 아이디 찾기 정보 전송 방식
-                f.action = "/user/findUserIdProc" // 아이디 찾기 URL
-                f.submit(); // 아이디 찾기 정보 전송하기
+
+                // Ajax 호출해서 로그인하기
+                $.ajax({
+                        url: "/user/findUserIdProc",
+                        type: "post", // 전송방식은 Post
+                        dataType: "JSON", // 전송 결과는 JSON으로 받기
+                        data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                        success: function (json) { // /notice/noticeUpdate 호출이 성공했다면..
+                            if (json.result === 1) { // 로그인 성공
+                                alert(json.msg); // 메시지 띄우기
+                                location.href = "/index"; // 로그인 성공 페이지 이동
+                            } else { // 로그인 실패
+                                alert(json.msg); // 메시지 띄우기
+                                $("#userName").focus(); // 아이디 입력 항목에 마우스 커서 이동
+                            }
+                        }
+                    }
+                )
+                // f.method = "post"; // 아이디 찾기 정보 전송 방식
+                // f.action = "/user/findUserIdProc" // 아이디 찾기 URL
+                // f.submit(); // 아이디 찾기 정보 전송하기
 
             })
         })

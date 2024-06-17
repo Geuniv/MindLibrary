@@ -2,15 +2,20 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
     <title>redirect</title>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        let msg = /*[[${msg}]]*/ '로그인 후 이용 가능합니다.'; // 기본 메시지
+        let url = /*[[${url}]]*/ '/index'; // 기본 URL
+        alert(msg);
+        location.href = url;
+
+        /*]]>*/
+    </script>
 </head>
 <body>
-<script th:inline="javascript">
-    let msg = [[${msg}]] /*'';*/
-    let url = [[${url}]] /*'/main';*/
-    alert(msg);
-    location.href=url;
-</script>
-<meta charset="UTF-8">
 </body>
 </html>

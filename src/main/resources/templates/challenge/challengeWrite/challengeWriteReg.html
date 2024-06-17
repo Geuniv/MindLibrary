@@ -10,7 +10,18 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
+
+        // 세션 값이 null인 경우 공백 문자열로 변경
+        const userId = ssUserId !== null ? ssUserId : '';
+
         $(document).ready(function () {
+
+            if (userId === "" || userId == null || userId === undefined) {
+                alert("로그인 후 이용 가능합니다.");
+                location.href = "/index";
+            }
+
             $("#btnSend").on("click", function () {
                 doSubmit();
             });

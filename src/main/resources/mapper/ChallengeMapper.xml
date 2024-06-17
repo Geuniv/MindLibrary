@@ -14,21 +14,8 @@
         <result column="CHALLENGE_REG_DT" property="challengeRegDt"/>
         <result column="CHALLENGE_START_DATE" property="challengeStartDate"/>
         <result column="CHALLENGE_END_DATE" property="challengeEndDate"/>
+        <result column="DAYS_LEFT" property="daysLeft"/>
     </resultMap>
-
-<!--    <resultMap id="challengeWriteResult" type="java.util.HashMap">-->
-<!--        <id column="CHALLENGE_SEQ" property="challengeSeq"/>-->
-<!--        <id column="CHALLENGE_WRITE_SEQ" property="challengeWriteSeq"/>-->
-<!--        <result column="CHALLENGE_SEQ" property="challengeSeq"/>-->
-<!--        <result column="CHALLENGE_WRITE_SEQ" property="challengeWriteSeq"/>-->
-<!--        <result column="USER_ID" property="userId"/>-->
-<!--        <result column="USER_NICKNAME" property="userNickname"/>-->
-<!--        <result column="CHALLENGE_WRITE_TITLE" property="challengeWriteTitle"/>-->
-<!--        <result column="CHALLENGE_WRITE_CONTENT" property="challengeWriteContent"/>-->
-<!--        <result column="CHALLENGE_WRITE_BOOKTITLE" property="challengeWriteBooktitle"/>-->
-<!--        <result column="CHALLENGE_REG_DT" property="challengeWriteRegDt"/>-->
-<!--    </resultMap>-->
-
 
     <!-- 사용자별 챌린지 리스트 쿼리 -->
     <!--   2024.05.26 챌린지 생성일, 시작일, 종료일 컬럼 추가, 구분 컬럼 데이터 타입 수정  -->
@@ -36,7 +23,8 @@
         SELECT C.CHALLENGE_SEQ, C.CHALLENGE_DIVISION, C.CHALLENGE_COMMENT, C.USER_ID, U.USER_NICKNAME,
                DATE_FORMAT(C.CHALLENGE_REG_DT, '%Y/%m/%d %H:%i:%s') AS CHALLENGE_REG_DT,
                DATE_FORMAT(C.CHALLENGE_START_DATE, '%Y/%m/%d') AS CHALLENGE_START_DATE,
-               DATE_FORMAT(C.CHALLENGE_END_DATE, '%Y/%m/%d') AS CHALLENGE_END_DATE
+               DATE_FORMAT(C.CHALLENGE_END_DATE, '%Y/%m/%d') AS CHALLENGE_END_DATE,
+               DATEDIFF(C.CHALLENGE_END_DATE, CURDATE()) AS DAYS_LEFT
         FROM MIND_CHALLENGE C
                  JOIN USER_INFO U ON C.USER_ID = U.USER_ID
         WHERE C.USER_ID = #{userId}

@@ -10,6 +10,9 @@ public interface IUserInfoService {
     // 이메일 주소 중복 체크 및 인증 값
     UserInfoDTO getEmailExists(UserInfoDTO pDTO) throws Exception;
 
+    // 회원 정보 수정 전 닉네임 중복체크하기(DB조회하기)
+    UserInfoDTO getNicknameExists(UserInfoDTO pDTO) throws Exception;
+
     // 회원 가입하기(회원정보 등록하기)
     int insertUserInfo(UserInfoDTO pDTO) throws Exception;
 

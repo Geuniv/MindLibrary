@@ -23,7 +23,7 @@ public class LikeController {
 
     @ResponseBody
     @PostMapping(value = "/boardLike")
-    public MsgDTO boardLike(HttpSession session, HttpServletRequest request) {
+    public MsgDTO boardLike(HttpSession session, HttpServletRequest request) throws Exception {
 
         log.info(this.getClass().getName() + ".boardLike Start!");
 

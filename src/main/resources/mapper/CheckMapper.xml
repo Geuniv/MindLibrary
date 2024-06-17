@@ -4,26 +4,34 @@
 <!-- JAVA와 연결할 Mapper 파일 설정 -->
 <mapper namespace="kopo.poly.persistance.mapper.ICheckMapper">
 
-    <!-- 회원 가입하기 ( 회원정보 등록하기 ) -->
+    <!-- 마음체크 저장하기 -->
     <insert id="insertCheckInfo" parameterType="CheckDTO">
         INSERT INTO MIND_CHECK
         (CHECK_SEQ,
          USER_ID,
          USER_QUESTION,
-         USER_ANSWER)
+         USER_ANSWER,
+         CHECK_REG_DT)
         VALUES (
                 (SELECT COALESCE(MAX(A.CHECK_SEQ),0)+1 FROM MIND_CHECK A),
                 #{userId},
                 #{userQuestion},
-                #{userAnswer}
+                #{userAnswer},
+                NOW()
             )
     </insert>
 
-    <!-- 마이페이지 회원정보 조회 -->
+    <!-- 마음체크 조회하기 -->
     <select id="getCheckInfo" parameterType="CheckDTO" resultType="CheckDTO">
-        SELECT CHECK_SEQ, USER_ID, USER_QUESTION, USER_ANSWER
+        SELECT CHECK_SEQ, USER_ID, USER_QUESTION, USER_ANSWER, CHECK_REG_DT
         FROM MIND_CHECK
         WHERE USER_ID = #{userId}
     </select>
 
+        <!-- 사용자 ID로 마음체크 목록 조회 -->
+        <select id="getCheckByUserId" parameterType="CheckDTO" resultType="CheckDTO">
+            SELECT CHECK_SEQ, USER_ID, USER_QUESTION, USER_ANSWER, CHECK_REG_DT
+            FROM MIND_CHECK
+            WHERE USER_ID = #{userId}
+        </select>
 </mapper>

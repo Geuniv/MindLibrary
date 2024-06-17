@@ -14,7 +14,7 @@
         const userId = ssUserId !== null ? ssUserId : '';
 
         $(document).ready(function () {
-            if (userId === "" || userId === undefined) {
+            if (userId === "" || userId == null || userId === undefined) {
                 alert("로그인 후 이용 가능합니다.");
                 location.href = "/index";
             }

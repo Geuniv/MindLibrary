@@ -4,37 +4,160 @@
 <head>
     <meta charset="UTF-8">
     <title>회원가입</title>
-    <!--    <link rel="stylesheet" href="/css/table.css"/>-->
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
 
-        // 아아디 중복 체크 여부 (중복 Y / 중복 아님 : N
+        // 아이디 중복체크여부 (중복 Y / 중복아님 : N)
         let userIdCheck = "Y";
+        let nicknameCheck = "Y";
+
+        // 이메일 중복체크 인증번호 발송 값
+        let emailAuthNumber = "";
+        let verifiedEmail = "";
 
         // HTML로딩이 완료되고, 실행됨
         $(document).ready(function () {
             let f = document.getElementById("f"); // form 태그
 
-            // 아아디 중복체크
+            // 실시간 유효성 검사
+            $("#userId").on("input", function () {
+                validateUserId(f);
+                userIdCheck = "Y";
+                $("#userIdCheckMessage").text("");
+            });
+
+            $("#userName").on("input", function () {
+                validateUserName(f);
+            });
+
+            $("#userNickname").on("input", function () {
+                validateNickname(f);
+                nicknameCheck = "Y";
+                $("#nicknameCheckMessage").text("");
+            });
+
+            $("#userPassword").on("input", function () {
+                validatePassword(f);
+            });
+
+            $("#userPassword2").on("input", function () {
+                validatePassword2(f);
+            });
+
+            $("#authNumber").on("input", function () {
+                validateAuthNumber(f);
+            }).on("keypress", function (e) {
+                // 숫자만 입력 가능하도록 함
+                if (e.which < 48 || e.which > 57) {
+                    e.preventDefault();
+                }
+            });
+
+            // 아이디 중복체크
             $("#btnUserId").on("click", function () {
                 userIdExists(f)
             })
+
+            // 닉네임 중복체크
+            $("#btnNickname").on("click", function () {
+                nicknameExists(f);
+            });
 
             // 이메일 중복체크
             $("#btnEmail").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
                 emailExists(f)
             })
 
-            // 우편번호 찾기
-            $("#btnAddr").on("click", function () {
-                kakaoPost(f);
-            })
-
             // 회원가입
             $("#btnSend").on("click", function () {
                 doSubmit(f);
             })
-        })
+        });
+
+        // 아이디 유효성 검사
+        function validateUserId(f) {
+            const userId = f.userId.value;
+            const userIdRegex = /^[a-zA-Z0-9]+$/;
+            const errorElement = $("#userIdError");
+            if (!userIdRegex.test(userId)) {
+                errorElement.text("아이디는 영어와 숫자로만 구성되어야 합니다.");
+                userIdCheck = "Y";
+            } else {
+                errorElement.text("");
+            }
+        }
+
+        // 이름 유효성 검사
+        function validateUserName(f) {
+            const userName = f.userName.value;
+            const userNameRegex = /^[가-힣a-zA-Z]+$/;
+            const errorElement = $("#userNameError");
+            if (!userNameRegex.test(userName)) {
+                errorElement.text("이름은 한글과 영어로만 구성되어야 합니다.");
+            } else {
+                errorElement.text("");
+            }
+        }
+
+        // 닉네임 유효성 검사
+        function validateNickname(f) {
+            const nickname = f.userNickname.value;
+            const errorElement = $("#nicknameError");
+            if (nickname === "") {
+                errorElement.text("닉네임을 입력하세요.");
+            } else {
+                errorElement.text("");
+            }
+        }
+
+        // 비밀번호 유효성 검사
+        function validatePassword(f) {
+            const password = f.userPassword.value;
+            const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+            const errorElement = $("#passwordError");
+            if (!passwordRegex.test(password)) {
+                errorElement.text("비밀번호는 영문, 숫자, 특수문자 포함 6자리 이상이어야 합니다.");
+            } else {
+                errorElement.text("");
+            }
+        }
+
+        // 비밀번호 확인 유효성 검사
+        function validatePassword2(f) {
+            const password = f.userPassword.value;
+            const password2 = f.userPassword2.value;
+            const errorElement = $("#password2Error");
+            if (password !== password2) {
+                errorElement.text("비밀번호가 일치하지 않습니다.");
+            } else {
+                errorElement.text("");
+            }
+        }
+
+        // 이메일 유효성 검사
+        function validateEmail(f) {
+            const email = f.userEmail.value;
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const errorElement = $("#emailError");
+            if (!emailRegex.test(email)) {
+                errorElement.text("올바른 이메일 형식으로 작성해주세요.");
+            } else {
+                errorElement.text("");
+            }
+        }
+
+        // 이메일 인증번호 유효성 검사
+        function validateAuthNumber(f) {
+            const authNumber = f.authNumber.value;
+            const errorElement = $("#authNumberError");
+            // 타입 불일치 인 것 같아서 !== 에서 != 으로 변경
+            if (authNumber != emailAuthNumber) {
+                errorElement.text("인증번호가 일치하지 않습니다.");
+            } else {
+                errorElement.text("");
+            }
+        }
 
         // 회원아이디 중복 체크
         function userIdExists(f) {
@@ -43,23 +166,56 @@
                 f.userId.focus();
                 return;
             }
-
+            if (!/^[a-zA-Z0-9]+$/.test(f.userId.value)) {
+                alert("아이디 형식을 확인하세요.");
+                f.userId.focus();
+                return;
+            }
             // Ajax 호출해서 회원가입하기
             $.ajax({
-                url : "/user/getUserIdExists",
-                type : "post",
-                dataType : "JSON",
-                data : $("#f").serialize(),
-                success : function (json) {
-                    if (json.existsYn === "Y") {
-                        alert("이미 가입된 아이디가 존재합니다.");
-                        f.userId.focus();
-                    } else {
-                        alert("가입 가능한 아이디입니다.");
-                        userIdCheck = "N";
+                    url: "/user/getUserIdExists",
+                    type: "post", // 전송방식은 Post
+                    dataType: "JSON", // 전송 결과는 JSON으로 받기
+                    data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                    success: function (json) { // 호출이 성공했다면..
+                        if (json.existsYn === "Y") {
+                            alert("이미 가입된 아이디가 존재합니다.");
+                            f.userId.focus();
+                        } else { // 회원가입 실패
+                            alert("가입 가능한 아이디입니다.");
+                            userIdCheck = "N";
+                            $("#userIdCheckMessage").text("가입 가능한 아이디입니다.").addClass("success-message");
+                        }
                     }
                 }
-            })
+            )
+        }
+
+        // 닉네임 중복 체크
+        function nicknameExists(f) {
+            if (f.userNickname.value === "") {
+                alert("닉네임을 입력하세요.");
+                f.userNickname.focus();
+                return;
+            }
+            // Ajax 호출해서 회원가입하기
+            $.ajax({
+                    url: "/user/getNicknameExists",
+                    type: "post", // 전송방식은 Post
+                    dataType: "JSON", // 전송 결과는 JSON으로 받기
+                    data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                    success: function (json) { // 호출이 성공했다면..
+                        if (json.existsYn === "Y") {
+                            alert("이미 가입된 닉네임이 존재합니다.");
+                            f.userNickname.focus();
+                        } else {
+                            alert("사용 가능한 닉네임입니다.");
+                            nicknameCheck = "N";
+                            $("#nicknameCheckMessage").text("사용 가능한 닉네임입니다.").addClass("success-message");
+                        }
+                    }
+                }
+            )
         }
 
         // 이메일 중복 체크
@@ -69,47 +225,46 @@
                 f.userEmail.focus();
                 return;
             }
-
-            // Ajax 호출해서 회원가입하기
+            if (!isEmailValid(f.userEmail.value)) {
+                alert("올바른 이메일 형식으로 작성해주세요.");
+                f.userEmail.focus();
+                return;
+            }
+            // Ajax 호출해서 이메일 인증번호 발송하기
             $.ajax({
                     url: "/user/getEmailExists",
                     type: "post", // 전송방식은 Post
                     dataType: "JSON", // 전송 결과는 JSON으로 받기
                     data: $("#f").serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
                     success: function (json) { // 호출이 성공했다면..
-
                         if (json.existsYn === "Y") {
                             alert("이미 가입된 이메일 주소가 존재합니다.");
                             f.userEmail.focus();
-
                         } else {
                             alert("이메일로 인증번호가 발송되었습니다. \n받은 메일의 인증번호를 입력하기 바랍니다.");
                             emailAuthNumber = json.authNumber;
-
+                            verifiedEmail = f.userEmail.value; // 인증된 이메일 저장
                         }
-
                     }
                 }
             )
         }
 
-        // 카카오 우편번호 조회 API 호출
-        // function kakaoPost(f) {
-        //     new daum.Postcode({
-        //         oncomplete: function (data) {
-        //             // kakao 에서 제공하는 data는 JSON구조로 주소 조회 결과값을 전달함
-        //             // 주요 결과값
-        //             // 주소 : data.address
-        //             // 우편번호 : data.zonecode
-        //             let address = data.address; // 주소
-        //             let zonecode = data.zonecode; // 우편번호
-        //             f.addr1.value = "(" + zonecode + ")" + address
-        //         }
-        //     }).open();
-        // }
+        // 이메일 형식 체크
+        function isEmailValid(email) {
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return emailRegex.test(email);
+        }
+
+        // 이름 형식 체크 (숫자 및 특수문자 불가)
+        function isNameValid(name) {
+            const nameRegex = /^[가-힣a-zA-Z]+$/;
+            return nameRegex.test(name);
+        }
 
         // 회원가입 정보의 유효성 체크하기
         function doSubmit(f) {
+            const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
             if (f.userId.value === "") {
                 alert("아이디를 입력하세요.");
                 f.userId.focus();
@@ -122,6 +277,11 @@
             }
             if (f.userPassword.value === "") {
                 alert("비밀번호를 입력하세요.");
+                f.userPassword.focus();
+                return;
+            }
+            if (!passwordRegex.test(f.userPassword.value)) {
+                alert("비밀번호는 영문, 숫자, 특수문자 포함 6자리 이상이어야 합니다.");
                 f.userPassword.focus();
                 return;
             }
@@ -140,9 +300,24 @@
                 f.userEmail.focus();
                 return;
             }
+            if (!isEmailValid(f.userEmail.value)) {
+                alert("올바른 이메일 형식으로 작성해주세요.");
+                f.userEmail.focus();
+                return;
+            }
             if (f.authNumber.value === "") {
                 alert("인증번호를 입력하세요.");
                 f.authNumber.focus();
+                return;
+            }
+            if (f.authNumber.value != emailAuthNumber) {
+                alert("이메일 인증번호가 일치하지 않습니다.");
+                f.authNumber.focus();
+                return;
+            }
+            if (f.userEmail.value !== verifiedEmail) {
+                alert("인증된 이메일과 현재 입력된 이메일이 일치하지 않습니다.");
+                f.userEmail.focus();
                 return;
             }
             if (f.userName.value === "") {
@@ -150,9 +325,19 @@
                 f.userName.focus();
                 return;
             }
-            if (f.userNickName.value === "") {
+            if (!isNameValid(f.userName.value)) {
+                alert("이름을 다시 입력해주세요");
+                f.userName.focus();
+                return;
+            }
+            if (f.userNickname.value === "") {
                 alert("닉네임을 입력하세요.");
-                f.userNickName.focus();
+                f.userNickname.focus();
+                return;
+            }
+            if (nicknameCheck !== "N") {
+                alert("닉네임 중복 체크 및 중복되지 않은 닉네임으로 가입 바랍니다.");
+                f.userNickname.focus();
                 return;
             }
             if (f.userAge.value === "") {
@@ -165,28 +350,24 @@
                 f.userGender.focus();
                 return;
             }
-            // if (f.userInterest.value === "") {
-            //     alert("관심사를 선택하세요.");
-            //     f.userInterest.focus();
-            //     return;
-            // }
-
             // 관심사 체크박스의 값을 배열로 저장하기
             const interests = [];
-            $("input[name='userInterest']:checked").each(function() {
+            $("input[name='userInterest']:checked").each(function () {
                 interests.push($(this).val());
             });
-
+            if (interests.length === 0) {
+                alert("관심사를 한 개 이상 선택해주세요.");
+                return;
+            }
             // 폼 데이터에 관심사 배열 추가
-            f.append('userInterest', interests);
-
+            $(f).append('<input type="hidden" name="userInterest" value="' + interests.join(',') + '" />');
             // Ajax 호출해서 회원가입하기
             $.ajax({
-                url : "/user/insertUserInfo",
-                type : "post", // 전송방식은 Post
-                dataType : "JSON",
-                data : $("#f").serialize(),
-                success : function (json) {
+                url: "/user/insertUserInfo",
+                type: "post", // 전송방식은 Post
+                dataType: "JSON", // 전송 결과는 JSON으로 받기
+                data: $(f).serialize(), // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
+                success: function (json) {
                     if (json.result === 1) {
                         alert(json.msg);
                         location.href = "/user/login";
@@ -197,54 +378,8 @@
             })
         }
 
-        // $(document).ready(function(){
-        //     let signup = $(".links").find("li").find("#signup") ;
-        //     let signin = $(".links").find("li").find("#signin") ;
-        //     let reset  = $(".links").find("li").find("#reset")  ;
-        //     let first_input = $("form").find(".first-input");
-        //     let hidden_input = $("form").find(".input__block").find("#repeat__password");
-        //     let signin_btn  = $("form").find(".signin__btn");
-        //
-        //     //----------- sign up ---------------------
-        //     signup.on("click",function(e){
-        //         e.preventDefault();
-        //         $(this).parent().parent().siblings("h1").text("SIGN UP");
-        //         $(this).parent().css("opacity","1");
-        //         $(this).parent().siblings().css("opacity",".6");
-        //         first_input.removeClass("first-input__block").addClass("signup-input__block");
-        //         hidden_input.css({
-        //             "opacity" : "1",
-        //             "display" : "block"
-        //         });
-        //         signin_btn.text("Sign up");
-        //     });
-        //
-        //
-        //     //----------- sign in ---------------------
-        //     signin.on("click",function(e){
-        //         e.preventDefault();
-        //         $(this).parent().parent().siblings("h1").text("SIGN IN");
-        //         $(this).parent().css("opacity","1");
-        //         $(this).parent().siblings().css("opacity",".6");
-        //         first_input.addClass("first-input__block")
-        //             .removeClass("signup-input__block");
-        //         hidden_input.css({
-        //             "opacity" : "0",
-        //             "display" : "none"
-        //         });
-        //         signin_btn.text("Sign in");
-        //     });
-        //
-        //     //----------- reset ---------------------
-        //     reset.on("click",function(e){
-        //         e.preventDefault();
-        //         $(this).parent().parent().siblings("form")
-        //             .find(".input__block").find(".input").val("");
-        //     })
-        // });
+        /*]]>*/
     </script>
-    <!--    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js">-->
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
         body {
@@ -256,12 +391,6 @@
             display: block;
             max-width: 680px;
             width: 80%;
-            /*margin: 120px auto;*/
-        }
-
-        .container_find {
-            text-align: right;
-            max-width: 640px;
         }
 
         h1 {
@@ -276,320 +405,138 @@
 
         .links {
             list-style-type: none;
-            /*margin-left: 23%;*/
-            /*margin-right: 23%;*/
-
-            li {
-                display: inline-block;
-                margin: 0 20px 0 0;
-                transition: .2s linear;
-
-                &:nth-child(1) {
-                    opacity: .6;
-
-                    &:hover {
-                        opacity: 1;
-                    }
-                }
-
-                &:nth-child(2) {
-                    opacity: 1;
-
-                    &:hover {
-                        opacity: 1;
-                    }
-                }
-
-                /*&:nth-child(3) {*/
-                /*    opacity: .6;*/
-                /*    float: right;*/
-
-                /*    &:hover {*/
-                /*        opacity: 1;*/
-                /*    }*/
-                /*}*/
-
-                a {
-                    text-decoration: none;
-                    color: #0f132a;
-                    font-weight: bolder;
-                    text-align: center;
-                    cursor: pointer;
-                }
-            }
         }
 
+        .links li {
+            display: inline-block;
+            margin: 0 20px 0 0;
+            transition: .2s linear;
+        }
+
+        .links li:nth-child(1) {
+            opacity: .6;
+        }
+
+        .links li:nth-child(1):hover {
+            opacity: 1;
+        }
+
+        .links li:nth-child(2) {
+            opacity: 1;
+        }
+
+        .links li:nth-child(2):hover {
+            opacity: 1;
+        }
+
+        .links a {
+            text-decoration: none;
+            color: #0f132a;
+            font-weight: bolder;
+            text-align: center;
+            cursor: pointer;
+        }
 
         form {
             width: 100%;
             max-width: 680px;
             margin: 40px auto 10px;
-
-            .input__block {
-                margin: 20px auto;
-                display: block;
-                position: relative;
-
-                &.first-input__block {
-                    &::before {
-                        content: "";
-                        position: absolute;
-                        top: -15px;
-                        left: 50px;
-                        display: block;
-                        width: 0;
-                        height: 0;
-                        background: transparent;
-                        border-left: 15px solid transparent;
-                        border-right: 15px solid transparent;
-                        /*border-bottom: 15px solid rgba(15, 19, 42, .1);*/
-                        transition: .2s linear;
-                    }
-                }
-
-                &.signup-input__block {
-                    &::before {
-                        content: "";
-                        position: absolute;
-                        top: -15px;
-                        left: 150px;
-                        display: block;
-                        width: 0;
-                        height: 0;
-                        background: transparent;
-                        border-left: 15px solid transparent;
-                        border-right: 15px solid transparent;
-                        /*border-bottom: 15px solid rgba(15, 19, 42, .1);*/
-                        transition: .2s linear;
-                    }
-                }
-
-                input {
-                    display: block;
-                    width: 90%;
-                    max-width: 680px;
-                    height: 50px;
-                    margin: 0 auto;
-                    border-radius: 8px;
-                    border: none;
-                    background: rgba(15, 19, 42, .1);
-                    color: rgba(15, 19, 42, .3);
-                    padding: 0 0 0 15px;
-                    font-size: 14px;
-                    font-family: 'Montserrat', sans-serif;
-
-                    &:focus,
-                    &:active {
-                        outline: none;
-                        border: none;
-                        color: rgba(15, 19, 42, 1);
-                    }
-
-                    &.repeat__password {
-                        opacity: 0;
-                        display: none;
-                        transition: .2s linear;
-                    }
-                }
-            }
-
-            .signin__btn {
-                background: #000000;
-                color: white;
-                display: block;
-                width: 92.5%;
-                max-width: 680px;
-                height: 50px;
-                border-radius: 8px;
-                margin: 0 auto;
-                border: none;
-                cursor: pointer;
-                font-size: 14px;
-                font-family: 'Montserrat', sans-serif;
-                box-shadow: 0 15px 30px rgba(80, 80, 80, .36);
-                transition: .2s linear;
-
-                &:hover {
-                    box-shadow: 0 0 0 rgba(80, 80, 80, .0);
-                }
-            }
-
-            /* 인증 확인 버튼 */
-            .auth__btn {
-                background: #000000;
-                color: white;
-                display: block;
-                width: 90%;
-                max-width: 680px;
-                height: 50px;
-                border-radius: 8px;
-                margin: 0 auto;
-                border: none;
-                cursor: pointer;
-                font-size: 14px;
-                font-family: 'Montserrat', sans-serif;
-                box-shadow: 0 15px 30px rgba(80, 80, 80, .36);
-                transition: .2s linear;
-
-                &:hover {
-                    box-shadow: 0 0 0 rgba(80, 80, 80, .0);
-                }
-            }
-
-            .radio_btn {
-                width: 90%;
-                max-width: 680px;
-                height: 50px;
-                border-radius: 8px;
-                /*margin: 0 auto;*/
-                margin-left: 20%;
-                border: none;
-                cursor: pointer;
-                font-size: 14px;
-                display: flex; /* Flexbox 설정 */
-                align-items: center; /* 수직 가운데 정렬 */
-            }
-
-            .radio_btn label {
-                flex: 1; /* 동일한 너비로 설정 */
-                text-align: center; /* 가운데 정렬 */
-                margin-left: 20%;
-            }
-
-            .checkbox_btn {
-                width: 90%;
-                max-width: 680px;
-                height: 50px;
-                border-radius: 8px;
-                margin: 0 auto;
-                border: none;
-                cursor: pointer;
-                font-size: 14px;
-                display: flex; /* Flexbox 설정 */
-                align-items: center; /* 수직 가운데 정렬 */
-            }
-
-            .checkbox_btn label {
-                flex: 1; /* 동일한 너비로 설정 */
-                text-align: center; /* 가운데 정렬 */
-            }
         }
 
-        .separator {
-            display: block;
-            margin: 30px auto 10px;
-            text-align: center;
-            height: 40px;
-            position: relative;
-            background: transparent;
-            color: rgba(15, 19, 42, .4);
-            font-size: 13px;
-            width: 90%;
-            max-width: 680px;
-
-            &::before {
-                content: "";
-                position: absolute;
-                top: 8px;
-                left: 0;
-                background: rgba(15, 19, 42, .2);
-                height: 1px;
-                width: 45%;
-            }
-
-            &::after {
-                content: "";
-                position: absolute;
-                top: 8px;
-                right: 0;
-                background: rgba(15, 19, 42, .2);
-                height: 1px;
-                width: 45%;
-            }
-        }
-
-        .google__btn,
-        .github__btn {
-            display: block;
-            width: 90%;
-            max-width: 680px;
+        .input__block {
             margin: 20px auto;
+            display: flex; /* Flexbox 설정 */
+            align-items: center; /* 수직 가운데 정렬 */
+            position: relative;
+        }
+
+        .input__block input {
+            width: 70%;
             height: 50px;
+            margin-right: 10px; /* 여유 공간 */
+            border-radius: 8px;
+            border: none;
+            background: rgba(15, 19, 42, .1);
+            color: rgba(15, 19, 42, .3);
+            padding: 0 15px;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .input__block button {
+            width: 25%; /* 버튼 크기 조정 */
+            height: 50px;
+            border-radius: 8px;
+            background: #000000;
+            color: white;
+            border: none;
             cursor: pointer;
             font-size: 14px;
             font-family: 'Montserrat', sans-serif;
-            border-radius: 8px;
-            border: none;
-            line-height: 40px;
-
-            &.google__btn {
-                background: #5b90f0;
-                color: white;
-                box-shadow: 0 15px 30px rgba(91, 144, 240, .36);
-                transition: .2s linear;
-
-                .fa {
-                    font-size: 20px;
-                    padding: 0 5px 0 0;
-                }
-
-                &:hover {
-                    box-shadow: 0 0 0 rgba(91, 144, 240, .0);
-                }
-            }
-
-            &.github__btn {
-                background: #25282d;
-                color: white;
-                box-shadow: 0 15px 30px rgba(37, 40, 45, .36);
-                transition: .2s linear;
-
-                .fa {
-                    font-size: 20px;
-                    padding: 0 5px 0 0;
-                }
-
-                &:hover {
-                    box-shadow: 0 0 0 rgba(37, 40, 45, .0);
-                }
-            }
         }
 
-        footer {
-            p {
-                text-align: center;
+        .input__block.no-button input {
+            width: 100%; /* 버튼이 없는 경우 입력란이 전체 너비를 차지하도록 설정 */
+        }
 
-                .fa {
-                    color: #e91e63;
-                }
+        .signin__btn {
+            background: #000000;
+            color: white;
+            display: block;
+            width: 100%; /* 너비를 폼 너비에 맞춤 */
+            height: 50px;
+            border-radius: 8px;
+            margin: 20px auto; /* 간격 추가 */
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            box-shadow: 0 15px 30px rgba(80, 80, 80, .36);
+            transition: .2s linear;
+        }
 
-                a {
-                    text-decoration: none;
-                    font-size: 17px;
-                    margin: 0 5px;
+        .signin__btn:hover {
+            box-shadow: 0 0 0 rgba(80, 80, 80, .0);
+        }
 
-                    .fa-facebook {
-                        color: #3b5998;
-                    }
+        .radio_btn {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 680px;
+            margin: 20px auto;
+            align-items: center;
+        }
 
-                    .fa-twitter {
-                        color: #1da1f2;
-                    }
+        .radio_btn label {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
 
-                    .fa-instagram {
-                        color: #f77737;
-                    }
+        .checkbox_btn {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 680px;
+            margin: 20px auto;
+            align-items: center;
+        }
 
-                    .fa-linkedin {
-                        color: #0077b5;
-                    }
+        .checkbox_btn label {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
 
-                    .fa-behance {
-                        color: #1769ff;
-                    }
-                }
+        .error-message, .success-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            width: 100%;
+            text-align: left;
+        }
 
-            }
+        .success-message {
+            color: blue;
         }
     </style>
 </head>
@@ -601,11 +548,8 @@
 
 <div class="container">
 
-<!--    <img src="/img/background.jpg" style="background-image: inherit;">-->
-    <!-- Heading -->
     <h1>회원가입</h1>
 
-    <!-- Links -->
     <ul class="links">
         <li>
             <a href="/user/login" id="signin">로그인</a>
@@ -613,50 +557,67 @@
         <li>
             <a href="/user/userRegForm" id="signup" class="a_">회원가입</a>
         </li>
-<!--        <li>-->
-<!--            <a href="#" id="reset">RESET</a>-->
-<!--        </li>-->
     </ul>
 
-    <!-- Form -->
-    <form  id="f" action="" method="post">
-        <!-- email input -->
-        <div class="first-input input__block first-input__block">
-            <input type="text" placeholder="아이디" class="input" id="userId" th:name="userId"  />
-            <br/>
+    <form id="f" action="" method="post">
+
+        <!-- id input -->
+        <div class="input__block">
+            <input type="text" placeholder="아이디" class="input" id="userId" th:name="userId"/>
             <button id="btnUserId" type="button" class="auth__btn">아이디 중복체크</button>
         </div>
+        <div id="userIdError" class="error-message"></div>
+        <div id="userIdCheckMessage" class="success-message"></div>
+
         <!-- password input -->
-        <div class="input__block">
-            <input type="password" placeholder="비밀번호" class="input" id="userPassword" th:name="userPassword"    />
+        <div class="input__block no-button">
+            <input type="password" placeholder="비밀번호" class="input" id="userPassword" th:name="userPassword"/>
         </div>
-        <!-- repeat password input -->
-        <!--        <div class="input__block">-->
-        <!--            <input type="password" placeholder="Repeat password" class="input repeat__password" id="repeat__password"    />-->
-        <!--        </div>-->
-        <div class="input__block">
-            <input type="password" placeholder="비밀번호확인" class="input" id="userPassword2" th:name="userPassword2"    />
+        <div id="passwordError" class="error-message"></div>
+        <div class="input__block no-button">
+            <input type="password" placeholder="비밀번호확인" class="input" id="userPassword2" th:name="userPassword2"/>
         </div>
+        <div id="password2Error" class="error-message"></div>
+
+        <!-- email input -->
         <div class="input__block">
-            <input type="email" placeholder="이메일" class="input" id="userEmail" th:name="userEmail"    />
-            <br/>
-            <input type="text" placeholder="인증번호" class="input" th:name="authNumber"    />
-            <br/>
-            <button id="btnEmail" type="button" class="auth__btn">이메일 중복체크</button>
+            <input type="email" placeholder="이메일" class="input" id="userEmail" th:name="userEmail"/>
+            <button id="btnEmail" type="button" class="auth__btn">이메일 인증</button>
         </div>
+        <div id="emailError" class="error-message"></div>
+
+        <!-- authNumber input -->
+        <div class="input__block no-button">
+            <input type="text" placeholder="인증번호" class="input" id="authNumber" th:name="authNumber"/>
+        </div>
+        <div id="authNumberError" class="error-message"></div>
+
+        <!-- userName input -->
+        <div class="input__block no-button">
+            <input type="text" placeholder="이름" class="input" id="userName" th:name="userName"/>
+        </div>
+        <div id="userNameError" class="error-message"></div>
+
+        <!-- nickName input -->
         <div class="input__block">
-            <input type="text" placeholder="이름" class="input" id="userName" th:name="userName"    />
+            <input type="text" placeholder="닉네임" class="input" id="userNickname" th:name="userNickname"/>
+            <button id="btnNickname" class="auth__btn" type="button">닉네임 중복체크</button>
         </div>
-        <div class="input__block">
-            <input type="text" placeholder="닉네임" class="input" id="userNickName" th:name="userNickname"    />
+        <div id="nicknameError" class="error-message"></div>
+        <div id="nicknameCheckMessage" class="success-message"></div>
+
+        <!-- age input -->
+        <div class="input__block no-button">
+            <input type="date" name="userAge" style="width: 100%" placeholder="연령"/>
         </div>
-        <div class="input__block">
-            <input type="date" name="userAge" style="width: 90%" placeholder="연령"/>
-        </div>
+
+        <!-- gender input -->
         <div class="radio_btn">
-            <laㅣbel><input type="radio" class="input" name="userGender"  placeholder="남자" th:value="남자"/> 남자</laㅣbel>
-            <label><input type="radio" class="input" name="userGender"  placeholder="여자" th:value="여자"/> 여자</label>
+            <label><input type="radio" class="input" name="userGender" placeholder="남자" th:value="남자"/> 남자</label>
+            <label><input type="radio" class="input" name="userGender" placeholder="여자" th:value="여자"/> 여자</label>
         </div>
+
+        <!--interest  input -->
         <div class="checkbox_btn">
             <label><input type="checkbox" class="input" name="userInterest" value="책"/> 책</label>
             <label><input type="checkbox" class="input" name="userInterest" value="영화"/> 영화</label>
@@ -664,57 +625,23 @@
             <label><input type="checkbox" class="input" name="userInterest" value="노래"/> 노래</label>
         </div>
 
-        <!-- sign in button -->
         <button id="btnSend" type="button" class="signin__btn">
             회원가입
         </button>
         <br/><br/>
     </form>
 
-    <!-- separator -->
-    <div class="separator">
-        <!--        <p>OR</p>-->
-    </div>
-    <!--    &lt;!&ndash; google button &ndash;&gt;-->
-    <!--    <button class="google__btn">-->
-    <!--        <i class="fa fa-google"></i>-->
-    <!--        Sign in with Google-->
-    <!--    </button>-->
-    <!--    &lt;!&ndash; google button &ndash;&gt;-->
-    <!--    <button class="github__btn">-->
-    <!--        <i class="fa fa-github"></i>-->
-    <!--        Sign in with GitHub-->
-    <!--    </button>-->
+    <div class="separator"></div>
 </div>
 
-</body>
+<script>
+    // 인증번호 입력란에서 한글 입력 방지
+    document.getElementById('authNumber').addEventListener('input', function (e) {
+        this.value = this.value.replace(/[^\d]/g, '');  // 숫자가 아닌 문자 모두 제거
+    });
+</script>
 
-<!--<footer>-->
-<!--    <p>-->
-<!--        Thank you for watching-->
-<!--        <i class="fa fa-heart"></i>-->
-<!--        <i class="fa fa-heart"></i>-->
-<!--        <i class="fa fa-heart"></i>-->
-<!--    </p>-->
-<!--    <p>-->
-<!--        Chouaib Blgn :-->
-<!--        <a href="https://www.facebook.com/chouaib45" >-->
-<!--            <i class="fa fa-facebook"></i>-->
-<!--        </a>-->
-<!--        <a href="http://twitter.com/chouaibblgn45">-->
-<!--            <i class="fa fa-twitter"></i>-->
-<!--        </a>-->
-<!--        <a href="http://instagram.com/chouaib_blgn">-->
-<!--            <i class="fa fa-instagram"></i>-->
-<!--        </a>-->
-<!--        <a href="http://linkedin.com/in/chouaibblgn/">-->
-<!--            <i class="fa fa-linkedin"></i>-->
-<!--        </a>-->
-<!--        <a href="https://www.behance.net/geek30">-->
-<!--            <i class="fa fa-behance"></i>-->
-<!--        </a>-->
-<!--    </p>-->
-<!--</footer>-->
+</body>
 
 <!-- ======= Header ======= -->
 <th:block th:replace="~{footer}"></th:block>

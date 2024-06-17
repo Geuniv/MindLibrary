@@ -2,30 +2,41 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Profile</title>
-
+    <title>회원정보</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
+
+        // 세션 값이 null인 경우 공백 문자열로 변경
+        const userId = ssUserId !== null ? ssUserId : '';
+
         $(document).ready(function () {
             $("#btnModify").on("click", function () {
                 location.href = "/user/profileModify";
             });
-
-            $(document).ready(function () {
-
-                $("#btnModify").on("click", function () {
-                    location.href = "/user/profileModify";
-
-                })
-
-            })
 
             $("#togglePosts").on("click", function () {
                 $("#postsList").slideToggle();
                 const toggleText = $("#togglePosts").text() === "작성글 목록 보기" ? "작성글 목록 숨기기" : "작성글 목록 보기";
                 $("#togglePosts").text(toggleText);
             });
+
+            $("#toggleChecks").on("click", function () {
+                $("#checksList").slideToggle();
+                const toggleText = $("#toggleChecks").text() === "마음체크 목록 보기" ? "마음체크 목록 숨기기" : "마음체크 목록 보기";
+                $("#toggleChecks").text(toggleText);
+            });
+
+            $("#toggleTests").on("click", function () {
+                $("#testsList").slideToggle();
+                const toggleText = $("#toggleTests").text() === "자가진단 목록 보기" ? "자가진단 목록 숨기기" : "자가진단 목록 보기";
+                $("#toggleTests").text(toggleText);
+            });
         });
+
+        /*]]>*/
     </script>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -59,27 +70,21 @@
 
         .input__block {
             margin: 20px auto;
-            display: block;
-            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .input__block input {
-            display: block;
-            width: 90%;
-            max-width: 680px;
-            height: 50px;
-            margin: 0 auto;
-            border-radius: 8px;
-            border: none;
-            background: rgba(15, 19, 42, .1);
-            color: rgba(15, 19, 42, .3);
-            padding: 0 0 0 15px;
-            font-size: 14px;
-            font-family: 'Montserrat', sans-serif;
-            outline: none;
-            border: none;
-            color: rgba(15, 19, 42, 1);
-            transition: .2s linear;
+        .info-label {
+            font-weight: bold;
+            font-size: 18px;
+            width: 30%;
+        }
+
+        .info-value {
+            font-size: 18px;
+            width: 200%;
+            text-align: left;
         }
 
         .signin__btn {
@@ -113,10 +118,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-left: 33%;
+            margin-left: calc(50% - 100px); /* 가운데 정렬 */
             margin-bottom: 10%;
         }
-
 
         /* 이미지 스타일 */
         .profile-picture img {
@@ -161,29 +165,31 @@
             text-align: center;
             margin: 20px 0;
             font-size: 18px;
+            width: 100%;
         }
 
-        .posts-list {
+        .posts-list, .checks-list, .tests-list {
             display: none;
+            width: 100%;
         }
 
-        .posts-list ul {
+        .posts-list ul, .checks-list ul, .tests-list ul {
             list-style: none;
             padding: 0;
         }
 
-        .posts-list li {
+        .posts-list li, .checks-list li, .tests-list li {
             margin-bottom: 20px;
         }
 
-        .posts-list a {
+        .posts-list a, .checks-list a, .tests-list a {
             font-size: 20px;
             font-weight: bold;
             color: #e91e63;
             text-decoration: none;
         }
 
-        .posts-list p {
+        .posts-list p, .checks-list p, .tests-list p {
             margin: 5px 0;
         }
     </style>
@@ -201,40 +207,35 @@
     <form id="contact" th:object="${rDTO}" method="post">
         <!-- Email input -->
         <div class="profile-picture">
-            <div th:if="${rList != null and not #lists.isEmpty(rList)}">
-                <div th:each="dto : ${rList}">
-                    <img th:if="${dto.fileUrl != null}" th:src="${dto.fileUrl}" width="100%" alt="Image">
-                    <img th:if="${dto.fileUrl == null}" src="/img/profile.png" width="100%" alt="Default Image">
-                    <br><br>
-                </div>
-            </div>
+            <img th:src="${rDTO.fileUrl}" width="100%" alt="Image">
+            <br><br>
         </div>
 
         <div class="container" style="margin-left: 3%;">
             <!-- email input -->
-            <div class="first-input input__block first-input__block">
-                <h5>아이디 | [[${rDTO.userId}]]</h5>
+            <div class="input__block">
+                <h5 class="info-label">아이디 |</h5> <span class="info-value">[[${rDTO.userId}]]</span>
             </div>
-            <div class="first-input input__block first-input__block">
-                <h5>이메일 | [[${rDTO.userEmail}]]</h5>
+            <div class="input__block">
+                <h5 class="info-label">이메일 |</h5> <span class="info-value">[[${rDTO.userEmail}]]</span>
             </div>
-            <div class="first-input input__block first-input__block">
-                <h5>이름 | [[${rDTO.userName}]]</h5>
+            <div class="input__block">
+                <h5 class="info-label">이름 |</h5> <span class="info-value">[[${rDTO.userName}]]</span>
             </div>
-            <div class="first-input input__block first-input__block">
-                <h5>닉네임 | [[${rDTO.userNickname}]]</h5>
+            <div class="input__block">
+                <h5 class="info-label">닉네임 |</h5> <span class="info-value">[[${rDTO.userNickname}]]</span>
             </div>
-            <div class="first-input input__block first-input__block">
-                <h5>나이 | [[${rDTO.userAge}]]</h5>
+            <div class="input__block">
+                <h5 class="info-label">나이 |</h5> <span class="info-value">[[${rDTO.userAge}]]</span>
             </div>
-            <div class="first-input input__block first-input__block">
-                <h5>성별 | [[${rDTO.userGender}]]</h5>
+            <div class="input__block">
+                <h5 class="info-label">성별 |</h5> <span class="info-value">[[${rDTO.userGender}]]</span>
             </div>
-            <div class="first-input input__block first-input__block">
-                <h5>관심사 | [[${rDTO.userInterest}]]</h5>
+            <div class="input__block">
+                <h5 class="info-label">관심사 |</h5> <span class="info-value">[[${rDTO.userInterest}]]</span>
             </div>
-            <div class="first-input input__block first-input__block">
-                <h5>가입일 | [[${rDTO.memberSince}]]</h5>
+            <div class="input__block">
+                <h5 class="info-label">가입일 |</h5> <span class="info-value">[[${rDTO.memberSince}]]</span>
             </div>
         </div>
 
@@ -261,11 +262,51 @@
                         <a th:href="@{/board/boardInfo(bSeq=${post.boardSeq})}">[[${post.boardTitle}]]</a>
                         <p>[[${post.boardContent}]]</p>
                         <p>작성일: [[${post.boardRegDt}]]</p>
+                        <hr/>
                     </li>
                 </ul>
             </div>
             <div th:if="${userPosts == null or #lists.isEmpty(userPosts)}">
                 <p>작성한 글이 없습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 마음체크 목록 -->
+    <div class="container">
+        <div class="toggle-btn" id="toggleChecks">마음체크 목록 보기</div>
+        <div id="checksList" class="checks-list">
+            <div th:if="${userChecks != null and not #lists.isEmpty(userChecks)}">
+                <ul>
+                    <li th:each="check : ${userChecks}">
+                        <p>마음체크 질문: [[${check.userQuestion}]]</p>
+                        <p>마음체크 답변: [[${check.userAnswer}]]</p>
+                        <p>마음체크 일자: [[${check.checkRegDt}]]</p>
+                        <hr/>
+                    </li>
+                </ul>
+            </div>
+            <div th:if="${userChecks == null or #lists.isEmpty(userChecks)}">
+                <p>마음체크 결과가 없습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 자가진단 목록 -->
+    <div class="container">
+        <div class="toggle-btn" id="toggleTests">자가진단 목록 보기</div>
+        <div id="testsList" class="tests-list">
+            <div th:if="${userTests != null and not #lists.isEmpty(userTests)}">
+                <ul>
+                    <li th:each="test : ${userTests}">
+                        <p>자가진단 결과: [[${test.userTestResult}]]</p>
+                        <p>자가진단 일자: [[${test.testRegDt}]]</p>
+                        <hr/>
+                    </li>
+                </ul>
+            </div>
+            <div th:if="${userTests == null or #lists.isEmpty(userTests)}">
+                <p>자가진단 결과가 없습니다.</p>
             </div>
         </div>
     </div>

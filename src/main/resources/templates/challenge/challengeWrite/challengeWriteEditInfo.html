@@ -8,11 +8,20 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
         const cSeq = /*[[${rDTO.challengeSeq}]]*/ ''; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
         const cwSeq = /*[[${rDTO.challengeWriteSeq}]]*/ ''; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
 
-        // html 로딩이 완료되고 , 실행됨
+        // 세션 값이 null인 경우 공백 문자열로 변경
+        const checkId = ssUserId !== null ? ssUserId : '';
+
         $(document).ready(function () {
+
+            if (checkId === "" || checkId == null || checkId === undefined) {
+                alert("로그인 후 이용 가능합니다.");
+                location.href = "/index";
+            }
+
             // 버튼 클릭됐을 때 , 발생되는 이벤트 생성함(onclick 이벤트와 동일)
             $("#btnSend").on("click", function () {
                 doSubmit(); // 커뮤니티 수정하기 실행
@@ -191,8 +200,10 @@
                                 <input type="hidden" name="cwSeq" th:value="${rDTO.challengeWriteSeq}"/>
                                 <div class="row">
                                     <div class="col-lg-12 text-center">
-                                        <input type="text" id="challengeWriteTitle" name="challengeWriteTitle" placeholder="제목" maxlength="200" th:value="${rDTO.challengeWriteTitle}"/>
-                                        <textarea name="challengeWriteContent" id="challengeWriteContent" placeholder="내용" style="height: 500px;">[[${rDTO.challengeWriteContent}]]</textarea>
+                                        <input type="text" id="challengeWriteTitle" name="challengeWriteTitle"
+                                               placeholder="제목" maxlength="200" th:value="${rDTO.challengeWriteTitle}"/>
+                                        <textarea name="challengeWriteContent" id="challengeWriteContent"
+                                                  placeholder="내용" style="height: 500px;">[[${rDTO.challengeWriteContent}]]</textarea>
                                         <button id="btnSend" type="button" class="site-btn">수정하기</button>
                                         <button class="site-btn" type="reset">다시 작성</button>
                                     </div>

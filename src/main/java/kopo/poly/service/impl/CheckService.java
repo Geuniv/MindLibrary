@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -41,5 +42,13 @@ public class CheckService implements ICheckService {
         log.info(this.getClass().getName() + ".getCheckInfo End!");
 
         return rDTO;
+    }
+
+    @Override
+    public List<CheckDTO> getCheckByUserId(CheckDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".service getCheckByUserId Start!");
+
+        return checkMapper.getCheckByUserId(pDTO);
     }
 }

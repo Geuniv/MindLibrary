@@ -11,10 +11,45 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
+
+        // 세션 값이 null인 경우 공백 문자열로 변경
+        const userId = ssUserId !== null ? ssUserId : '';
+
         // html 로딩이 완료되고 , 실행됨
         $(document).ready(function () {
+
+            if (userId === "" || userId == null || userId === undefined) {
+                alert("로그인 후 이용 가능합니다.");
+                location.href = "/index";
+            }
+
             // Nice Select 적용
             $('select').niceSelect();
+
+            // 챌린지 기간 선택 이벤트 핸들러
+            $('#challengeDuration').on('change', function () {
+                const selectedValue = $(this).val();
+                if (selectedValue) {
+                    const startDate = new Date();
+                    startDate.setHours(0, 0, 0, 0); // 시간 부분을 0으로 설정
+                    let endDate = new Date(startDate);
+
+                    if (selectedValue === '7일') {
+                        endDate.setDate(startDate.getDate() + 6); // 7일 후의 날짜
+                    } else if (selectedValue === '30일') {
+                        endDate.setDate(startDate.getDate() + 29); // 30일 후의 날짜
+                    } else if (selectedValue === '100일') {
+                        endDate.setDate(startDate.getDate() + 99); // 100일 후의 날짜
+                    } else if (selectedValue === '1년') {
+                        endDate.setFullYear(startDate.getFullYear() + 1);
+                        endDate.setDate(endDate.getDate() - 1); // 1년 후의 날짜에서 하루 뺌
+                    }
+
+                    $('#challengeStartDate').val(formatDate(startDate));
+                    $('#challengeEndDate').val(formatDate(endDate));
+                }
+            });
 
             // 버튼 클릭됐을 때 , 발생되는 이벤트 생성함(onclick 이벤트와 동일)
             $("#btnSend").on("click", function () {
@@ -22,7 +57,20 @@
             });
         });
 
-        // 커뮤니티 저장하기
+        // 날짜 포맷 함수
+        function formatDate(date) {
+            const d = new Date(date);
+            let month = '' + (d.getMonth() + 1);
+            let day = '' + d.getDate();
+            const year = d.getFullYear();
+
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+
+            return [year, month, day].join('-');
+        }
+
+        // 챌린지 저장하기
         function doSubmit() {
             let f = document.getElementById("f"); // form 태그
 
@@ -97,8 +145,15 @@
                                             <option value="영화">영화</option>
                                         </select>
                                         <textarea name="challengeComment" id="challengeComment" placeholder="설명" style="height: 200px;"></textarea>
-                                        <input type="date" id="challengeStartDate" name="challengeStartDate"/>
-                                        <input type="date" id="challengeEndDate" name="challengeEndDate"/>
+                                        <select id="challengeDuration" name="challengeDuration" class="custom-select">
+                                            <option value="">기간 선택</option>
+                                            <option value="7일">7일</option>
+                                            <option value="30일">30일</option>
+                                            <option value="100일">100일</option>
+                                            <option value="1년">1년</option>
+                                        </select>
+                                        <input type="hidden" id="challengeStartDate" name="challengeStartDate"/>
+                                        <input type="hidden" id="challengeEndDate" name="challengeEndDate"/>
                                         <button id="btnSend" type="button" class="site-btn">등록</button>
                                         <button class="site-btn" type="reset">다시 작성</button>
                                     </div>

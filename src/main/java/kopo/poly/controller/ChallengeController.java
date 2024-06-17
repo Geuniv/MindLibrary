@@ -28,11 +28,12 @@ public class ChallengeController {
 
 //    private final IBookService bookService;
 
-    /** 2024.05.26
+    /**
+     * 2024.05.26
      * 챌린지 리스트 보여주기
      */
     @GetMapping(value = "challengeList")
-    public String getChallengeListByUserId(HttpSession session, HttpServletRequest request, ModelMap model) {
+    public String getChallengeListByUserId(HttpSession session, HttpServletRequest request, ModelMap model) throws Exception {
 
         log.info(this.getClass().getName() + ".getChallengeListByUserId ( 컨트롤러 ) Start!");
 
@@ -60,25 +61,77 @@ public class ChallengeController {
         return "challenge/challengeList"; // challengeList.html 뷰 반환
     }
 
-    /** 2024.05.26
+    // 예외처리 로직 나중에 쓸 예정
+//    /** 2024.05.26
+//     * 챌린지 리스트 보여주기
+//     */
+//    @GetMapping(value = "challengeList")
+//    public String getChallengeListByUserId(HttpSession session, HttpServletRequest request, ModelMap model) throws Exception {
+//
+//        log.info(this.getClass().getName() + ".getChallengeListByUserId ( 컨트롤러 ) Start!");
+//
+//        // 로그인된 사용자 아이디 가져오기
+//        String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
+//        String cSeq = CmmUtil.nvl(request.getParameter("cSeq"));
+//
+//        // 사용자 ID가 없으면 로그인 페이지로 리디렉션
+//        if (userId.isEmpty()) {
+//            model.addAttribute("msg", "로그인 후 이용 바랍니다.");
+//            return "redirect:/user/login";
+//        }
+//
+//        ChallengeDTO pDTO = ChallengeDTO.builder().challengeSeq(cSeq).build();
+//
+//        try {
+//            // 사용자 ID로 챌린지 리스트 가져오기
+//            List<Map<String, Object>> rList = challengeServicee.getChallengeList(userId);
+//
+//            if (rList != null) {
+//                log.info("챌린지 리스트 조회 성공: 리스트 크기 = " + rList.size());
+//                // 모델에 챌린지 리스트 저장하기
+//                model.addAttribute("rList", rList);
+//            } else {
+//                log.info("챌린지 리스트 조회 결과 없음.");
+//                model.addAttribute("rList", new ArrayList<>());
+//            }
+//
+//            model.addAttribute("pDTO", pDTO);
+//
+//        } catch (Exception e) {
+//            log.error("챌린지 리스트 조회 실패: " + e.getMessage(), e);
+//        }
+//
+//        log.info(this.getClass().getName() + ".getChallengeListByUserId ( 컨트롤러 ) End!");
+//
+//        return "challenge/challengeList"; // challengeList.html 뷰 반환
+//    }
+
+    /**
+     * 2024.05.26
      * 챌린지 생성 페이지 이동
      */
     @GetMapping(value = "challengeReg")
-    public String challengeReg(){
+    public String challengeReg(ModelMap model, HttpSession session, HttpServletRequest request) throws Exception {
 
         log.info(this.getClass().getName() + ".challengeReg ( 컨트롤러 ) Start !");
+
+        // 로그인된 사용자 아이디 가져오기
+        String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
+
+        log.info("세션에 저장 되어있는 아이디('SS_USER_ID') : " + userId);
 
         log.info(this.getClass().getName() + ".challengeReg ( 컨트롤러 ) End !");
 
         return "challenge/challengeReg";
     }
 
-    /** 2024.05.26
+    /**
+     * 2024.05.26
      * 챌린지 생성 정보 등록
      */
     @ResponseBody
     @PostMapping(value = "challengeInsert")
-    public MsgDTO challengeInsert(HttpServletRequest request, HttpSession session) {
+    public MsgDTO challengeInsert(HttpServletRequest request, HttpSession session) throws Exception {
 
         log.info(this.getClass().getName() + ".challengeInsert ( 컨트롤러 ) Start!");
 
@@ -133,10 +186,12 @@ public class ChallengeController {
         return dto;
     }
 
-    /** 커뮤니티 글 삭제 */
+    /**
+     * 커뮤니티 글 삭제
+     */
     @ResponseBody
     @PostMapping(value = "challengeDelete")
-    public MsgDTO challengeDelete(@RequestBody Map<String, String> payload) {
+    public MsgDTO challengeDelete(@RequestBody Map<String, String> payload) throws Exception {
 
         log.info(this.getClass().getName() + ".challengeDelete ( 컨트롤러 ) Start!");
 
