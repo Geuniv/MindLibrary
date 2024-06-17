@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>챌린지 리스트</title>
     <link rel="stylesheet" href="/css/table.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
@@ -15,14 +14,10 @@
         const userId = ssUserId !== null ? ssUserId : '';
 
         $(document).ready(function () {
-            if (userId === "" || userId === undefined) {
-                alert("로그인 후 이용 가능합니다.");
-                location.href = "/index";
-            }
 
             // 챌린지 생성
             $("#btnCreate").on("click", function () {
-                if (userId === "" || userId === undefined) {
+                if (userId === "" || userId == null || userId === undefined) {
                     alert("로그인 후 이용 가능합니다.");
                 } else {
                     location.href = "/challenge/challengeReg";
@@ -46,7 +41,7 @@
                             url: "/challenge/challengeDelete",
                             type: "post", // 전송방식은 Post
                             dataType: "JSON", // form 태그 내 input 등 객체를 자동으로 전송할 형태로 변경하기
-                            data: JSON.stringify({ cSeq: challengeSeq }),
+                            data: JSON.stringify({cSeq: challengeSeq}),
                             contentType: "application/json",
                             success: function (json) { // /community/communityDelete 호출이 성공한다면...
                                 alert(json.msg); // 메시지 띄우기
@@ -75,7 +70,6 @@
     </script>
 
     <style>
-        /* 커뮤니티 리스트 css */
         .community-table {
             max-width: 1300px;
             margin: 20px auto;
@@ -224,6 +218,14 @@
             display: inline-block;
             border-radius: 2px;
         }
+
+        .btnDelete {
+            background: none;
+            border: none;
+            color: #0b0b0b;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
@@ -239,22 +241,23 @@
                 <div>순번</div>
                 <div>구분</div>
                 <div>설명</div>
-                <!--                <div>등록자</div>-->
-                <div>등록일</div>
+<!--                <div>등록일</div>-->
                 <div>시작일</div>
                 <div>종료일</div>
+                <div>남은 일수</div>
             </div>
 
             <div class="table-row" th:each="dto:${rList}">
                 <div class="table-row">
                     <div name="cSeq" id="cSeq" th:text="${dto.challengeSeq}"></div>
-                    <div th:attr="onclick='doDetail(\'' + ${dto.challengeSeq} + '\')'" th:text="${dto.challengeDivision}"></div>
+                    <div th:attr="onclick='doDetail(\'' + ${dto.challengeSeq} + '\')'"
+                         th:text="${dto.challengeDivision}"></div>
                     <div th:text="${dto.challengeComment}"></div>
-                    <!--                    <div th:text="${dto.userNickname}"></div>-->
-                    <div th:text="${dto.challengeRegDt}"></div>
+<!--                    <div th:text="${dto.challengeRegDt}"></div>-->
                     <div th:text="${dto.challengeStartDate}"></div>
                     <div th:text="${dto.challengeEndDate}"></div>
-                    <button class="btnDelete" type="button">삭제</button>
+                    <div th:text="${dto.daysLeft} + '일 남음'"></div>
+                    <button class="btnDelete" type="button"><i class="fas fa-times"></i></button>
                 </div>
             </div>
         </div>
