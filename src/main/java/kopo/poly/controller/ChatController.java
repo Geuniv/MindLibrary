@@ -32,14 +32,15 @@ public class ChatController {
     private final IUserInfoMapper userInfoMapper;
 
     @GetMapping(value = "intro")
-    public String intro(HttpSession session, ModelMap model) {
+    public String intro(HttpSession session, ModelMap model) throws Exception {
 
         log.info(this.getClass().getName() + " 인트로 시작!");
 
         String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
 
         if (userId.length() < 1) {
-            String msg = "로그인 정보가 없습니다. \n 로그인 후 이용해 주세요.";
+//            String msg = "로그인 정보가 없습니다. \n 로그인 후 이용해 주세요.";
+            String msg = "로그인 후 이용해 주세요.";
             String url = "/user/login";
 
             model.addAttribute("msg", msg);
@@ -80,7 +81,7 @@ public class ChatController {
 
     @RequestMapping(value = "roomList")
     @ResponseBody
-    public Set<String> roomList() {
+    public Set<String> roomList() throws Exception {
 
         log.info(this.getClass().getName() + " 채팅방 리스트 시작!");
 
@@ -91,7 +92,7 @@ public class ChatController {
 
     @PostMapping(value = "createRoom")
     @ResponseBody
-    public String createRoom(@RequestParam String roomName, HttpSession session) {
+    public String createRoom(@RequestParam String roomName, HttpSession session) throws Exception {
         ChatHandler.roomInfo.putIfAbsent(roomName, roomName);
         return "success";
     }
