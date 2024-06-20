@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>책 검색 테스트</title>
+    <link rel="stylesheet" href="/css/table.css">
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#searchButton").click(function() {
+                var title = $("#searchTitle").val();
+                getRecommendBook(title);
+            });
+
+            function getRecommendBook(title) {
+                $.ajax({
+                    url: "/book/getBook",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: { title: title },
+                    success: function (json) {
+                        console.log(json);
+                        displayBooks(json.items);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX 호출 중 에러 발생:", error);
+                    }
+                });
+            }
+
+            function displayBooks(items) {
+                var resultDiv = $("#data");
+                resultDiv.empty(); // 기존 내용 지우기
+
+                if (items && items.length > 0) {
+                    var table = $("<table>").addClass("table");
+                    var thead = $("<thead>");
+                    var tbody = $("<tbody>");
+
+                    // 테이블 헤더
+                    thead.append(
+                        $("<tr>").append(
+                            $("<th>").text("제목"),
+                            $("<th>").text("저자"),
+                            $("<th>").text("출판사"),
+                            $("<th>").text("출판일"),
+                            $("<th>").text("설명")
+                        )
+                    );
+                    table.append(thead);
+
+                    // 테이블 본문
+                    items.forEach(function(item) {
+                        var row = $("<tr>").append(
+                            $("<td>").text(item.title),
+                            $("<td>").text(item.author),
+                            $("<td>").text(item.publisher),
+                            $("<td>").text(item.pubdate),
+                            $("<td>").text(item.description)
+                        );
+                        tbody.append(row);
+                    });
+                    table.append(tbody);
+                    resultDiv.append(table);
+                } else {
+                    resultDiv.append($("<p>").text("검색 결과가 없습니다."));
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+<form id="f" class="mx-auto" style="width: 80%;">
+    <div class="form-group">
+        <label class="form-label mt-4">책 제목</label>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="searchTitle" name="searchTitle">
+            <button type="button" id="searchButton" class="btn btn-primary">검색</button>
+        </div>
+        <div id="data"></div>
+    </div>
+</form>
+</body>
+</html>
