@@ -29,14 +29,49 @@
         cursor: pointer;
     }
 
+    /*header {*/
+    /*        font-family: "Poor Story", system-ui;*/
+    /*        font-weight: 400;*/
+    /*        font-style: normal;*/
+    /*}*/
+
+    /*html {*/
+    /*    font-family: "Poor Story", system-ui;*/
+    /*    font-weight: 400;*/
+    /*    font-style: normal;*/
+    /*}*/
+
+    /*h1 {*/
+    /*    font-family: "Poor Story", system-ui;*/
+    /*    font-weight: 400;*/
+    /*    font-style: normal;*/
+    /*}*/
+
+    /*h2 {*/
+    /*    font-family: "Poor Story", system-ui;*/
+    /*    font-weight: 400;*/
+    /*    font-style: normal;*/
+    /*}*/
+
+    /*p {*/
+    /*    font-family: "Poor Story", system-ui;*/
+    /*    font-weight: 400;*/
+    /*    font-style: normal;*/
+    /*}*/
+
+    /*a {*/
+    /*        font-family: "Poor Story", system-ui;*/
+    /*        font-weight: 400;*/
+    /*        font-style: normal;*/
+    /*}*/
 </style>
 
 <script>
     /* 네비바 전환 효과 페이지 옮겨도 고정되게 하는 jQuery */
-    $(document).ready(function() {
+    $(document).ready(function () {
         var currentPath = window.location.pathname;
 
-        $('ul li a').each(function() {
+        $('ul li a').each(function () {
             var $this = $(this);
             // URL이 일치하는지 확인
             if ($this.attr('href') === currentPath) {
@@ -119,7 +154,8 @@
                                 <div class="flag-dropdown">
                                     <ul>
                                         <li><a href="/profile" th:if="${session['SS_USER_ID'] != null}">마이페이지</a></li>
-                                        <li th:if="${session['SS_USER_ID'] != null}"><a class="get-a-quote" id="btnUserLogout">로그아웃</a></li>
+                                        <li th:if="${session['SS_USER_ID'] != null}"><a class="get-a-quote"
+                                                                                        id="btnUserLogout">로그아웃</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -137,7 +173,7 @@
     <script type="text/javascript">
 
         // 로그아웃 로직
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             var logoutButton = document.getElementById("btnUserLogout");
             if (logoutButton) {
                 logoutButton.addEventListener("click", function (event) {
@@ -183,22 +219,22 @@
                                 <li><a href="/challenge/challengeList">마음쓰기</a></li>
                                 <li><a href="/test/testReg">자가진단</a></li>
                                 <li><a href="/board/boardList">게시판</a></li>
-<!--                                <li><a href="./pages.html">Pages</a>-->
-<!--                                    <ul class="dropdown">-->
-<!--                                        <li><a href="./room-details.html">Room Details</a></li>-->
-<!--                                        <li><a href="./blog-details.html">Blog Details</a></li>-->
-<!--                                        <li><a href="#">Family Room</a></li>-->
-<!--                                        <li><a href="#">Premium Room</a></li>-->
-<!--                                    </ul>-->
-<!--                                </li>-->
+                                <!--                                <li><a href="./pages.html">Pages</a>-->
+                                <!--                                    <ul class="dropdown">-->
+                                <!--                                        <li><a href="./room-details.html">Room Details</a></li>-->
+                                <!--                                        <li><a href="./blog-details.html">Blog Details</a></li>-->
+                                <!--                                        <li><a href="#">Family Room</a></li>-->
+                                <!--                                        <li><a href="#">Premium Room</a></li>-->
+                                <!--                                    </ul>-->
+                                <!--                                </li>-->
                                 <li><a href="/chat/intro">채팅</a></li>
-<!--                                <li><a href="/chat/intro">비대면 상담</a></li>-->
+                                <!--                                <li><a href="/chat/intro">비대면 상담</a></li>-->
                                 <li><a href="/map/map">지도</a></li>
                             </ul>
                         </nav>
-<!--                        <div class="nav-right search-switch">-->
-<!--                            <i class="icon_search"></i>-->
-<!--                        </div>-->
+                        <!--                        <div class="nav-right search-switch">-->
+                        <!--                            <i class="icon_search"></i>-->
+                        <!--                        </div>-->
                     </div>
                 </div>
             </div>
