@@ -1,0 +1,180 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Hide scrollbars */
+}
+
+#map {
+    position: absolute;
+    top: 150px; /* 헤더 높이만큼 조정 */
+    right: 0;
+    bottom: 0;
+    left: 200px;
+    width: calc(100% - 200px);
+    transition: left 0.5s, width 0.5s; /* 애니메이션 추가 */
+}
+
+#map.expanded {
+    left: 500px; /* sidebarContent가 확장되었을 때의 너비에 맞게 조정 */
+    width: calc(100% - 500px);
+}
+
+#sidebar {
+    width: 200px;
+    height: calc(100% - 150px); /* 헤더 높이만큼 조정 */
+    position: fixed;
+    top: 150px; /* 헤더 높이만큼 조정 */
+    left: 0;
+    background: #f4f4f4;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#sidebarContent {
+    width: 0;
+    height: calc(100% - 150px); /* 헤더 높이만큼 조정 */
+    position: fixed;
+    top: 150px; /* 헤더 높이만큼 조정 */
+    left: 200px;
+    background: #fff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-x: hidden;
+    transition: width 0.5s;
+    overflow-y: auto;
+}
+
+#sidebarContent.expanded {
+    width: 300px;
+}
+
+.hidden {
+    display: none;
+}
+
+.sidebar-btn {
+    width: 90%;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #FFFFFF;
+    color: #000000;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+}
+
+.sidebar-btn:hover, .sidebar-btn.active {
+    background-color: #000000;
+    color: #FFFFFF;
+}
+
+.sidebar-content {
+    width: 100%;
+    padding: 10px;
+}
+
+.divTableBody {
+    display: none; /* Initially hide all tables */
+}
+
+.divTableBody.active {
+    display: block; /* Show the active table */
+}
+
+.divTableRow {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #fff;
+}
+
+.divTableCell {
+    padding: 5px 0;
+}
+
+.divTableCell:first-child {
+    font-weight: bold;
+}
+
+.divTableCell:last-child {
+    color: #555;
+}
+
+/* 반응형 디자인을 위한 미디어 쿼리 */
+@media (max-width: 1024px) {
+    #map {
+        left: 150px; /* 작은 화면에서 사이드바 너비 조정 */
+        width: calc(100% - 150px);
+    }
+
+    #map.expanded {
+        left: 350px; /* 작은 화면에서 확장된 사이드바 너비 조정 */
+        width: calc(100% - 350px);
+    }
+
+    #sidebar {
+        width: 150px; /* 작은 화면에서 사이드바 너비 조정 */
+    }
+
+    #sidebarContent {
+        left: 150px; /* 작은 화면에서 사이드바 위치 조정 */
+    }
+
+    #sidebarContent.expanded {
+        width: 200px; /* 작은 화면에서 확장된 사이드바 너비 조정 */
+    }
+}
+
+@media (max-width: 768px) {
+    #map {
+        left: 0;
+        width: 100%;
+        top: 200px; /* 헤더와 사이드바 모두 상단에 배치 */
+    }
+
+    #map.expanded {
+        left: 0;
+        width: 100%;
+    }
+
+    #sidebar {
+        width: 100%;
+        height: 50px; /* 사이드바를 상단으로 이동 */
+        top: 150px;
+        flex-direction: row; /* 버튼들을 가로로 정렬 */
+        justify-content: space-around;
+    }
+
+    #sidebarContent {
+        top: 200px; /* 사이드바 아래에 위치 */
+        left: 0;
+        width: 100%;
+        height: calc(100% - 200px);
+    }
+
+    #sidebarContent.expanded {
+        width: 100%;
+    }
+
+    .sidebar-btn {
+        width: auto;
+        flex: 1; /* 버튼들을 균등하게 배치 */
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    #sidebar {
+        height: 40px; /* 더 작은 화면에서는 사이드바 높이 조정 */
+        top: 100px;
+    }
+
+    #sidebarContent {
+        top: 140px; /* 사이드바 아래에 위치 */
+        height: calc(100% - 140px);
+    }
+}
