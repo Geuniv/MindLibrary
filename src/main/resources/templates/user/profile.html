@@ -258,6 +258,7 @@
         <div id="postsList" class="posts-list">
             <div th:if="${userPosts != null and not #lists.isEmpty(userPosts)}">
                 <ul>
+                    <hr/>
                     <li th:each="post : ${userPosts}">
                         <a th:href="@{/board/boardInfo(bSeq=${post.boardSeq})}">[[${post.boardTitle}]]</a>
                         <p>[[${post.boardContent}]]</p>
@@ -278,6 +279,7 @@
         <div id="checksList" class="checks-list">
             <div th:if="${userChecks != null and not #lists.isEmpty(userChecks)}">
                 <ul>
+                    <hr/>
                     <li th:each="check : ${userChecks}">
                         <p>마음체크 질문: [[${check.userQuestion}]]</p>
                         <p>마음체크 답변: [[${check.userAnswer}]]</p>
@@ -298,6 +300,7 @@
         <div id="testsList" class="tests-list">
             <div th:if="${userTests != null and not #lists.isEmpty(userTests)}">
                 <ul>
+                    <hr/>
                     <li th:each="test : ${userTests}">
                         <p>자가진단 결과: [[${test.userTestResult}]]</p>
                         <p>자가진단 일자: [[${test.testRegDt}]]</p>

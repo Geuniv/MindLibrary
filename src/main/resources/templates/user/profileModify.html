@@ -280,7 +280,19 @@
         }
 
         .input__block input {
-            width: 80%;
+            width: 75%;
+            height: 50px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(15, 19, 42, .1);
+            color: rgba(15, 19, 42, .3);
+            padding: 0 15px;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .input__block .input_check {
+            width: 58%;
             height: 50px;
             border-radius: 8px;
             border: none;
@@ -465,7 +477,7 @@
         <!-- nickName input -->
         <div class="input__block">
             <label class="label">닉네임</label>
-            <input type="text" class="input" id="userNickname" name="userNickname" th:placeholder="${rDTO.userNickname}" th:value="${rDTO.userNickname}"
+            <input type="text" class="input_check" id="userNickname" name="userNickname" th:placeholder="${rDTO.userNickname}" th:value="${rDTO.userNickname}"
                    style="border: none; border-bottom: 1px solid rgba(0, 0, 0, 0.1);"/>
             <button id="btnNickname" type="button" class="button">중복체크</button>
         </div>
