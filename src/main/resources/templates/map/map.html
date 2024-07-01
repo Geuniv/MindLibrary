@@ -5,36 +5,48 @@
     <title>병원 위치 정보</title>
 
     <link rel="stylesheet" href="/css/map.css">
-
-<!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">-->
-<!--    <link rel="stylesheet" href="/css/animate.css">-->
-<!--    <link rel="stylesheet" href="/css/owl.carousel.min.css">-->
-<!--    <link rel="stylesheet" href="/css/owl.theme.default.min.css">-->
-<!--    <link rel="stylesheet" href="/css/magnific-popup.css">-->
-<!--    <link rel="stylesheet" href="/css/bootstrap-datepicker.css">-->
-<!--    <link rel="stylesheet" href="/css/jquery.timepicker.css">-->
-<!--    <link rel="stylesheet" href="/css/flaticon.css">-->
-<!--    <link rel="stylesheet" href="/css/style.css">-->
+    <link rel="stylesheet" href="/css/style.css">
 
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=17eb0d935074d4f4616fc2a3964d562e&libraries=services"></script>
+    <script charset="UTF-8" src="https://t1.daumcdn.net/mapjsapi/js/main/4.4.19/kakao.js"></script>
+    <script charset="UTF-8" src="https://t1.daumcdn.net/mapjsapi/js/libs/services/1.0.2/services.js"></script>
 </head>
 <body>
 <!-- ======= Header ======= -->
 <div th:replace="~{top}"></div>
 <!-- End Header -->
 
-<div id="main-content">
-    <div id="map"></div>
-    <div id="sidebar">
-        <button id="btnHospital" type="button">병원</button>
-        <div id="sidebarContent" class="hidden">
-            <div id="hospitalData" class="divTableBody"></div>
+<!-- Blog Details Hero Section Begin -->
+<section class="hero-wrap hero-wrap-2" style="background-image: url('/img/bookstore-1973672_1920.png');"
+         data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row no-gutters slider-text align-items-end">
+            <div class="col-md-9 ftco-animate pb-5">
+                <p class="breadcrumbs mb-2"><span class="mr-2"><a href="/index">Home <i
+                        class="ion-ios-arrow-forward"></i></a></span> <span>지도 <i
+                        class="ion-ios-arrow-forward"></i></span></p>
+                <h1 class="mb-0 bread">지도</h1>
+            </div>
         </div>
     </div>
-</div>
+</section>
+<!-- Blog Details Hero End -->
 
-<form id="f"></form>
+<section id="main-content">
+    <div class="container">
+        <div id="map-container">
+            <div id="map"></div>
+            <div id="sidebar">
+                <button id="btnHospital" type="button">병원</button>
+                <div id="sidebarContent" class="hidden">
+                    <div id="hospitalData" class="divTableBody"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- ======= Footer ======= -->
 <div th:replace="~{footer}"></div>

@@ -1,80 +1,94 @@
 body {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
     margin: 0;
     font-family: Arial, sans-serif;
-}
-#main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: row; /* 가로 방향 레이아웃 */
-    position: relative;
-}
-#map {
-    width: 60%; /* 지도를 화면의 왼쪽 60%에 고정 */
-    height: calc(100vh - 200px); /* 지도의 높이를 조절합니다. (100vh - 헤더 높이 - 푸터 높이) */
-    z-index: 1;
-}
-#sidebar {
-    width: 40%; /* 사이드바를 화면의 오른쪽 40%에 고정 */
-    height: calc(100vh - 200px); /* 사이드바 높이 */
-    background-color: #f7f7f7;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    z-index: 2;
+    min-height: 100vh;
 }
+
+#main-content {
+    flex: 1;
+    padding: 20px; /* 전체 여백 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1200px; /* 최대 너비 */
+}
+
+#map-container {
+    display: flex;
+    flex: 1;
+    background-color: #f7f7f7;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+#map {
+    flex: 3;
+    height: 70vh; /* 지도의 높이 */
+    margin-right: 20px;
+}
+
+#sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 #btnHospital {
-    padding: 10px;
+    padding: 10px 20px;
     background-color: #0b0b0b;
     color: white;
     border: none;
     cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 20px;
 }
+
 #sidebarContent {
-    padding: 20px;
-    flex-grow: 1;
+    width: 100%;
 }
+
 .divTableBody .divTableRow {
     border-bottom: 1px solid #ddd;
     padding: 8px;
 }
+
 .divTableBody .divTableRow:hover {
     background-color: #f1f1f1;
     cursor: pointer;
 }
 
 /* 반응형 디자인 */
-@media (max-width: 1024px) {
-    #map {
-        width: 100%;
-    }
-    #sidebar {
-        width: 100%;
-        position: absolute;
-        top: calc(100vh - 200px);
-    }
-}
 @media (max-width: 768px) {
+    #map-container {
+        flex-direction: column;
+    }
+
     #map {
         width: 100%;
+        margin-right: 0;
+        margin-bottom: 20px;
     }
+
     #sidebar {
         width: 100%;
-        height: calc(100vh - 150px); /* 헤더와 푸터의 높이에 맞게 조정 */
-        position: absolute;
-        top: calc(100vh - 150px);
     }
-}
-@media (max-width: 480px) {
-    #map {
+
+    #btnHospital {
         width: 100%;
-        height: 300px; /* 모바일에서 지도의 높이를 고정 */
-    }
-    #sidebar {
-        width: 100%;
-        position: absolute;
-        top: calc(100vh - 300px);
+        padding: 15px;
     }
 }
