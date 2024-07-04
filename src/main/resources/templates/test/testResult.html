@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>자가진단 결과</title>
+    <link rel="stylesheet" href="/css/table.css"/>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .content {
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .warning {
+            font-size: 14px;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .result {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #0b0b0b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #707079;
+        }
+
+        header, footer {
+            width: 100%;
+            background-color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
+
+        // 세션 값이 null인 경우 공백 문자열로 변경
+        const userId = ssUserId !== null ? ssUserId : '';
+
+        $(document).ready(function () {
+            if (userId === "" || userId === null || userId === undefined) {
+                alert("로그인 후 이용 가능합니다.");
+                location.href = "/index";
+            }
+        });
+
+        /*]]>*/
+    </script>
+</head>
+<body>
+
+<div class="main-container">
+
+    <!-- ======= Header ======= -->
+    <th:block th:replace="~{top}"></th:block>
+    <!-- End Header -->
+
+    <div class="content">
+        <h2>자가진단 결과</h2>
+        <p class="warning">정확한 의사의 진단이 아니니 자세한 진단은 가까운 병원에 내진해주세요</p>
+        <div>
+            <p class="result" th:text="'총 점수: ' + ${totalScore}"></p>
+            <div th:if="${totalScore != null}">
+                <p class="result" th:text="${totalScore >= 25 ? '우울증 판단 기준 이상' : '우울증 판단 기준 미달'}"></p>
+            </div>
+        </div>
+        <button onclick="location.href='/test/testReg'">다시 하기</button>
+    </div>
+
+    <!-- ======= Footer ======= -->
+    <th:block th:replace="~{footer}"></th:block>
+    <!-- End Footer -->
+
+</div>
+
+</body>
+</html>
