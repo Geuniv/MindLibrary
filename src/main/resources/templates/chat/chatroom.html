@@ -135,7 +135,6 @@
         .chat-messages .admin-message {
             text-align: center;
             width: 90%;
-            /*background-color: #ffeb3b;*/
             color: #333;
             padding: 10px;
             border-radius: 5px;
@@ -197,7 +196,7 @@
             // Local 용
             // ws = new WebSocket("ws://" + location.host + "/ws/" + roomName + "/" + nickname);
 
-            // 베포 용
+            // 배포 용
             ws = new WebSocket("wss://" + location.host + "/ws/" + roomName + "/" + nickname);
 
             ws.onopen = function (event) {
@@ -232,14 +231,15 @@
             };
 
             $("#btnSend").on("click", function () {
-                data.name = nickname;
-                data.msg = $("#msg").val();
+                sendMessage();
+            });
 
-                let chatMsg = JSON.stringify(data);
-
-                ws.send(chatMsg);
-
-                $("#msg").val("");
+            // 엔터키로 메시지 전송
+            $("#msg").on("keypress", function (event) {
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault(); // 폼 제출 방지
+                    sendMessage();
+                }
             });
 
             // 퇴장 버튼 클릭 이벤트
@@ -258,6 +258,17 @@
                 ws.close();
             };
 
+            function sendMessage() {
+                data.name = nickname;
+                data.msg = $("#msg").val();
+
+                let chatMsg = JSON.stringify(data);
+
+                ws.send(chatMsg);
+
+                $("#msg").val("");
+            }
+
             function sendExitMessage() {
                 let exitMsg = {
                     name: "관리자",
@@ -272,9 +283,9 @@
 </head>
 <body>
 
-<!--&lt;!&ndash; ======= Header ======= &ndash;&gt;-->
-<!--<th:block th:replace="~{top}"></th:block>-->
-<!--&lt;!&ndash; End Header &ndash;&gt;-->
+<!-- ======= Header ======= -->
+<!-- <th:block th:replace="~{top}"></th:block> -->
+<!-- End Header -->
 
 <div class="container">
     <!--  <div class="sidebar">-->
@@ -297,9 +308,9 @@
     </div>
 </div>
 
-<!--&lt;!&ndash; ======= Header ======= &ndash;&gt;-->
-<!--<th:block th:replace="~{footer}"></th:block>-->
-<!--&lt;!&ndash; End Header &ndash;&gt;-->
+<!-- ======= Footer ======= -->
+<!-- <th:block th:replace="~{footer}"></th:block> -->
+<!-- End Footer -->
 
 </body>
 </html>
