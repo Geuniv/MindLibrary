@@ -42,10 +42,10 @@
                         $("#userQuestionValue").val(f1.userQuestion.value);
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error(xhr.responseText);
                 },
-                complete: function() {
+                complete: function () {
                     // AJAX 호출 완료 후 로딩 애니메이션 숨김
                     $("#loadingAnimation").hide();
                 }
@@ -66,10 +66,10 @@
                 success: function (json) {
                     alert(json.msg);
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error(xhr.responseText);
                 },
-                complete: function() {
+                complete: function () {
                     // AJAX 호출 완료 후 로딩 애니메이션 숨김
                     $("#loadingAnimation").hide();
                 }
@@ -95,6 +95,8 @@
 
         /*]]>*/
     </script>
+
+    <link rel="stylesheet" src="/css/style.css">
     <style>
         /*-------------------------------------------
         $ Main
@@ -124,9 +126,19 @@
             margin-right: auto;
         }
 
-        .text-giga { line-height: 1; font-size: 24px; font-weight: 300; }
-        .pad-top    { padding-top: 1em; }
-        .space-out { margin: 100px; }
+        .text-giga {
+            line-height: 1;
+            font-size: 24px;
+            font-weight: 300;
+        }
+
+        .pad-top {
+            padding-top: 1em;
+        }
+
+        .space-out {
+            margin: 100px;
+        }
 
         /*-------------------------------------------
         $ Loaders
@@ -141,11 +153,13 @@
             position: relative;
             vertical-align: middle;
         }
+
         .submitLoader,
         .submitLoader:before,
         .submitLoader:after {
             animation: 1s infinite ease-in-out;
         }
+
         .submitLoader:before,
         .submitLoader:after {
             width: 100%;
@@ -156,7 +170,9 @@
             left: 0;
         }
 
-        .loader-black { background-color: #333; }
+        .loader-black {
+            background-color: #333;
+        }
 
         /* Loader 8 */
         .submitLoader:before,
@@ -166,12 +182,21 @@
             transform: scale(0);
             animation: loader8 1.5s infinite ease-in-out;
         }
-        .submitLoader:after { animation-delay: 0.75s; }
+
+        .submitLoader:after {
+            animation-delay: 0.75s;
+        }
 
         @keyframes loader8 {
-            0%   { transform: translateX(-100%) scale(0); }
-            50%  { transform: translateX(0%)    scale(1); }
-            100% { transform: translateX(100%)  scale(0); }
+            0% {
+                transform: translateX(-100%) scale(0);
+            }
+            50% {
+                transform: translateX(0%) scale(1);
+            }
+            100% {
+                transform: translateX(100%) scale(0);
+            }
         }
 
         /* 로딩 애니메이션 중앙 배치 */
@@ -203,6 +228,23 @@
 <th:block th:replace="~{top}"></th:block>
 <!-- End Header -->
 
+<!-- Blog Details Hero Section Begin -->
+<section class="hero-wrap hero-wrap-2" style="background-image: url('/img/bookstore-1973672_1920.png');"
+         data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row no-gutters slider-text align-items-end">
+            <div class="col-md-9 ftco-animate pb-5">
+                <p class="breadcrumbs mb-2"><span class="mr-2"><a href="/index">Home /<i
+                        class="ion-ios-arrow-forward"></i></a></span> <span>마음체크 <i
+                        class="ion-ios-arrow-forward"></i></span></p>
+                <h1 class="mb-0 bread">마음체크</h1>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Blog Details Hero End -->
+
 <!-- Blog Details Section Begin -->
 <section class="blog-details-section">
     <div class="container">
@@ -211,12 +253,14 @@
                 <div class="blog-details-text">
                     <div class="bd-title">
                         <div class="leave-comment">
-                            <h4>마음 체크하기</h4>
+<!--                            <h4>마음 체크하기</h4>-->
+<!--                            <p style="text-align: center;">챗GPT에게 현재 마음을 전달하고 답변을 구해보세요 !</p>-->
                             <form id="f1" name="f1" action="#" class="comment-form">
                                 <div class="row">
                                     <div class="col-lg-12 text-center">
                                         <!-- textarea를 이용하여 결과값을 표시 -->
-                                        <textarea name="userQuestion" id="userQuestion" placeholder="내용" style="height: 500px;"></textarea>
+                                        <textarea name="userQuestion" id="userQuestion" placeholder="내용"
+                                                  style="height: 500px;"></textarea>
                                         <button id="btnSend" type="button" class="site-btn">질문하기</button>
                                         <button class="site-btn" type="reset">다시 작성</button>
                                     </div>
