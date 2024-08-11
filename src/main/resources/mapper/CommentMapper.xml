@@ -5,11 +5,12 @@
 <mapper namespace="kopo.poly.persistance.mapper.ICommentMapper">
 
     <!--댓글 리스트 쿼리-->
-    <select id="getCommentList" parameterType="CommentDTO">
+    <select id="getCommentList" parameterType="CommentDTO" resultType="CommentDTO">
         SELECT C.COMMENT_SEQ, C.COMMENT_CONTENTS, C.USER_ID, U.USER_NICKNAME,
-               C.COMMENT_REG_DT, C.BOARD_SEQ
+               C.COMMENT_REG_DT, C.BOARD_SEQ, COALESCE(F.FILE_URL, '/img/profile.png') AS FILE_URL
         FROM MIND_COMMENT C
                  JOIN USER_INFO U ON C.USER_ID = U.USER_ID
+                 LEFT JOIN FILE F ON C.USER_ID = F.USER_ID
         WHERE C.BOARD_SEQ = #{boardSeq}
         ORDER BY C.COMMENT_REG_DT DESC;
     </select>
