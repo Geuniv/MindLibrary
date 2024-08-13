@@ -31,6 +31,8 @@ public class CommentDTO {
 
     private String commentChgDt;
 
+    private String fileUrl; // 프로필 사진 URL 추가
+
     // 외래키들
     private String fileSeq;
 }
