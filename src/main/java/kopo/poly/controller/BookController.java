@@ -19,13 +19,13 @@ public class BookController {
     private final IBookService bookService;
 
     @GetMapping("/searchBookForm")
-    public String searchBookForm() {
+    public String searchBookForm() throws Exception {
         return "book/searchBookForm"; // searchBookForm.html 뷰를 반환
     }
 
     @PostMapping("/getBook")
     @ResponseBody
-    public BookDTO searchBook(@RequestParam String title) {
+    public BookDTO searchBook(@RequestParam String title) throws Exception {
         try {
             log.info("getBook 호출");
             log.info("검색 제목: {}", title);
@@ -44,7 +44,7 @@ public class BookController {
     }
 
     @GetMapping("/getBookResult")
-    public String searchBookResult(@RequestParam String title, ModelMap model) {
+    public String searchBookResult(@RequestParam String title, ModelMap model) throws Exception {
         try {
             log.info("getBook 호출");
             log.info("검색 제목: {}", title);
