@@ -250,6 +250,7 @@ public class BoardController {
         for (CommentDTO dto : rList) {
             log.info("commentSeq : " + dto.getCommentSeq());
             log.info("userNickname : " + dto.getUserNickname());
+            log.info("getFileUrl : " + dto.getFileUrl());
         }
 
         // 조회된 리스트 결과값 넣어주기
@@ -264,26 +265,6 @@ public class BoardController {
         int likeCnt = likeService.getLikeCount(lDTO);
 
         model.addAttribute("likeCnt", likeCnt);
-
-        // 좋아요 끝
-
-//        UserInfoDTO uDTO = new UserInfoDTO();
-//        uDTO.setUserId(userId);
-//
-//        UserInfoDTO fDTO = Optional.ofNullable(profileService.getProfile(uDTO)).orElseGet(UserInfoDTO::new);
-//
-//        log.info("pDTO : " + pDTO);
-//
-//        // 이미지 가져오기
-//        List<FileDTO> fList = Optional.ofNullable(fileService.getFile(uDTO)).orElseGet(ArrayList::new);
-//
-//        log.info("fList : " + fList);
-//
-//        modelMap.addAttribute("fList", fList);
-//
-//        log.info("fList : " + fList);
-//
-//        // 이미지 가져오기 종료
 
         log.info(this.getClass().getName() + ".controller 게시글 상세보기 끝 !");
 

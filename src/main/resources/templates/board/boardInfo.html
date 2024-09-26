@@ -7,7 +7,6 @@
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
-
         const ssUserId = /*[[${session.SS_USER_ID}]]*/ ''; // Controller에서 받은 세션에 저장된 값
         const userId = /*[[${rDTO.userId}]]*/ ''; // 공지사항 게시글 작성자 아이디
         const bSeq = /*[[${rDTO.boardSeq}]]*/ ''; // 현재 글번호, 자바에서 받을 변수들은 자바스크립트 변수로 저장하면 편함
@@ -53,6 +52,14 @@
             });
             $("#btnLike").on("click", function () {
                 doLike(); // 좋아요
+            });
+
+            // 엔터키로 댓글 등록
+            $("#commentContents").on("keypress", function (event) {
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault(); // 폼 제출 방지
+                    doComment();
+                }
             });
         });
 
@@ -229,6 +236,36 @@
         .dropdown:hover .dropbtn {
             background-color: #707079;
         }
+
+        .comment-profile-image {
+            width: 50px; /* 원하는 사이즈로 조정 가능 */
+            height: 50px; /* 원하는 사이즈로 조정 가능 */
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        /* 댓글 */
+        .comment-option {
+            border-bottom: 1px solid #ebebeb;
+        }
+
+        .single-comment-item {
+            padding: 10px 0; /* 패딩 값을 줄입니다 */
+            margin: 0; /* 마진 값을 없앱니다 */
+        }
+
+        .single-comment-item:not(:last-child) {
+            border-bottom: 1px solid #ebebeb;
+        }
+
+        .sc-author {
+            float: left; /* 이미지를 왼쪽에 배치 */
+            margin-right: 10px; /* 이미지와 텍스트 사이 간격 */
+        }
+
+        .sc-text {
+            overflow: hidden; /* 부모 요소의 높이에 맞게 텍스트가 넘치지 않도록 */
+        }
     </style>
 </head>
 <body>
@@ -268,23 +305,23 @@
                                     <img th:src="${fDto.fileUrl}" style="width: 50%; height: 50%;"><br><br>
                                 </div>
                             </div>
-                        </div>
-                        <p>[[${rDTO.boardContent}]]</p>
+                        </div >
+                        <p style="white-space:pre;">[[${rDTO.boardContent}]]</p>
                     </div>
                     <div class="tag-share">
-                        <div class="tags">
-                            <a href="#">Travel Trip</a>
-                            <a href="#">Camping</a>
-                            <a href="#">Event</a>
-                        </div>
-                        <div class="social-share">
-                            <span>Share:</span>
-                            <a href="#"><i class="fa fa-facebook"></i></a>
-                            <a href="#"><i class="fa fa-twitter"></i></a>
-                            <a href="#"><i class="fa fa-tripadvisor"></i></a>
-                            <a href="#"><i class="fa fa-instagram"></i></a>
-                            <a href="#"><i class="fa fa-youtube-play"></i></a>
-                        </div>
+                        <!--                        <div class="tags">-->
+                        <!--                            <a href="#">Travel Trip</a>-->
+                        <!--                            <a href="#">Camping</a>-->
+                        <!--                            <a href="#">Event</a>-->
+                        <!--                        </div>-->
+                        <!--                        <div class="social-share">-->
+                        <!--                            <span>Share:</span>-->
+                        <!--                            <a href="#"><i class="fa fa-facebook"></i></a>-->
+                        <!--                            <a href="#"><i class="fa fa-twitter"></i></a>-->
+                        <!--                            <a href="#"><i class="fa fa-tripadvisor"></i></a>-->
+                        <!--                            <a href="#"><i class="fa fa-instagram"></i></a>-->
+                        <!--                            <a href="#"><i class="fa fa-youtube-play"></i></a>-->
+                        <!--                        </div>-->
                     </div>
                     <div class="col-lg-12 text-center">
                         <button id="btnLike" type="button" class="site-btn" style="margin-bottom: 3%;">좋아요 | [[${likeCnt}]]</button>
@@ -305,10 +342,13 @@
                                     <button class="btnCmtDelete" type="button">삭제</button>
                                 </div>
                             </div>
+                            <div class="sc-author">
+                                <img th:src="${dto.fileUrl}" class="comment-profile-image" alt="Profile Image">
+                            </div>
                             <div class="sc-text">
                                 <span>[[${dto.commentRegDt}]]</span>
                                 <h5>[[${dto.userNickname}]]</h5>
-                                <p>[[${dto.commentContents}]]</p>
+                                <p style="white-space:pre;">[[${dto.commentContents}]]</p>
                             </div>
                         </div>
                     </div>
