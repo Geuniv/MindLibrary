@@ -213,8 +213,15 @@
 
         <div class="container" style="margin-left: 3%;">
             <!-- email input -->
+<!--            <div class="input__block">-->
+<!--                <h5 class="info-label">아이디 |</h5> <span class="info-value">[[${rDTO.userId}]]</span>-->
+<!--            </div>-->
             <div class="input__block">
-                <h5 class="info-label">아이디 |</h5> <span class="info-value">[[${rDTO.userId}]]</span>
+                <h5 class="info-label">아이디 |</h5>
+                <!-- naver_로 시작하면 "Naver 사용자"로 표시, 그렇지 않으면 userId를 표시 -->
+                <span class="info-value"
+                      th:text="${#strings.startsWith(rDTO.userId, 'naver_') ? 'Naver 사용자' : rDTO.userId}">
+                </span>
             </div>
             <div class="input__block">
                 <h5 class="info-label">이메일 |</h5> <span class="info-value">[[${rDTO.userEmail}]]</span>

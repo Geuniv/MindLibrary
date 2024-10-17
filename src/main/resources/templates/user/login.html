@@ -246,6 +246,10 @@
             }
         }
 
+        .btnNaver:hover {
+            cursor: pointer; /* 커서 모양을 포인터로 변경 */
+        }
+
         .separator {
             display: block;
             margin: 30px auto 10px;
@@ -426,6 +430,24 @@
         <button id="btnLogin" type="button" class="signin__btn">
             로그인
         </button>
+
+        <br/>
+        <p style="text-align: center; font-size: 18px; font-weight: bold;">소셜로그인</p>
+
+        <!--네이버 로그인 배포-->
+        <div class="find-btn">
+            <!-- 로컬용 -->
+<!--            <button type="button" id="btnNaver" class="btnNaver"-->
+<!--                    onclick="location.href='https://nid.naver.com/oauth2.0/authorize?client_id=x3b72e3jFfqahLoU5RTZ&response_type=code&redirect_uri=http://localhost:11000/auth/naver/callback&state=마음도서관'"-->
+<!--                    style="border: none; background: none;">-->
+            <!-- 배포용 -->
+            <button type="button" id="btnNaver"
+                    onclick="location.href='https://nid.naver.com/oauth2.0/authorize?client_id=x3b72e3jFfqahLoU5RTZ&response_type=code&redirect_uri=https://www.mindlibrary.store/auth/naver/callback&state=마음도서관'"
+                    style="border: none; background: none; display: flex; justify-content: center; align-items: center; width: 100%; height: auto; padding: 0;">
+                <img src="/img/btnG_아이콘사각.png" alt="네이버 로그인"
+                     style="width: 10%; height: auto; border-radius: 10px; display: block; margin: 0 auto;">
+            </button>
+        </div>
         <br/><br/>
     </form>
     <!-- separator -->
