@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kopo.poly.persistance.mapper.ICalendarMapper">
+
+    <!-- 일정 추가 -->
+    <insert id="insertCalendar" parameterType="CalendarDTO">
+        INSERT INTO CALENDAR (USER_ID, TITLE, START, END, START_TIME, END_TIME, CONTENTS)
+        VALUES (#{userId}, #{title}, #{start}, #{end}, #{startTime}, #{endTime}, #{contents})
+    </insert>
+
+    <!-- 일정 리스트 -->
+    <select id="getCalendarList" parameterType="map" resultType="CalendarDTO">
+        SELECT C.CALENDAR_SEQ, C.USER_ID, C.START, C.END, C.START_TIME, C.END_TIME, C.CONTENTS, C.TITLE
+        FROM CALENDAR C
+        WHERE C.USER_ID = #{userId} AND C.START BETWEEN #{start} AND #{end}
+        ORDER BY C.START_TIME, C.CALENDAR_SEQ
+    </select>
+
+    <!-- 오늘 일정 리스트 -->
+    <select id="getTodayCalendarList" resultType="CalendarDTO">
+        SELECT C.CALENDAR_SEQ, C.USER_ID, C.START, C.END, C.START_TIME, C.END_TIME, C.CONTENTS, C.TITLE
+        FROM CALENDAR C
+        WHERE C.USER_ID = #{userId} AND C.START = CURRENT_DATE()
+        ORDER BY C.START_TIME, C.CALENDAR_SEQ
+    </select>
+
+    <!-- 일정 수정 -->
+    <update id="updateCalendar" parameterType="CalendarDTO">
+        UPDATE CALENDAR
+        SET TITLE = #{title},
+            START = #{start},
+            END = #{end},
+            START_TIME = #{startTime},
+            END_TIME = #{endTime},
+            CONTENTS = #{contents}
+        WHERE CALENDAR_SEQ = #{calendarSeq}
+          AND USER_ID = #{userId}
+    </update>
+
+    <!-- 일정 삭제 -->
+    <delete id="deleteCalendar" parameterType="CalendarDTO">
+        DELETE FROM CALENDAR
+        WHERE CALENDAR_SEQ = #{calendarSeq}
+          AND USER_ID = #{userId}
+    </delete>
+
+    <select id="checkCalendar" parameterType="CalendarDTO" resultType="CalendarDTO">
+        SELECT START AS date FROM CALENDAR
+        WHERE START BETWEEN #{doMonth} AND #{nextMonth}
+                AND USER_ID = #{userId}
+    </select>
+
+</mapper>

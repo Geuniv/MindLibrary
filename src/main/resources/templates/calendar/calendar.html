@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="/css/animate.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/scrollax.min.js"></script>
+    <script src="/js/main.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/css/magnific-popup.css">
+
+    <link rel="stylesheet" href="/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="/css/jquery.timepicker.css">
+
+    <link rel="stylesheet" href="/css/flaticon.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            margin: 40px 10px;
+            padding: 0;
+            font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+
+        /* 캘린더를 감싸는 전체 컨테이너 스타일 */
+        .calendar-container {
+            max-width: 1100px; /* 캘린더의 최대 너비 */
+            margin: 50px auto; /* 중앙 정렬 및 상단 여백 */
+            padding: 20px;
+            background-color: #fff; /* 배경색 */
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+            border-radius: 10px; /* 모서리 둥글게 */
+        }
+
+        /* 캘린더의 스타일 */
+        #calendar {
+            max-width: 100%; /* 부모 요소에 맞게 최대 너비 설정 */
+            margin: 0 auto; /* 가운데 정렬 */
+        }
+
+        /* textarea 스타일 */
+        textarea {
+            resize: none;
+            height: 150px;
+        }
+
+        /* 추가적인 박스 스타일 */
+        .calendar-box {
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 헤더 메뉴 부분 -->
+<th:block th:replace="~{top}"></th:block>
+
+<!-- Blog Details Hero Section Begin -->
+<section class="hero-wrap hero-wrap-2" style="background-image: url('/img/bookstore-1973672_1920.png');"
+         data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row no-gutters slider-text align-items-end">
+            <div class="col-md-9 ftco-animate pb-5">
+                <p class="breadcrumbs mb-2"><span class="mr-2"><a href="/index">Home /<i
+                        class="ion-ios-arrow-forward"></i></a></span> <span>캘린더 <i
+                        class="ion-ios-arrow-forward"></i></span></p>
+                <h1 class="mb-0 bread">캘린더</h1>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Blog Details Hero End -->
+
+<!-- 캘린더를 감싸는 컨테이너 -->
+<div class="calendar-container">
+    <!-- 캘린더 요소 -->
+    <div id='calendar' class="calendar-box"></div>
+</div>
+
+<!-- Event Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventModalLabel">Event Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="errorMessage" class="text-danger"></div>
+                <form>
+                    <input type="hidden" id="eventId">
+                    <div class="form-group">
+                        <label for="eventTitle">제목</label>
+                        <input type="text" class="form-control" id="eventTitle" placeholder="제목을 입력해주세요">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="eventStartDate">시작일</label>
+                            <input type="date" class="form-control" id="eventStartDate">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="eventStartTime">시작시간</label>
+                            <input type="time" class="form-control" id="eventStartTime">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="eventEndDate">종료일</label>
+                            <input type="date" class="form-control" id="eventEndDate">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="eventEndTime">종료시간</label>
+                            <input type="time" class="form-control" id="eventEndTime">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventContents">내용</label>
+                        <textarea class="form-control" id="eventContents" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                <button type="button" class="btn btn-primary" id="saveEvent">저장</button>
+                <button type="button" class="btn btn-danger" id="deleteEvent" style="display:none;">삭제</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call calendar.js -->
+<script src="/js/calendar.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        // 오늘 날짜를 가져와서 date input의 min 속성에 설정
+        var today = moment().format('YYYY-MM-DD');
+        $('#eventStartDate').attr('min', today);
+        $('#eventEndDate').attr('min', today);
+
+        // 날짜가 변경될 때 유효성 검사
+        function validateDates() {
+            var startDate = $('#eventStartDate').val();
+            var endDate = $('#eventEndDate').val();
+
+            if (moment(endDate).isBefore(moment(startDate))) {
+                alert('종료 날짜가 시작 날짜보다 빠를 수 없습니다.');
+                $('#eventEndDate').val('');
+            }
+        }
+
+        // 시간 유효성 검사
+        function validateTimes() {
+            var startDate = $('#eventStartDate').val();
+            var startTime = $('#eventStartTime').val();
+            var endDate = $('#eventEndDate').val();
+            var endTime = $('#eventEndTime').val();
+
+            if (startDate && startTime && endDate && endTime) {
+                var startDateTime = moment(startDate + ' ' + startTime);
+                var endDateTime = moment(endDate + ' ' + endTime);
+
+                if (endDateTime.isBefore(startDateTime)) {
+                    alert('종료 시간이 시작 시간보다 빠를 수 없습니다.');
+                    $('#eventEndTime').val('');
+                }
+            }
+        }
+
+        $('#eventStartDate, #eventEndDate').on('blur change', validateDates);
+        $('#eventStartTime, #eventEndTime').on('blur change', validateTimes);
+
+        $('#saveEvent').on('click', function() {
+            var title = $('#eventTitle').val();
+            var contents = $('#eventContents').val();
+            var startDate = $('#eventStartDate').val();
+            var endDate = $('#eventEndDate').val();
+            var startTime = $('#eventStartTime').val();
+            var endTime = $('#eventEndTime').val();
+
+            var startDateTime = moment(startDate + ' ' + startTime);
+            var endDateTime = moment(endDate + ' ' + endTime);
+            var now = moment();
+
+            // 현재 시간보다 이전인지 확인
+            if (!startDateTime.isValid() || !endDateTime.isValid()) {
+                alert('날짜와 시간이 올바르지 않습니다.');
+                return;
+            }
+
+            if (startDateTime.isBefore(now)) {
+                alert('이전 날짜 및 시간으로는 이벤트를 등록할 수 없습니다.');
+                return;
+            }
+
+            if (endDateTime.isBefore(startDateTime)) {
+                alert('종료 시간이 시작 시간보다 빠를 수 없습니다.');
+                return;
+            }
+
+            // 입력 데이터 유효성 검사 통과 시, 저장 작업 진행
+            alert('이벤트가 저장되었습니다.');
+            // 여기서 이벤트 저장 로직을 추가합니다.
+        });
+    });
+</script>
+
+</body>
+
+<!-- ======= Header ======= -->
+<th:block th:replace="~{footer}"></th:block>
+<!-- End Header -->
+
+</html>

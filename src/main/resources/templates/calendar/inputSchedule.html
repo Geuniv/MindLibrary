@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <title>Write API</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+</head>
+
+<body>
+<form name="postWriteFrm" id="postWriteFrm" method="POST" action="/createSchedule.nhn">
+
+  <input type="hidden" name="access_token" th:value="${access_token}"/>
+
+  <label for="uid">UID:</label>
+  <input type="text" id="uid" name="uid" required/><br/>
+
+  <label for="dtStart">Start Time:</label>
+  <input type="text" id="dtStart" name="dtStart" required/><br/>
+
+  <label for="dtEnd">End Time:</label>
+  <input type="text" id="dtEnd" name="dtEnd" required/><br/>
+
+  <label for="summary">Summary:</label>
+  <input type="text" id="summary" name="summary" required/><br/>
+
+  <label for="description">Description:</label>
+  <textarea id="description" name="description" required></textarea><br/>
+
+  <label for="location">Location:</label>
+  <input type="text" id="location" name="location" required/><br/>
+
+  <label for="organizer">Organizer:</label>
+  <input type="text" id="organizer" name="organizer" required/><br/>
+
+  <label for="attendee">Attendee:</label>
+  <input type="text" id="attendee" name="attendee" required/><br/>
+
+  <label for="lastModified">Last Modified:</label>
+  <input type="text" id="lastModified" name="lastModified" required/><br/>
+
+  <input type="submit" value="Submit"/><br/>
+
+</form>
+</body>
+</html>
