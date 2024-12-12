@@ -2,6 +2,7 @@ package kopo.poly.controller;
 
 import kopo.poly.dto.*;
 import kopo.poly.service.*;
+import kopo.poly.service.impl.NaverService;
 import kopo.poly.util.CmmUtil;
 import kopo.poly.util.EncryptUtil;
 import kopo.poly.util.FileUtil;
@@ -39,6 +40,9 @@ public class ProfileController {
     
     private final ITestService testService; // 자가진단 서비스
 
+    private final INaverService service;
+    private final NaverService naverService;
+
     /* 프로필 조회 */
     @GetMapping(value = "")
     public String profile(ModelMap model, HttpSession session,
@@ -50,6 +54,7 @@ public class ProfileController {
 
         log.info("SS_USER_ID : " + userId);
 
+        // userId가 null이거나 빈 문자열일 경우 redirect.html을 이용하여 /index 페이지로 리다이렉트 or 메시지 알림
         if (userId == null || userId.isEmpty()) {
             log.warn("User ID is null or empty, redirecting to login page");
             model.addAttribute("msg", "로그인 후 이용 가능합니다.");
@@ -83,11 +88,13 @@ public class ProfileController {
 
         log.info("회원정보 조회 rDTO.toString() : " + rDTO.toString());
 
+        // 작성글 조회
         List<BoardDTO> userPosts = boardService.getPostsByUserId(userId);
         log.info("userPosts : " + userPosts);
 
         model.addAttribute("userPosts", userPosts);
 
+        // 마음체크 조회
         CheckDTO cDTO = new CheckDTO();
         cDTO.setUserId(userId);
         List<CheckDTO> userChecks = checkService.getCheckByUserId(cDTO);
@@ -95,6 +102,7 @@ public class ProfileController {
 
         model.addAttribute("userChecks", userChecks);
 
+        // 자가진단 조회
         TestDTO tDTO = new TestDTO();
         tDTO.setUserId(userId);
         List<TestDTO> userTests = testService.getTestByUserId(tDTO);
@@ -278,44 +286,109 @@ public class ProfileController {
         return rDTO;
     }
 
-    /* 회원탈퇴 ( cascade 설정으로 인한 코드 단순화 ) */
+    /**
+     * 회원 탈퇴 처리 메서드
+     */
     @ResponseBody
     @PostMapping(value = "deleteUserInfo")
     public MsgDTO profileDelete(HttpServletRequest request, HttpSession session) throws Exception {
-        log.info(this.getClass().getName() + ".controller 회원탈퇴 시작 !");
+        log.info(this.getClass().getName() + ".controller 회원탈퇴 시작!");
 
         String msg = ""; // 메시지 내용
-        MsgDTO rDTO = null; // 결과 메시지 구조
+        MsgDTO resultDTO = null; // 결과 메시지 구조
 
         try {
+            // 세션에서 유저 아이디 가져오기
             String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
-
             log.info("SS_USER_ID : " + userId);
 
+            // 세션에서 저장된 네이버 엑세스 토큰 가져오기
+            String accessToken = (String) session.getAttribute("NAVER_ACCESS_TOKEN");
+            log.info("세션에서 가져온 네이버 Access Token: " + accessToken);
+
+            if (accessToken != null && !accessToken.isEmpty()) {
+                // 네이버 연동 해제 로직 추가
+                String revokeResult = naverService.revokeNaverAccessToken(accessToken);
+                if ("success".equals(revokeResult)) {
+                    log.info("네이버 연동 해제 성공");
+                } else {
+                    log.info("네이버 연동 해제 실패");
+                }
+            } else {
+                log.info("유효한 네이버 엑세스 토큰이 세션에 없습니다.");
+            }
+
+            // 사용자 정보 DTO 생성
             UserInfoDTO pDTO = new UserInfoDTO();
             pDTO.setUserId(userId);
 
-            // 회원정보 삭제하기 메서드 호출 (CASCADE 설정이 되어 있을 경우)
+            // 회원정보 삭제 (Cascade 설정)
             profileService.deleteUserInfo(pDTO);
 
             msg = "탈퇴되었습니다.";
         } catch (Exception e) {
-            msg = "실패하였습니다. : " + e.getMessage();
-            log.info(e.toString());
+            msg = "탈퇴에 실패하였습니다: " + e.getMessage();
+            log.error(e.toString());
             e.printStackTrace();
         } finally {
-            rDTO = MsgDTO.builder().msg(msg).build();
+            // 메시지와 결과를 설정한 MsgDTO 생성
+            resultDTO = MsgDTO.builder().msg(msg).build();
 
-            // 세션에 있는 유저아이디 삭제하기!
+            // 세션에서 유저 아이디 및 네이버 엑세스 토큰 삭제
             session.removeAttribute("SS_USER_ID");
+            session.removeAttribute("NAVER_ACCESS_TOKEN");
 
             log.info("세션 삭제 후 session.getAttribute(\"SS_USER_ID\") : " + session.getAttribute("SS_USER_ID"));
+            log.info("세션 삭제 후 session.getAttribute(\"NAVER_ACCESS_TOKEN\") : " + session.getAttribute("NAVER_ACCESS_TOKEN"));
 
-            log.info(this.getClass().getName() + ".controller 회원탈퇴 끝 !");
+
+            log.info(this.getClass().getName() + ".controller 회원탈퇴 끝!");
         }
 
-        return rDTO;
+        return resultDTO;
     }
+
+
+/* 이전 코드들 */
+
+//    /* 회원탈퇴 ( cascade 설정으로 인한 코드 단순화 ) */
+//    @ResponseBody
+//    @PostMapping(value = "deleteUserInfo")
+//    public MsgDTO profileDelete(HttpServletRequest request, HttpSession session) throws Exception {
+//        log.info(this.getClass().getName() + ".controller 회원탈퇴 시작 !");
+//
+//        String msg = ""; // 메시지 내용
+//        MsgDTO rDTO = null; // 결과 메시지 구조
+//
+//        try {
+//            String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
+//
+//            log.info("SS_USER_ID : " + userId);
+//
+//            UserInfoDTO pDTO = new UserInfoDTO();
+//            pDTO.setUserId(userId);
+//
+//            // 회원정보 삭제하기 메서드 호출 (CASCADE 설정이 되어 있을 경우)
+//            profileService.deleteUserInfo(pDTO);
+//
+//            msg = "탈퇴되었습니다.";
+//        } catch (Exception e) {
+//            msg = "실패하였습니다. : " + e.getMessage();
+//            log.info(e.toString());
+//            e.printStackTrace();
+//        } finally {
+//            rDTO = MsgDTO.builder().msg(msg).build();
+//
+//            // 세션에 있는 유저아이디 삭제하기!
+//            session.removeAttribute("SS_USER_ID");
+//
+//            log.info("세션 삭제 후 session.getAttribute(\"SS_USER_ID\") : " + session.getAttribute("SS_USER_ID"));
+//
+//            log.info(this.getClass().getName() + ".controller 회원탈퇴 끝 !");
+//        }
+//
+//        return rDTO;
+//    }
 
 //    /* 회원 탈퇴 */
 //    @ResponseBody

@@ -65,6 +65,13 @@
 <!--        WHERE USER_ID = #{userId}-->
 <!--    </select>-->
 
+    <!-- 네이버 로그인 시 아이디만 받아서 DB 조회하기 ( 2024.09.21 ) -->
+    <select id="getUserInfoById" parameterType="UserInfoDTO" resultType="UserInfoDTO">
+        SELECT USER_ID
+        FROM USER_INFO
+        WHERE USER_ID = #{userId}
+    </select>
+
     <!-- 로그인을 위해 아이디와 비밀번호가 일치하는지 확인하기 ( 2023.09.21 ) -->
     <select id="getLogin" parameterType="UserInfoDTO" resultType="UserInfoDTO">
         SELECT USER_ID, USER_NAME, USER_EMAIL, USER_NICKNAME

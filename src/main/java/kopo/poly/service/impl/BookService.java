@@ -33,10 +33,10 @@ public class BookService implements IBookService {
     // OpenFeign 정의된 API 인터페이스 가져오기
     private final INaverAPIService naverAPIService;
 
-    @Value("${naver.client.id}")
+    @Value("${naver.client_id}")
     private String clientId;
 
-    @Value("${naver.client.secret}")
+    @Value("${naver.client_secret}")
     private String clientSecret;
 
     /**

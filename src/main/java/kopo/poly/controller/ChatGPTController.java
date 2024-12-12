@@ -65,6 +65,9 @@ public class ChatGPTController {
         return "check/mindCheck";
     }
 
+
+
+
     /* 마음체크 ChatGPT Api 호출 답변 받기
      * ( 2024.05.08 완 )
      */
@@ -72,38 +75,49 @@ public class ChatGPTController {
     @PostMapping("prompt")
     public String prompt(HttpServletRequest request, ModelMap model) throws Exception {
 
+        // 메소드 시작 로그
         log.info(this.getClass().getName() + ".prompt Start!");
 
+        // 클라이언트로부터 전달받은 'userQuestion' 파라미터를 가져옴
         String userQuestion = CmmUtil.nvl(request.getParameter("userQuestion"));
-//        String content = ("요즘 너무 우울해");
+        //        String content = ("요즘 너무 우울해");
 
+        // ChatGPT 요청 메시지 DTO를 생성
         ChatRequestMsgDTO pDTO = ChatRequestMsgDTO.builder().role("system").content(userQuestion).build();
 
-
+        // 요청 메시지 리스트 생성 및 메시지 추가
         List<ChatRequestMsgDTO> rList = new ArrayList<>();
         rList.add(pDTO);
 
+        // ChatGPT 모델과 메시지 리스트를 포함한 ChatCompletionDTO 객체 생성
         ChatCompletionDTO rDTO = ChatCompletionDTO.builder().model("gpt-4-turbo").messages(rList).build();
 
+        // ChatGPT 서비스 호출하여 응답을 받음
         Map<String, Object> json = chatGPTService.prompt(rDTO);
 
+        // 응답 결과를 로그에 출력
         log.info(json.toString());
 
+        // 응답 JSON 객체를 파싱하여 메시지 추출
         JSONObject jsonObject = new JSONObject(json);
         JSONObject message = jsonObject.getJSONArray("choices").getJSONObject(0).getJSONObject("message");
 
+        // 메시지 내용 추출
         String result = message.getString("content");
 
+        // 결과를 로그에 출력
         log.info("result : " + result);
 
-        // 모델에 userAnswer 추가
+        // 모델에 'result' 속성 추가
         model.addAttribute("result", result);
 
+        // 메소드 종료 로그
         log.info(this.getClass().getName() + ".prompt End!");
 
-
+        // 결과 반환
         return result;
     }
+
 
     /* 마음체크 결과 저장하기
      * ( 2024.05.09 완 )
@@ -130,10 +144,10 @@ public class ChatGPTController {
 
             // 데이터 저장하기 위해 DTO에 저장하기
             CheckDTO pDTO = CheckDTO.builder()
-                                                            .userId(userId)
-                                                            .userQuestion(userQuestion)
-                                                            .userAnswer(userAnswer)
-                                                            .build();
+                                    .userId(userId)
+                                    .userQuestion(userQuestion)
+                                    .userAnswer(userAnswer)
+                                    .build();
 
             // 게시글 등록하기 위한 비즈니스 로직 호출
             checkService.insertCheckInfo(pDTO);

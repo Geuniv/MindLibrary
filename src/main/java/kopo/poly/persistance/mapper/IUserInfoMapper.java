@@ -28,6 +28,9 @@ public interface IUserInfoMapper {
     */
     UserInfoDTO getUserId(UserInfoDTO pDTO) throws Exception;
 
+    // 네이버 로그인 시 아이디만 받아서 DB 조회하기
+    UserInfoDTO getUserInfoById(UserInfoDTO pDTO) throws Exception;
+
     // 비밀번호 재설정
     int updatePassword(UserInfoDTO pDTO) throws Exception;
 

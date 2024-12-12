@@ -155,34 +155,34 @@ public class HospitalMapper extends AbstractMongoDBComon implements IHospitalMap
         return rList;
     }
 
-    /**
-     * 공공데이터포털 API ( XML ) 호출 후 파싱해서 MongoDB 컬렉션에 병원 정보 저장 ( 2024.06.08 )
-     */
-    @Override
-    public int insertHospital(List<HospitalDTO> pList, String colNm) throws Exception {
-        log.info(this.getClass().getName() + ".mapper 병원 정보 API 저장 시작 !");
+        /**
+         * 공공데이터포털 API ( XML ) 호출 후 파싱해서 MongoDB 컬렉션에 병원 정보 저장 ( 2024.06.08 )
+         */
+        @Override
+        public int insertHospital(List<HospitalDTO> pList, String colNm) throws Exception {
+            log.info(this.getClass().getName() + ".mapper 병원 정보 API 저장 시작 !");
 
-        int res = 0;
+            int res = 0;
 
-        // 입력 리스트가 null일 경우 초기화
-        if (pList == null) {
-            pList = new LinkedList<>();
+            // 입력 리스트가 null일 경우 초기화
+            if (pList == null) {
+                pList = new LinkedList<>();
+            }
+
+            // 저장할 컬렉션 객체 생성
+            MongoCollection<Document> col = mongodb.getCollection(colNm);
+
+            // 리스트의 각 병원 정보 문서를 컬렉션에 삽입
+            for (HospitalDTO pDTO : pList) {
+                col.insertOne(new Document(new ObjectMapper().convertValue(pDTO, Map.class)));
+            }
+
+            res = 1;
+
+            log.info(this.getClass().getName() + ".mapper 병원 정보 API 저장 종료 !");
+
+            return res;
         }
-
-        // 저장할 컬렉션 객체 생성
-        MongoCollection<Document> col = mongodb.getCollection(colNm);
-
-        // 리스트의 각 병원 정보 문서를 컬렉션에 삽입
-        for (HospitalDTO pDTO : pList) {
-            col.insertOne(new Document(new ObjectMapper().convertValue(pDTO, Map.class)));
-        }
-
-        res = 1;
-
-        log.info(this.getClass().getName() + ".mapper 병원 정보 API 저장 종료 !");
-
-        return res;
-    }
 
     /**
      * 스케쥴링에 따른 컬렉션 삭제 ( 2024.06.09 )*/

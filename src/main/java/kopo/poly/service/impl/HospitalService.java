@@ -23,6 +23,7 @@ import java.util.*;
 public class HospitalService implements IHospitalService {
 
     private final IHospitalMapper hospitalMapper;
+
     private final MongoTemplate mongoTemplate;
 
     @Value("${hospital.api.key}")
@@ -33,26 +34,40 @@ public class HospitalService implements IHospitalService {
      */
     @Override
     public List<HospitalDTO> getHospitalInfo(int page, int itemsPerPage, HospitalDTO pDTO) throws Exception {
+
         log.info(this.getClass().getName() + ".service 병원 정보 가져오기 시작 !");
+
         String colNm = "MIND_HOSPITAL";
+
         List<HospitalDTO> rList = hospitalMapper.getHospitalInfo(colNm, page, itemsPerPage, pDTO);
+
         log.info("rList : " + rList);
+
         log.info(this.getClass().getName() + ".service 병원 정보 가져오기 종료 !");
+
         return rList;
     }
 
     /**
      * 공공데이터포털 API ( XML ) 호출 후 파싱해서 MongoDB 컬렉션에 병원 정보 저장 ( 2024.06.08 )
+     * 스케줄링 ( 매주 일요일 23시 59분 마다 실행 )
      */
-    @Scheduled(cron = "* 59 11 * * 1" )
+    // 왼쪽부터 순서대로 초 분 시 일 월 요일
+    @Scheduled(cron = "* 59 23 * * 0" )
     @Override
     public int collectHospital() throws Exception {
-        log.info(this.getClass().getName() + ".service 병원 정보 저장 시작 !");
+
+        log.info(this.getClass().getName() + ".service 병원 정보 저장 ( 스케줄링 ) 시작 !");
+
         int res = 0;
         String colNm = "MIND_HOSPITAL";
 
+        log.info(this.getClass().getName() + ".service 병원 정보 삭제 ( 스케줄링 ) 시작 !");
+
         // 기존 컬렉션 삭제
         hospitalMapper.deleteHospital(colNm);
+
+        log.info(this.getClass().getName() + ".service 병원 정보 삭제 ( 스케줄링 ) 끝 !");
 
         String url = "http://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList?";
         String numOfRows = "10000";
@@ -104,7 +119,7 @@ public class HospitalService implements IHospitalService {
                         String clCdNm = String.valueOf(rowMap.get("clCdNm")); // 종별코드명
                         String xPos = String.valueOf(rowMap.get("XPos")); // x좌표(소수점 15)
                         String yPos = String.valueOf(rowMap.get("YPos")); // y좌표(소수점 15)
-                        String radius = rowMap.containsKey("radius") ? String.valueOf(rowMap.get("radius")) : null; // 단위 : 미터(m)
+//                        String radius = rowMap.containsKey("radius") ? String.valueOf(rowMap.get("radius")) : null; // 단위 : 미터(m)
 
                         // HospitalDTO 객체 생성
                         HospitalDTO pDTO = HospitalDTO.builder()
@@ -121,7 +136,7 @@ public class HospitalService implements IHospitalService {
                                 .clCdNm(clCdNm)
                                 .xPos(xPos)
                                 .yPos(yPos)
-                                .radius(radius)
+//                                .radius(radius)
                                 .build();
 
                         // 리스트에 추가
@@ -152,7 +167,8 @@ public class HospitalService implements IHospitalService {
         // location 필드에 2dsphere 인덱스 생성
         createLocationIndex(colNm);
 
-        log.info(this.getClass().getName() + ".service 병원 정보 저장 종료 !");
+        log.info(this.getClass().getName() + ".service 병원 정보 저장 ( 스케줄링 ) 종료 !");
+
         return res;
     }
 
@@ -163,6 +179,9 @@ public class HospitalService implements IHospitalService {
      * @return 저장된 문서 수
      */
     private int bulkInsertHospitalData(List<HospitalDTO> pList, String colNm) {
+
+        log.info(this.getClass().getName() + ".service 병원 정보 Bulk Insert 시작 !");
+
         List<Document> documentList = new ArrayList<>();
         for (HospitalDTO hospital : pList) {
             Document doc = new Document();
@@ -179,7 +198,7 @@ public class HospitalService implements IHospitalService {
             doc.append("clCdNm", hospital.clCdNm());
             doc.append("xPos", hospital.xPos());
             doc.append("yPos", hospital.yPos());
-            doc.append("radius", hospital.radius());
+//            doc.append("radius", hospital.radius());
 
             // 위치 필드 추가 (xPos와 yPos가 null이 아닌 경우에만)
             if (hospital.xPos() != null && !hospital.xPos().equals("null") && hospital.yPos() != null && !hospital.yPos().equals("null")) {
@@ -189,7 +208,11 @@ public class HospitalService implements IHospitalService {
 
             documentList.add(doc);
         }
+
         mongoTemplate.getDb().getCollection(colNm).insertMany(documentList);
+
+        log.info(this.getClass().getName() + ".service 병원 정보 Bulk Insert 끝 !");
+
         return documentList.size();
     }
 
@@ -198,6 +221,9 @@ public class HospitalService implements IHospitalService {
      * @param colNm 컬렉션 이름
      */
     private void updateLocationField(String colNm) {
+
+        log.info(this.getClass().getName() + ".service location 필드 생성 시작 !");
+
         // 저장된 데이터에 location 필드 업데이트하기
         List<Bson> updates = new ArrayList<>();
         updates.add(new Document("$set", new Document("location",
@@ -209,6 +235,8 @@ public class HospitalService implements IHospitalService {
         )));
 
         mongoTemplate.getDb().getCollection(colNm).updateMany(new Document(), updates);
+
+        log.info(this.getClass().getName() + ".service location 필드 생성 끝 !");
     }
 
     /**
@@ -216,9 +244,14 @@ public class HospitalService implements IHospitalService {
      * @param colNm 컬렉션 이름
      */
     private void createLocationIndex(String colNm) {
+
+        log.info(this.getClass().getName() + ".service location 필드 2dsphere 인덱스 생성 시작 !");
+
         MongoCollection<Document> collection = mongoTemplate.getDb().getCollection(colNm);
         Bson index = new Document("location", "2dsphere");
         collection.createIndex(index);
+
+        log.info(this.getClass().getName() + ".service location 필드 2dsphere 인덱스 생성 끝 !");
     }
 
     /**
@@ -229,9 +262,13 @@ public class HospitalService implements IHospitalService {
     @Override
     public int dropHospital() throws Exception {
         log.info(this.getClass().getName() + ".service 병원정보 삭제 시작 !");
+
         String colNm = "MIND_HOSPITAL";
+
         int res = hospitalMapper.deleteHospital(colNm);
+
         log.info(this.getClass().getName() + ".service 병원정보 삭제 종료 !");
+
         return res;
     }
 }

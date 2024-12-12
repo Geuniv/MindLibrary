@@ -78,7 +78,7 @@
             let selectedBook = $("#bookResults option:selected");
             if (selectedBook.length > 0) {
                 $("#challengeWriteBooktitle").val(selectedBook.val());
-                $("#challengeBookImage").attr("src", selectedBook.data("image")); // 이미지 태그
+                $("#challengeBookImage").attr("src", selectedBook.data("image") || "/path/to/default-image.png"); // 이미지 태그
                 $("#challengeWriteBookimage").val(selectedBook.data("image")); // hidden input
                 $("#challengeWriteBookLink").val(selectedBook.data("link"));
                 $("#challengeWriteBookAuthor").val(selectedBook.data("author"));
@@ -160,7 +160,7 @@
 
                                         <!-- 책 제목 검색 및 선택 -->
                                         <input type="text" id="challengeWriteBooktitle" name="challengeWriteBooktitle" placeholder="책 제목 검색"/>
-                                        <img id="challengeBookImage" name="challengeBookImage" alt="책 이미지" style="display: block; margin: 20px auto; max-width: 100%; height: auto;"/>
+                                        <img id="challengeBookImage" name="challengeBookImage" src="/img/transparent_image_small.png" alt="책 이미지" style="display: block; margin: 20px auto; max-width: 100%; width: auto; max-height: 100%; height: auto;"/>
                                         <select id="bookResults" size="5" class="custom-select"></select>
 
                                         <!-- 숨겨진 필드: 선택한 책 정보 -->
